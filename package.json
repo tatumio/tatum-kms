@@ -1,0 +1,50 @@
+{
+  "name": "@tatumio/tatum-kms",
+  "version": "1.0.0",
+  "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
+  "main": "dist/index.js",
+  "engines": {
+    "node": ">14"
+  },
+  "scripts": {
+    "prepublish": "tsc"
+  },
+  "files": [
+    "dist/"
+  ],
+  "bin": {
+    "tatum": "dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tatumio/tatum-kms.git"
+  },
+  "keywords": [
+    "Tatum",
+    "KMS",
+    "Key",
+    "Management",
+    "System",
+    "Blockchain",
+    "Security"
+  ],
+  "author": "Tatum, hello@tatum.io",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tatumio/tatum-kms/issues"
+  },
+  "homepage": "https://github.com/tatumio/tatum-kms#readme",
+  "dependencies": {
+    "@tatumio/tatum": "^1.0.5",
+    "crypto-js": "^4.0.0",
+    "forever-monitor": "^3.0.1",
+    "meow": "^7.0.1",
+    "readline-sync": "^1.4.10",
+    "reflect-metadata": "^0.1.13",
+    "uuid": "^8.2.0"
+  },
+  "devDependencies": {
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.7"
+  }
+}
