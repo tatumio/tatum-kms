@@ -14,7 +14,7 @@ const ensurePathExists = (path: string) => {
 
 export const storeWallet = async (chain: Currency, testnet: boolean, pwd: string, path?: string) => {
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
-    const wallet = await generateWallet(chain, testnet);
+    const wallet: any = await generateWallet(chain, testnet);
     const key = uuid();
     const entry = {[key]: wallet};
     if (!existsSync(pathToWallet)) {
@@ -28,7 +28,14 @@ export const storeWallet = async (chain: Currency, testnet: boolean, pwd: string
         }
         writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(walletData), pwd).toString());
     }
-    console.log(JSON.stringify({signatureId: key}, null, 2));
+    const value: any = {signatureId: key};
+    if (wallet.address) {
+        value.address = wallet.address;
+    }
+    if (wallet.xpub) {
+        value.xpub = wallet.xpub;
+    }
+    console.log(JSON.stringify(value, null, 2));
 };
 
 export const getWallet = async (id: string, pwd: string, path?: string) => {
@@ -47,6 +54,7 @@ export const getWallet = async (id: string, pwd: string, path?: string) => {
         return;
     }
     console.log(JSON.stringify(wallet[id], null, 2));
+    return wallet[id];
 };
 
 export const removeWallet = async (id: string, pwd: string, path?: string) => {
