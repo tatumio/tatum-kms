@@ -3,7 +3,7 @@ Key Management System for Tatum-powered applications.
 
 ## Installation
 Tatum KMS is shipped via npm. It installs a set of CLI tools and commands to generate and store wallets / private keys in a secure way.  
-
+NodeJS >14 is required.
 ```
 npm i -g @tatumio/tatum-kms
 ```
