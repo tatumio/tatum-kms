@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 import {generateWallet} from '@tatumio/tatum';
-import {getWallet, removeWallet, storeWallet} from './management';
+import {getAddress, getPrivateKey, getWallet, removeWallet, storePrivateKey, storeWallet} from './management';
 import {processSignatures} from './signatures';
 
 const meow = require('meow');
@@ -14,7 +14,10 @@ const {input: command, flags} = meow(`
         daemon                            Run as a daemon, which periodically checks for a new transactions to sign.
         generatewallet <chain>            Generates wallet for a specific blockchain and echos it to the output.
         generatemanagedwallet <chain>     Generates wallet for a specific blockchain and adds it to the managed wallets.
-        getmanagedwallet <signatureId>    Obtain managed wallet from wallet store.
+        storemanagedprivatekey <chain>    Store private key of a specific blockchain and adds it to the managed wallets.
+        getprivatekey <signatureId> <i>   Obtain managed wallet from wallet store and generate private key for given derivation index.
+        getaddress <signatureId> <i>      Obtain managed wallet from wallet store and generate address for given derivation index.
+        getmanagedwallet <signatureId>    Obtain managed wallet / private key from wallet store.
         removewallet <signatureId>        Remove managed wallet from wallet store.
 
 	Options
@@ -53,7 +56,7 @@ const startup = async () => {
                 hideEchoBack: true,
             });
             process.env.TATUM_API_KEY = flags.apiKey;
-            await processSignatures(pwd, flags.testnet, flags.period, flags.path, flags.chain);
+            await processSignatures(pwd, flags.testnet, flags.period, flags.path, flags.chain.split(','));
             break;
         case 'generatewallet':
             console.log(JSON.stringify(await generateWallet(command[1], flags.testnet), null, 2));
@@ -64,8 +67,28 @@ const startup = async () => {
                     hideEchoBack: true,
                 }), flags.path);
             break;
+        case 'storemanagedprivatekey':
+            await storePrivateKey(command[1], flags.testnet,
+                question('Enter password to access wallet store:', {
+                    hideEchoBack: true,
+                }), question('Enter private key to store:', {
+                    hideEchoBack: true,
+                }), flags.path);
+            break;
         case 'getmanagedwallet':
             await getWallet(command[1],
+                question('Enter password to access wallet store:', {
+                    hideEchoBack: true,
+                }), flags.path);
+            break;
+        case 'getprivatekey':
+            await getPrivateKey(command[1], command[2],
+                question('Enter password to access wallet store:', {
+                    hideEchoBack: true,
+                }), flags.path);
+            break;
+        case 'getaddress':
+            await getAddress(command[1], command[2],
                 question('Enter password to access wallet store:', {
                     hideEchoBack: true,
                 }), flags.path);

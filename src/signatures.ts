@@ -3,6 +3,7 @@ import {
     btcBroadcast,
     Currency,
     ethBroadcast,
+    generatePrivateKeyFromMnemonic,
     getPendingTransactionsKMSByChain,
     ltcBroadcast,
     offchainBroadcast,
@@ -29,13 +30,13 @@ import {getWallet} from './management';
 const processTransaction = async (transaction: TransactionKMS, testnet: boolean, pwd: string, path?: string) => {
     const wallets = [];
     for (const hash of transaction.hashes) {
-        wallets.push(await getWallet(hash, pwd, path));
+        wallets.push(await getWallet(hash, pwd, path, false));
     }
     let txData = '';
     console.log(`${new Date().toISOString()} - Processing pending transaction - ${JSON.stringify(transaction, null, 2)}.`);
     switch (transaction.chain) {
         case Currency.BCH:
-            if (transaction.withdrawalResponses) {
+            if (transaction.withdrawalId) {
                 txData = await signBitcoinCashOffchainKMSTransaction(transaction, wallets[0], testnet);
             } else {
                 await bcashBroadcast(await signBitcoinCashKMSTransaction(transaction, wallets, testnet), transaction.id);
@@ -46,7 +47,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             await vetBroadcast(await signVetKMSTransaction(transaction, wallets[0], testnet), transaction.id);
             return;
         case Currency.XRP:
-            if (transaction.withdrawalResponses) {
+            if (transaction.withdrawalId) {
                 txData = await signXrpOffchainKMSTransaction(transaction, wallets[0]);
             } else {
                 await xrpBroadcast(await signXrpKMSTransaction(transaction, wallets[0]), transaction.id);
@@ -54,7 +55,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             }
             break;
         case Currency.XLM:
-            if (transaction.withdrawalResponses) {
+            if (transaction.withdrawalId) {
                 txData = await signXlmOffchainKMSTransaction(transaction, wallets[0], testnet);
             } else {
                 await xlmBroadcast(await signXlmKMSTransaction(transaction, wallets[0], testnet), transaction.id);
@@ -62,15 +63,18 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             }
             break;
         case Currency.ETH:
-            if (transaction.withdrawalResponses) {
-                txData = await signEthOffchainKMSTransaction(transaction, wallets[0], testnet);
+            const privateKey = (wallets[0].mnemonic && transaction.index)
+                ? await generatePrivateKeyFromMnemonic(Currency.ETH, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                : wallets[0];
+            if (transaction.withdrawalId) {
+                txData = await signEthOffchainKMSTransaction(transaction, privateKey, testnet);
             } else {
-                await ethBroadcast(await signEthKMSTransaction(transaction, wallets[0], testnet), transaction.id);
+                await ethBroadcast(await signEthKMSTransaction(transaction, privateKey, testnet), transaction.id);
                 return;
             }
             break;
         case Currency.BTC:
-            if (transaction.withdrawalResponses) {
+            if (transaction.withdrawalId) {
                 txData = await signBitcoinOffchainKMSTransaction(transaction, wallets[0], testnet);
             } else {
                 await btcBroadcast(await signBitcoinKMSTransaction(transaction, wallets, testnet), transaction.id);
@@ -78,7 +82,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             }
             break;
         case Currency.LTC:
-            if (transaction.withdrawalResponses) {
+            if (transaction.withdrawalId) {
                 txData = await signLitecoinOffchainKMSTransaction(transaction, wallets[0], testnet);
             } else {
                 await ltcBroadcast(await signLitecoinKMSTransaction(transaction, wallets, testnet), transaction.id);
@@ -86,7 +90,12 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             }
             break;
     }
-    await offchainBroadcast({currency: transaction.chain, signatureId: transaction.id, txData});
+    await offchainBroadcast({
+        currency: transaction.chain,
+        signatureId: transaction.id,
+        withdrawalId: transaction.withdrawalId,
+        txData
+    });
 };
 
 export const processSignatures = async (pwd: string, testnet: boolean, period: number = 5, path?: string, chains?: Currency[]) => {
@@ -108,7 +117,16 @@ export const processSignatures = async (pwd: string, testnet: boolean, period: n
             console.error(e);
         }
         for (const transaction of transactions) {
-            await processTransaction(transaction, testnet, pwd, path);
+            try {
+                await processTransaction(transaction, testnet, pwd, path);
+            } catch (e) {
+                if (e.response) {
+                    console.error(`Request:\n${JSON.stringify(e.config.data, null, 2)}`);
+                    console.error(`Response:\n${JSON.stringify(e.response.data, null, 2)}`);
+                } else {
+                    console.error(e);
+                }
+            }
         }
         running = false;
     }, period * 1000);

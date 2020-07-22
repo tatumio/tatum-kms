@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/tatumio/tatum-kms#readme",
   "dependencies": {
-    "@tatumio/tatum": "^1.0.14",
+    "@tatumio/tatum": "^1.0.22",
     "crypto-js": "^4.0.0",
     "meow": "^7.0.1",
     "readline-sync": "^1.4.10",

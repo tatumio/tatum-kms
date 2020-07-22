@@ -58,7 +58,9 @@ This method does not add wallet to the managed wallets by Tatum KMS.
     {
       "mnemonic": "urge pulp usage sister evidence arrest palm math please chief egg abuse",
       "xpriv": "xprvA1srLWNaGEkhdSJg6cLTMAziUpQcefpu2ZnKH2PXGiXEPKTdVPHjLFp4aZSSqSsaLMNrWXoj6TsyyUqh18T1hbiQkC42aWjXB9HnpmmqrYr",
-      "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
+      "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid",
+      "testnet": false,
+      "chain": "BTC"
     }
   ``` 
   
@@ -68,24 +70,54 @@ This method does not add wallet to the managed wallets by Tatum KMS.
     ```
     bash:$ tatum generatemanagedwallet BTC
     {
-        "signatureHash": "asklfnqo3i478fnkjwefnioasf9qp34fnq8q398fnqjfbao4q3io4bo83g",
+        "signatureHash": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
         "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
+    }
+  ```    
+  
+* `storemanagedprivatekey chain` - store private key of a specific blockchain and adds it to the managed wallets.
+ This call echos signatureHash of the wallet to be used in API requests to the Tatum API.
+ 
+    ```
+    bash:$ tatum storemanagedprivatekey BTC
+    {
+        "signatureHash": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5"
     }
   ```   
   
-* `getmanagedwallet signatureHash` - obtain managed wallet from wallet store.
+* `getmanagedwallet signatureHash` - obtain managed wallet / private key from wallet store.
  
     ```
-    bash:$ tatum getmanagedwallet asklfnqo3i478fnkjwefnioasf9qp34fnq8q398fnqjfbao4q3io4bo83g
+    bash:$ tatum getmanagedwallet e3015fc0-2112-4c8a-b8bf-353b86f63ba5
     {
       "mnemonic": "urge pulp usage sister evidence arrest palm math please chief egg abuse",
       "xpriv": "xprvA1srLWNaGEkhdSJg6cLTMAziUpQcefpu2ZnKH2PXGiXEPKTdVPHjLFp4aZSSqSsaLMNrWXoj6TsyyUqh18T1hbiQkC42aWjXB9HnpmmqrYr",
-      "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
+      "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid",
+      "testnet": false,
+      "chain": "BTC"
     }
   ```
 
 * `removewallet signatureHash` - remove managed wallet from wallet store.
  
     ```
-    bash:$ tatum getmanagedwallet asklfnqo3i478fnkjwefnioasf9qp34fnq8q398fnqjfbao4q3io4bo83g    
-  ```      
+    bash:$ tatum removewallet e3015fc0-2112-4c8a-b8bf-353b86f63ba5    
+  ```     
+  
+* `getprivatekey signatureHash i` - obtain managed wallet from wallet store and generate private key for given derivation index.
+ 
+    ```
+    bash:$ tatum getprivatekey e3015fc0-2112-4c8a-b8bf-353b86f63ba5 3
+    {
+      "privateKey": "L4TUX4PP4X5R9JqotwmHbEYXz3WLrw4FR7FfVmZJoSdMovCV2mEe"
+    }   
+  ```    
+
+* `getddress signatureHash i` - obtain managed wallet from wallet store and generate address for given derivation index.
+ 
+    ```
+    bash:$ tatum getddress e3015fc0-2112-4c8a-b8bf-353b86f63ba5 3
+    {
+      "address": "13KvuMxDNT7jDffgSp7QtuLJq6fjpq1Ah7"
+    }   
+  ```   
