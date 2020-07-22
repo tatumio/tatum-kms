@@ -1,10 +1,10 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "engines": {
-    "node": ">14"
+    "node": ">=14"
   },
   "scripts": {
     "prepublish": "tsc",
