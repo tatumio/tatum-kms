@@ -22,7 +22,7 @@ const {input: command, flags} = meow(`
 
 	Options
         --api-key                         Tatum API Key to communicate with Tatum API. Daemon mode only.
-        --testnet                         True/False to indicate testnet or mainnet version of blockchain.
+        --testnet                         Indicates testnet version of blockchain. Mainnet by default.
         --path                            Custom path to wallet store file.
         --period                          Period in seconds to check for new transactions to sign, defaults to 5 seconds. Daemon mode only.
         --chain                           Blockchains to check, separated by comma. Daemon mode only.
@@ -50,6 +50,9 @@ const {input: command, flags} = meow(`
 });
 
 const startup = async () => {
+    if (command.length === 0) {
+        return;
+    }
     switch (command[0]) {
         case 'daemon':
             const pwd = question('Enter password to access wallet store:', {
