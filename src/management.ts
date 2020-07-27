@@ -12,9 +12,9 @@ const ensurePathExists = (path: string) => {
     }
 };
 
-export const storeWallet = async (chain: Currency, testnet: boolean, pwd: string, path?: string) => {
+export const storeWallet = async (chain: Currency, testnet: boolean, pwd: string, path?: string, mnemonic?: string) => {
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
-    const wallet: any = await generateWallet(chain, testnet);
+    const wallet: any = await generateWallet(chain, testnet, mnemonic);
     const key = uuid();
     const entry = {[key]: {...wallet, chain, testnet}};
     if (!existsSync(pathToWallet)) {

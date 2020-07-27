@@ -12,15 +12,16 @@ const {input: command, flags} = meow(`
 
     Commands
         daemon                            Run as a daemon, which periodically checks for a new transactions to sign.
-        generatewallet <chain>            Generates wallet for a specific blockchain and echos it to the output.
-        generatemanagedwallet <chain>     Generates wallet for a specific blockchain and adds it to the managed wallets.
-        storemanagedprivatekey <chain>    Store private key of a specific blockchain and adds it to the managed wallets.
+        generatewallet <chain>            Generate wallet for a specific blockchain and echo it to the output.
+        generatemanagedwallet <chain>     Generate wallet for a specific blockchain and add it to the managed wallets.
+        storemanagedwallet <chain>        Store mnemonic-based wallet for a specific blockchain and add it to the managed wallets.
+        storemanagedprivatekey <chain>    Store private key of a specific blockchain and add it to the managed wallets.
         getprivatekey <signatureId> <i>   Obtain managed wallet from wallet store and generate private key for given derivation index.
         getaddress <signatureId> <i>      Obtain managed wallet from wallet store and generate address for given derivation index.
         getmanagedwallet <signatureId>    Obtain managed wallet / private key from wallet store.
         removewallet <signatureId>        Remove managed wallet from wallet store.
 
-	Options
+    Options
         --api-key                         Tatum API Key to communicate with Tatum API. Daemon mode only.
         --testnet                         Indicates testnet version of blockchain. Mainnet by default.
         --path                            Custom path to wallet store file.
@@ -69,6 +70,14 @@ const startup = async () => {
                 question('Enter password to access wallet store:', {
                     hideEchoBack: true,
                 }), flags.path);
+            break;
+        case 'storemanagedwallet':
+            await storeWallet(command[1], flags.testnet,
+                question('Enter password to access wallet store:', {
+                    hideEchoBack: true,
+                }), flags.path, question('Enter mnemonic to store:', {
+                    hideEchoBack: true,
+                }));
             break;
         case 'storemanagedprivatekey':
             await storePrivateKey(command[1], flags.testnet,

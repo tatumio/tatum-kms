@@ -75,6 +75,17 @@ This method does not add wallet to the managed wallets by Tatum KMS.
         "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
     }
   ```    
+
+* `storemanagedwallet chain` - stores mnemonic-based wallet for a specific blockchain and adds it to the managed wallets.
+ This call echos signatureHash of the wallet to be used in API requests to the Tatum API and Extended Public Key of the wallet to pair with Tatum Ledger accounts.
+ 
+    ```
+    bash:$ tatum storemanagedwallet BTC
+    {
+        "signatureHash": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
+        "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
+    }
+  ```   
   
 * `storemanagedprivatekey chain` - store private key of a specific blockchain account and adds it to the managed wallets.
  This call echos signatureHash of the wallet to be used in API requests to the Tatum API.
