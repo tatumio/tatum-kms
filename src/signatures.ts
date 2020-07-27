@@ -65,7 +65,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
         case Currency.ETH:
             const privateKey = (wallets[0].mnemonic && transaction.index)
                 ? await generatePrivateKeyFromMnemonic(Currency.ETH, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
-                : wallets[0];
+                : wallets[0].privateKey;
             if (transaction.withdrawalId) {
                 txData = await signEthOffchainKMSTransaction(transaction, privateKey, testnet);
             } else {
