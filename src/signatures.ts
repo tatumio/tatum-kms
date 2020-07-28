@@ -44,21 +44,24 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             }
             break;
         case Currency.VET:
-            await vetBroadcast(await signVetKMSTransaction(transaction, wallets[0], testnet), transaction.id);
+            const pk = (wallets[0].mnemonic && transaction.index)
+                ? await generatePrivateKeyFromMnemonic(Currency.VET, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                : wallets[0].privateKey;
+            await vetBroadcast(await signVetKMSTransaction(transaction, pk, testnet), transaction.id);
             return;
         case Currency.XRP:
             if (transaction.withdrawalId) {
-                txData = await signXrpOffchainKMSTransaction(transaction, wallets[0]);
+                txData = await signXrpOffchainKMSTransaction(transaction, wallets[0].secret);
             } else {
-                await xrpBroadcast(await signXrpKMSTransaction(transaction, wallets[0]), transaction.id);
+                await xrpBroadcast(await signXrpKMSTransaction(transaction, wallets[0].secret), transaction.id);
                 return;
             }
             break;
         case Currency.XLM:
             if (transaction.withdrawalId) {
-                txData = await signXlmOffchainKMSTransaction(transaction, wallets[0], testnet);
+                txData = await signXlmOffchainKMSTransaction(transaction, wallets[0].secret, testnet);
             } else {
-                await xlmBroadcast(await signXlmKMSTransaction(transaction, wallets[0], testnet), transaction.id);
+                await xlmBroadcast(await signXlmKMSTransaction(transaction, wallets[0].secret, testnet), transaction.id);
                 return;
             }
             break;
