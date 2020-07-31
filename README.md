@@ -66,38 +66,38 @@ This method does not add wallet to the managed wallets by Tatum KMS.
   ``` 
   
 * `generatemanagedwallet chain` - generates wallet for a specific blockchain and adds it to the managed wallets.
- This call echos signatureHash of the wallet to be used in API requests to the Tatum API and Extended Public Key of the wallet to pair with Tatum Ledger accounts.
+ This call echos signatureId of the wallet to be used in API requests to the Tatum API and Extended Public Key of the wallet to pair with Tatum Ledger accounts.
  
     ```
     bash:$ tatum generatemanagedwallet BTC
     {
-        "signatureHash": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
+        "signatureId": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
         "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
     }
   ```    
 
 * `storemanagedwallet chain` - stores mnemonic-based wallet for a specific blockchain and adds it to the managed wallets.
- This call echos signatureHash of the wallet to be used in API requests to the Tatum API and Extended Public Key of the wallet to pair with Tatum Ledger accounts.
+ This call echos signatureId of the wallet to be used in API requests to the Tatum API and Extended Public Key of the wallet to pair with Tatum Ledger accounts.
  
     ```
     bash:$ tatum storemanagedwallet BTC
     {
-        "signatureHash": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
+        "signatureId": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
         "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
     }
   ```   
   
 * `storemanagedprivatekey chain` - store private key of a specific blockchain account and adds it to the managed wallets.
- This call echos signatureHash of the wallet to be used in API requests to the Tatum API.
+ This call echos signatureId of the wallet to be used in API requests to the Tatum API.
  
     ```
     bash:$ tatum storemanagedprivatekey BTC
     {
-        "signatureHash": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5"
+        "signatureId": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5"
     }
   ```   
   
-* `getmanagedwallet signatureHash` - obtain managed wallet / private key from wallet store.
+* `getmanagedwallet signatureId` - obtain managed wallet / private key from wallet store.
  
     ```
     bash:$ tatum getmanagedwallet e3015fc0-2112-4c8a-b8bf-353b86f63ba5
@@ -110,13 +110,13 @@ This method does not add wallet to the managed wallets by Tatum KMS.
     }
   ```
 
-* `removewallet signatureHash` - remove managed wallet from wallet store.
+* `removewallet signatureId` - remove managed wallet from wallet store.
  
     ```
     bash:$ tatum removewallet e3015fc0-2112-4c8a-b8bf-353b86f63ba5    
   ```     
   
-* `getprivatekey signatureHash i` - obtain managed wallet from wallet store and generate private key for given derivation index.
+* `getprivatekey signatureId i` - obtain managed wallet from wallet store and generate private key for given derivation index.
  
     ```
     bash:$ tatum getprivatekey e3015fc0-2112-4c8a-b8bf-353b86f63ba5 3
@@ -125,7 +125,7 @@ This method does not add wallet to the managed wallets by Tatum KMS.
     }   
   ```    
 
-* `getaddress signatureHash i` - obtain managed wallet from wallet store and generate address for given derivation index.
+* `getaddress signatureId i` - obtain managed wallet from wallet store and generate address for given derivation index.
  
     ```
     bash:$ tatum getaddress e3015fc0-2112-4c8a-b8bf-353b86f63ba5 3
@@ -135,28 +135,28 @@ This method does not add wallet to the managed wallets by Tatum KMS.
   ```   
   
 #### Wallet modes
-Tatum API accepts 3 representations of signatureHashes in its requests:
+Tatum API accepts 3 representations of signatureIdes in its requests:
 
-* signatureHash represents **mnemonic** type of the wallet. In API calls like /v3/offchain/bitcoin/transfer, signatureHash present in the request should represent mnemonic type of wallet. 
+* signatureId represents **mnemonic** type of the wallet. In API calls like /v3/offchain/bitcoin/transfer, signatureId present in the request should represent mnemonic type of wallet. 
    ```
     bash:$ tatum generatemanagedwallet BTC
     {
-        "signatureHash": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
+        "signatureId": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
         "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
     }
   ```    
-* signatureHash represents **privateKey** type of the wallet. In API calls like /v3/bitcoin/transaction, signatureHash present in the request should represent private key type of wallet.
+* signatureId represents **privateKey** type of the wallet. In API calls like /v3/bitcoin/transaction, signatureId present in the request should represent private key type of wallet.
     ```
     bash:$ tatum storemanagedprivatekey BTC
     {
-        "signatureHash": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5"
+        "signatureId": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5"
     }
   ```  
-* signatureHash represents **mnemonic** and **index** type of the wallet. In API calls like /v3/offchain/ethereum/transfer, alongside signatureHash there should be index of the concrete private key from the mnemonic, which should be used.
+* signatureId represents **mnemonic** and **index** type of the wallet. In API calls like /v3/offchain/ethereum/transfer, alongside signatureId there should be index of the concrete private key from the mnemonic, which should be used.
    ```
     bash:$ tatum generatemanagedwallet BTC
     {
-        "signatureHash": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
+        "signatureId": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
         "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
     }
   ```    
