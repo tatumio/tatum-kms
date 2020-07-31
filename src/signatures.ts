@@ -37,9 +37,9 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
     switch (transaction.chain) {
         case Currency.BCH:
             if (transaction.withdrawalId) {
-                txData = await signBitcoinCashOffchainKMSTransaction(transaction, wallets[0], testnet);
+                txData = await signBitcoinCashOffchainKMSTransaction(transaction, wallets[0].mnemonic, testnet);
             } else {
-                await bcashBroadcast(await signBitcoinCashKMSTransaction(transaction, wallets, testnet), transaction.id);
+                await bcashBroadcast(await signBitcoinCashKMSTransaction(transaction, wallets.map(w => w.privateKey), testnet), transaction.id);
                 return;
             }
             break;
@@ -78,17 +78,17 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             break;
         case Currency.BTC:
             if (transaction.withdrawalId) {
-                txData = await signBitcoinOffchainKMSTransaction(transaction, wallets[0], testnet);
+                txData = await signBitcoinOffchainKMSTransaction(transaction, wallets[0].mnemonic, testnet);
             } else {
-                await btcBroadcast(await signBitcoinKMSTransaction(transaction, wallets, testnet), transaction.id);
+                await btcBroadcast(await signBitcoinKMSTransaction(transaction, wallets.map(w => w.privateKey), testnet), transaction.id);
                 return;
             }
             break;
         case Currency.LTC:
             if (transaction.withdrawalId) {
-                txData = await signLitecoinOffchainKMSTransaction(transaction, wallets[0], testnet);
+                txData = await signLitecoinOffchainKMSTransaction(transaction, wallets[0].mnemonic, testnet);
             } else {
-                await ltcBroadcast(await signLitecoinKMSTransaction(transaction, wallets, testnet), transaction.id);
+                await ltcBroadcast(await signLitecoinKMSTransaction(transaction, wallets.map(w => w.privateKey), testnet), transaction.id);
                 return;
             }
             break;
