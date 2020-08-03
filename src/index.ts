@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import 'reflect-metadata';
 import {generateWallet} from '@tatumio/tatum';
 import {getAddress, getPrivateKey, getWallet, removeWallet, storePrivateKey, storeWallet} from './management';
 import {processSignatures} from './signatures';
@@ -60,7 +61,7 @@ const startup = async () => {
                 hideEchoBack: true,
             });
             process.env.TATUM_API_KEY = flags.apiKey;
-            await processSignatures(pwd, flags.testnet, flags.period, flags.path, flags.chain.split(','));
+            await processSignatures(pwd, flags.testnet, flags.period, flags.path, flags.chain?.split(','));
             break;
         case 'generatewallet':
             console.log(JSON.stringify(await generateWallet(command[1], flags.testnet), null, 2));
