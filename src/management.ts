@@ -12,6 +12,20 @@ const ensurePathExists = (path: string) => {
     }
 };
 
+export const exportWallets = (pwd: string, path?: string) => {
+    const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
+    if (!existsSync(pathToWallet)) {
+        console.error(JSON.stringify({error: `No such wallet file.`}, null, 2));
+        return;
+    }
+    const data = readFileSync(pathToWallet, {encoding: 'utf8'});
+    if (!data?.length) {
+        console.error(JSON.stringify({error: `No such wallet file.`}, null, 2));
+        return;
+    }
+    console.log(JSON.stringify(JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8)), null, 2));
+};
+
 export const storeWallet = async (chain: Currency, testnet: boolean, pwd: string, path?: string, mnemonic?: string) => {
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     const wallet: any = await generateWallet(chain, testnet, mnemonic);

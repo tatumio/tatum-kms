@@ -133,6 +133,21 @@ This method does not add wallet to the managed wallets by Tatum KMS.
       "address": "13KvuMxDNT7jDffgSp7QtuLJq6fjpq1Ah7"
     }   
   ```   
+
+* `export` - export all managed wallets
+ 
+    ```
+    bash:$ tatum export
+    {
+      "e3015fc0-2112-4c8a-b8bf-353b86f63ba5": {
+           "mnemonic": "urge pulp usage sister evidence arrest palm math please chief egg abuse",
+           "xpriv": "xprvA1srLWNaGEkhdSJg6cLTMAziUpQcefpu2ZnKH2PXGiXEPKTdVPHjLFp4aZSSqSsaLMNrWXoj6TsyyUqh18T1hbiQkC42aWjXB9HnpmmqrYr",
+           "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid",
+           "testnet": false,
+           "chain": "BTC"
+         }
+    }   
+  ```     
   
 #### Wallet modes
 Tatum API accepts 3 representations of signatureIdes in its requests:

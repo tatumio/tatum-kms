@@ -1,7 +1,15 @@
 #!/usr/bin/env node
 import 'reflect-metadata';
 import {generateWallet} from '@tatumio/tatum';
-import {getAddress, getPrivateKey, getWallet, removeWallet, storePrivateKey, storeWallet} from './management';
+import {
+    exportWallets,
+    getAddress,
+    getPrivateKey,
+    getWallet,
+    removeWallet,
+    storePrivateKey,
+    storeWallet
+} from './management';
 import {processSignatures} from './signatures';
 
 const meow = require('meow');
@@ -21,6 +29,7 @@ const {input: command, flags} = meow(`
         getaddress <signatureId> <i>      Obtain managed wallet from wallet store and generate address for given derivation index.
         getmanagedwallet <signatureId>    Obtain managed wallet / private key from wallet store.
         removewallet <signatureId>        Remove managed wallet from wallet store.
+        export                            Export all managed wallets.
 
     Options
         --api-key                         Tatum API Key to communicate with Tatum API. Daemon mode only.
@@ -65,6 +74,11 @@ const startup = async () => {
             break;
         case 'generatewallet':
             console.log(JSON.stringify(await generateWallet(command[1], flags.testnet), null, 2));
+            break;
+        case 'export':
+            exportWallets(question('Enter password to access wallet store:', {
+                hideEchoBack: true,
+            }), flags.path);
             break;
         case 'generatemanagedwallet':
             await storeWallet(command[1], flags.testnet,
