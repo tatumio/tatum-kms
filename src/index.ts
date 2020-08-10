@@ -17,7 +17,7 @@ const {question} = require('readline-sync');
 
 const {input: command, flags} = meow(`
     Usage
-        $ tatum command
+        $ tatum-kms command
 
     Commands
         daemon                            Run as a daemon, which periodically checks for a new transactions to sign.
