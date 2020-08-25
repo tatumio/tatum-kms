@@ -127,7 +127,7 @@ const startup = async () => {
                 }), flags.path);
             break;
         default:
-            console.error('Unsupported command. Use tatum --help for details.');
+            console.error('Unsupported command. Use tatum-kms --help for details.');
             process.exit(-1);
     }
 };
