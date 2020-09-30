@@ -1,5 +1,4 @@
 #!/usr/bin/env node
-import 'reflect-metadata';
 import {generateWallet} from '@tatumio/tatum';
 import {
     exportWallets,
