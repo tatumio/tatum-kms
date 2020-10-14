@@ -55,7 +55,7 @@ Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicat
 This method does not add wallet to the managed wallets by Tatum KMS. 
  
     ```
-    bash:$ tatum-kms generatwallet BTC
+    bash:$ tatum-kms generatewallet BTC
     {
       "mnemonic": "urge pulp usage sister evidence arrest palm math please chief egg abuse",
       "xpriv": "xprvA1srLWNaGEkhdSJg6cLTMAziUpQcefpu2ZnKH2PXGiXEPKTdVPHjLFp4aZSSqSsaLMNrWXoj6TsyyUqh18T1hbiQkC42aWjXB9HnpmmqrYr",
