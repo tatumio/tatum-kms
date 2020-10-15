@@ -1,8 +1,25 @@
 # Tatum KMS
 Key Management System for Tatum-powered applications.
 
+## Security Principals
+Tatum KMS is used to store private keys and mnemonics of the blockchain wallets securely. KMS periodically pulls pending
+transactions to sign from Tatum Cloud, signs them locally using stored private keys, and broadcasts them to the blockchain.
+
+### Secure storage
+Tatum KMS generates and stores the private keys and mnemonic in the local file system's encrypted file.
+The wallet file is encrypted using the AES-GCM-256 cipher.
+
+The most sensitive information in this architecture is the password, which is used to encrypt the file. The password is never passed
+as a parameter or obtained from the environment variables. 
+There are three ways of entering a password to the KMS:
+* during the start of the KMS, the password is entered manually and stored in the memory during the daemon's runtime.
+* password is stored in the [VGS Vault](https://verygoodsecurity), obtained during startup, and stored in the memory during the daemon's runtime.
+* password is stored in the [Azure Vault](https://azure.microsoft.com/en-us/services/key-vault/), obtained during startup, and stored in the memory during the daemon's runtime.
+
+In this architecture, private keys and mnemonics never leave your perimeter, but they are encrypted if anybody gains access to the file system.
+
 ## Installation
-Tatum KMS is shipped via npm. It installs a set of CLI tools and commands to generate and store wallets / private keys in a secure way.  
+Tatum KMS is shipped via npm. It installs a set of CLI tools and commands to generate and store wallets / private keys securely.
 NodeJS >=14 is required.
 ```
 npm i -g @tatumio/tatum-kms

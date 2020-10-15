@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import {generateWallet} from '@tatumio/tatum';
+import axios from 'axios';
 import {
     exportWallets,
     getAddress,
@@ -36,7 +37,8 @@ const {input: command, flags} = meow(`
         --path                            Custom path to wallet store file.
         --period                          Period in seconds to check for new transactions to sign, defaults to 5 seconds. Daemon mode only.
         --chain                           Blockchains to check, separated by comma. Daemon mode only.
-	  
+	    --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file. 
+	    --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.   
 `, {
     flags: {
         path: {
@@ -52,6 +54,12 @@ const {input: command, flags} = meow(`
             type: 'boolean',
             isRequired: true,
         },
+        vgs: {
+            type: 'boolean',
+        },
+        azure: {
+            type: 'boolean',
+        },
         period: {
             type: 'number',
             default: 15,
@@ -65,9 +73,50 @@ const startup = async () => {
     }
     switch (command[0]) {
         case 'daemon':
-            const pwd = question('Enter password to access wallet store:', {
-                hideEchoBack: true,
-            });
+            let pwd = '';
+            if (flags.azure) {
+                const vaultUrl = question('Enter Vault Base URL to obtain secret from Azure Vault API:', {
+                    hideEchoBack: true,
+                });
+                const secretName = question('Enter Secret name to obtain from Azure Vault API:', {
+                    hideEchoBack: true,
+                });
+                const secretVersion = question('Enter Secret version to obtain secret from Azure Vault API:', {
+                    hideEchoBack: true,
+                });
+                const pwd = (await axios.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`)).data?.data[0]?.value;
+                if (!pwd) {
+                    console.error('Azure Vault secret does not exists.');
+                    process.exit(-1);
+                    return;
+                }
+
+            } else if (flags.vgs) {
+                const username = question('Enter username to VGS Vault API:', {
+                    hideEchoBack: true,
+                });
+                const password = question('Enter password to VGS Vault API:', {
+                    hideEchoBack: true,
+                });
+                const alias = question('Enter alias to obtain from VGS Vault API:', {
+                    hideEchoBack: true,
+                });
+                const pwd = (await axios.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
+                    auth: {
+                        username,
+                        password,
+                    }
+                })).data?.data[0]?.value;
+                if (!pwd) {
+                    console.error('VGS Vault alias does not exists.');
+                    process.exit(-1);
+                    return;
+                }
+            } else {
+                pwd = question('Enter password to access wallet store:', {
+                    hideEchoBack: true,
+                });
+            }
             process.env.TATUM_API_KEY = flags.apiKey;
             await processSignatures(pwd, flags.testnet, flags.period, flags.path, flags.chain?.split(','));
             break;
