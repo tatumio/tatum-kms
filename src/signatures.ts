@@ -15,12 +15,14 @@ import {
     signEthOffchainKMSTransaction,
     signLitecoinKMSTransaction,
     signLitecoinOffchainKMSTransaction,
+    signTronKMSTransaction,
     signVetKMSTransaction,
     signXlmKMSTransaction,
     signXlmOffchainKMSTransaction,
     signXrpKMSTransaction,
     signXrpOffchainKMSTransaction,
     TransactionKMS,
+    tronBroadcast,
     vetBroadcast,
     xlmBroadcast,
     xrpBroadcast
@@ -76,6 +78,16 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
                 return;
             }
             break;
+        case Currency.TRON:
+            const fromPrivateKey = (wallets[0].mnemonic && transaction.index)
+                ? await generatePrivateKeyFromMnemonic(Currency.TRON, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                : wallets[0].privateKey;
+            txData = await signTronKMSTransaction(transaction, fromPrivateKey, testnet);
+            if (!transaction.withdrawalId) {
+                await tronBroadcast(txData, transaction.id);
+                return;
+            }
+            break;
         case Currency.BTC:
             if (transaction.withdrawalId) {
                 txData = await signBitcoinOffchainKMSTransaction(transaction, wallets[0].mnemonic, testnet);
@@ -103,7 +115,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
 
 export const processSignatures = async (pwd: string, testnet: boolean, period: number = 5, path?: string, chains?: Currency[]) => {
     let running = false;
-    const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC, Currency.LTC];
+    const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC, Currency.LTC, Currency.TRON];
     setInterval(async () => {
         if (running) {
             return;
