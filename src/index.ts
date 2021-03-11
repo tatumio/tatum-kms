@@ -62,7 +62,7 @@ const {input: command, flags} = meow(`
         },
         period: {
             type: 'number',
-            default: 15,
+            default: 5,
         }
     }
 });
