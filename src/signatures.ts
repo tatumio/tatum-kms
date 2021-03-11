@@ -1,6 +1,7 @@
 import {
     bcashBroadcast,
     btcBroadcast,
+    celoBroadcast,
     Currency,
     ethBroadcast,
     generatePrivateKeyFromMnemonic,
@@ -11,6 +12,7 @@ import {
     signBitcoinCashOffchainKMSTransaction,
     signBitcoinKMSTransaction,
     signBitcoinOffchainKMSTransaction,
+    signCeloKMSTransaction,
     signEthKMSTransaction,
     signEthOffchainKMSTransaction,
     signLitecoinKMSTransaction,
@@ -78,6 +80,17 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
                 return;
             }
             break;
+        case Currency.CELO:
+            const celoPrivateKey = (wallets[0].mnemonic && transaction.index)
+                ? await generatePrivateKeyFromMnemonic(Currency.CELO, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                : wallets[0].privateKey;
+            // if (transaction.withdrawalId) {
+            //     txData = await signEthOffchainKMSTransaction(transaction, privateKey, testnet);
+            // } else {
+            await celoBroadcast(await signCeloKMSTransaction(transaction, celoPrivateKey, testnet), transaction.id);
+            return;
+        // }
+        // break;
         case Currency.TRON:
             const fromPrivateKey = (wallets[0].mnemonic && transaction.index)
                 ? await generatePrivateKeyFromMnemonic(Currency.TRON, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
