@@ -1,5 +1,6 @@
 import {
     bcashBroadcast,
+    bscBroadcast,
     btcBroadcast,
     celoBroadcast,
     Currency,
@@ -12,6 +13,7 @@ import {
     signBitcoinCashOffchainKMSTransaction,
     signBitcoinKMSTransaction,
     signBitcoinOffchainKMSTransaction,
+    signBscKMSTransaction,
     signCeloKMSTransaction,
     signEthKMSTransaction,
     signEthOffchainKMSTransaction,
@@ -76,7 +78,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             if (transaction.withdrawalId) {
                 txData = await signEthOffchainKMSTransaction(transaction, privateKey, testnet);
             } else {
-                await ethBroadcast(await signEthKMSTransaction(transaction, privateKey, testnet), transaction.id);
+                await ethBroadcast(await signEthKMSTransaction(transaction, privateKey), transaction.id);
                 return;
             }
             break;
@@ -88,6 +90,15 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             //     txData = await signEthOffchainKMSTransaction(transaction, privateKey, testnet);
             // } else {
             await celoBroadcast(await signCeloKMSTransaction(transaction, celoPrivateKey, testnet), transaction.id);
+            return;
+        case Currency.BSC:
+            const bscPrivateKey = (wallets[0].mnemonic && transaction.index)
+                ? await generatePrivateKeyFromMnemonic(Currency.BSC, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                : wallets[0].privateKey;
+            // if (transaction.withdrawalId) {
+            //     txData = await signEthOffchainKMSTransaction(transaction, privateKey, testnet);
+            // } else {
+            await bscBroadcast(await signBscKMSTransaction(transaction, bscPrivateKey), transaction.id);
             return;
         // }
         // break;

@@ -81,15 +81,20 @@ export const getWallet = async (id: string, pwd: string, path?: string, print = 
         console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
         return;
     }
-    const wallet = JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8));
-    if (!wallet[id]) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+    try {
+        const wallet = JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8));
+        if (!wallet[id]) {
+            console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+            return;
+        }
+        if (print) {
+            console.log(JSON.stringify(wallet[id], null, 2));
+        }
+        return wallet[id];
+    } catch (e) {
+        console.error(JSON.stringify({error: `Wrong password.`}, null, 2));
         return;
     }
-    if (print) {
-        console.log(JSON.stringify(wallet[id], null, 2));
-    }
-    return wallet[id];
 };
 
 export const getPrivateKey = async (id: string, index: string, pwd: string, path?: string) => {
