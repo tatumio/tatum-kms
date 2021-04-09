@@ -4,7 +4,8 @@
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "engines": {
-    "node": ">=14"
+    "node": ">=14",
+    "npm": ">=7"
   },
   "scripts": {
     "prepublish": "rimraf dist/* && tsc"
