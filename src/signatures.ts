@@ -4,6 +4,7 @@ import {
     btcBroadcast,
     celoBroadcast,
     Currency,
+    dogeBroadcast,
     ethBroadcast,
     generatePrivateKeyFromMnemonic,
     getPendingTransactionsKMSByChain,
@@ -15,6 +16,8 @@ import {
     signBitcoinOffchainKMSTransaction,
     signBscKMSTransaction,
     signCeloKMSTransaction,
+    signDogecoinKMSTransaction,
+    signDogecoinOffchainKMSTransaction,
     signEthKMSTransaction,
     signEthOffchainKMSTransaction,
     signLitecoinKMSTransaction,
@@ -128,6 +131,14 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
                 return;
             }
             break;
+        case Currency.DOGE:
+            if (transaction.withdrawalId) {
+                txData = await signDogecoinOffchainKMSTransaction(transaction, wallets[0].mnemonic, testnet);
+            } else {
+                await dogeBroadcast(await signDogecoinKMSTransaction(transaction, wallets.map(w => w.privateKey), testnet), transaction.id);
+                return;
+            }
+            break;
     }
     await offchainBroadcast({
         currency: transaction.chain,
@@ -139,7 +150,8 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
 
 export const processSignatures = async (pwd: string, testnet: boolean, period: number = 5, path?: string, chains?: Currency[]) => {
     let running = false;
-    const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC, Currency.LTC, Currency.TRON];
+    const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC,
+        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON];
     setInterval(async () => {
         if (running) {
             return;
