@@ -119,7 +119,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             if (transaction.withdrawalId) {
                 txData = await signBitcoinOffchainKMSTransaction(transaction, wallets[0].mnemonic, testnet);
             } else {
-                await btcBroadcast(await signBitcoinKMSTransaction(transaction, wallets.map(w => w.privateKey), testnet), transaction.id);
+                await btcBroadcast(await signBitcoinKMSTransaction(transaction, wallets.map(w => w.privateKey)), transaction.id);
                 return;
             }
             break;
