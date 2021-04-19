@@ -53,7 +53,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             }
             break;
         case Currency.VET:
-            const pk = (wallets[0].mnemonic && transaction.index)
+            const pk = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.VET, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                 : wallets[0].privateKey;
             await vetBroadcast(await signVetKMSTransaction(transaction, pk, testnet), transaction.id);
@@ -75,7 +75,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             }
             break;
         case Currency.ETH:
-            const privateKey = (wallets[0].mnemonic && transaction.index)
+            const privateKey = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.ETH, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                 : wallets[0].privateKey;
             if (transaction.withdrawalId) {
@@ -86,7 +86,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             }
             break;
         case Currency.CELO:
-            const celoPrivateKey = (wallets[0].mnemonic && transaction.index)
+            const celoPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.CELO, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                 : wallets[0].privateKey;
             // if (transaction.withdrawalId) {
@@ -95,7 +95,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             await celoBroadcast(await signCeloKMSTransaction(transaction, celoPrivateKey, testnet), transaction.id);
             return;
         case Currency.BSC:
-            const bscPrivateKey = (wallets[0].mnemonic && transaction.index)
+            const bscPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.BSC, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                 : wallets[0].privateKey;
             // if (transaction.withdrawalId) {
@@ -106,7 +106,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
         // }
         // break;
         case Currency.TRON:
-            const fromPrivateKey = (wallets[0].mnemonic && transaction.index)
+            const fromPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.TRON, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                 : wallets[0].privateKey;
             txData = await signTronKMSTransaction(transaction, fromPrivateKey, testnet);
