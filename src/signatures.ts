@@ -35,6 +35,7 @@ import {
     xrpBroadcast
 } from '@tatumio/tatum';
 import {getWallet} from './management';
+import axios from 'axios';
 
 const processTransaction = async (transaction: TransactionKMS, testnet: boolean, pwd: string, path?: string) => {
     const wallets = [];
@@ -171,10 +172,14 @@ export const processSignatures = async (pwd: string, testnet: boolean, period: n
             try {
                 await processTransaction(transaction, testnet, pwd, path);
             } catch (e) {
-                if (e.response) {
-                    console.error(`Request:\n${JSON.stringify(e.config.data, null, 2)}`);
-                    console.error(`Response:\n${JSON.stringify(e.response.data, null, 2)}`);
-                } else {
+                const msg = (e.response) ? JSON.stringify(e.response.data, null, 2) : `${e}`;
+                console.error(e);
+                try {
+                    await axios.post((process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') + '/v3/tatum/kms', {
+                        signatureId: transaction.id,
+                        error: msg
+                    }, {headers: {'x-api-key': process.env.TATUM_API_KEY}});
+                } catch (e) {
                     console.error(e);
                 }
             }
