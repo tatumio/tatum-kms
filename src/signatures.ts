@@ -6,6 +6,7 @@ import {
     Currency,
     dogeBroadcast,
     ethBroadcast,
+    flowBroadcast,
     generatePrivateKeyFromMnemonic,
     getPendingTransactionsKMSByChain,
     ltcBroadcast,
@@ -36,6 +37,7 @@ import {
 } from '@tatumio/tatum';
 import {getWallet} from './management';
 import axios from 'axios';
+import {flowSignKMSTransaction} from '@tatumio/tatum/dist/src/transaction/flow';
 
 const processTransaction = async (transaction: TransactionKMS, testnet: boolean, pwd: string, path?: string) => {
     const wallets = [];
@@ -86,6 +88,12 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
                 return;
             }
             break;
+        case Currency.FLOW:
+            const secret = (wallets[0].mnemonic && transaction.index !== undefined)
+                ? await generatePrivateKeyFromMnemonic(Currency.FLOW, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                : wallets[0].privateKey;
+            await flowBroadcast((await flowSignKMSTransaction(transaction, [secret], testnet)).txId, transaction.id);
+            return;
         case Currency.CELO:
             const celoPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.CELO, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
