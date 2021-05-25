@@ -1,5 +1,6 @@
 import {
     bcashBroadcast,
+    bnbBroadcast,
     bscBroadcast,
     btcBroadcast,
     celoBroadcast,
@@ -15,6 +16,7 @@ import {
     signBitcoinCashOffchainKMSTransaction,
     signBitcoinKMSTransaction,
     signBitcoinOffchainKMSTransaction,
+    signBnbKMSTransaction,
     signBscKMSTransaction,
     signCeloKMSTransaction,
     signDogecoinKMSTransaction,
@@ -55,9 +57,12 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
                 return;
             }
             break;
+        case Currency.BNB:
+            await bnbBroadcast(await signBnbKMSTransaction(transaction, wallets[0].privateKey, testnet), transaction.id);
+            return;
         case Currency.VET:
             const pk = (wallets[0].mnemonic && transaction.index !== undefined)
-                ? await generatePrivateKeyFromMnemonic(Currency.VET, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                ? await generatePrivateKeyFromMnemonic(Currency.BNB, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                 : wallets[0].privateKey;
             await vetBroadcast(await signVetKMSTransaction(transaction, pk, testnet), transaction.id);
             return;
