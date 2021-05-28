@@ -35,7 +35,9 @@ import {
     tronBroadcast,
     vetBroadcast,
     xlmBroadcast,
-    xrpBroadcast
+    xrpBroadcast,
+    signXdcKMSTransaction,
+    xdcBroadcast,
 } from '@tatumio/tatum';
 import {getWallet} from './management';
 import axios from 'axios';
@@ -97,7 +99,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             const secret = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.FLOW, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                 : wallets[0].privateKey;
-            await flowBroadcast((await flowSignKMSTransaction(transaction, [secret], testnet)).txId, transaction.id);
+            await flowBroadcast((await flowSignKMSTransaction(transaction, [secret], testnet))?.txId as string, transaction.id);
             return;
         case Currency.CELO:
             const celoPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
@@ -119,6 +121,12 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             return;
         // }
         // break;
+        case Currency.XDC:
+            const xdcPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
+                ? await generatePrivateKeyFromMnemonic(Currency.XDC, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                : wallets[0].privateKey;
+            await xdcBroadcast(await signXdcKMSTransaction(transaction, xdcPrivateKey), transaction.id);
+            return;
         case Currency.TRON:
             const fromPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.TRON, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
@@ -165,7 +173,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
 export const processSignatures = async (pwd: string, testnet: boolean, period: number = 5, path?: string, chains?: Currency[]) => {
     let running = false;
     const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC,
-        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON];
+        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON, Currency.BNB, Currency.FLOW, Currency.XDC];
     setInterval(async () => {
         if (running) {
             return;

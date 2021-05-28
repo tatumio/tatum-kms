@@ -57,7 +57,7 @@ To change periodicity, use `--period` parameter (in seconds).
 tatum-kms daemon --period=5
 ```
 
-By default, Tatum KMS checks for pending transaction in every blockchain - BTC, BCH, LTC, ETH, ETH ERC20s, XLM, XRP, VET.
+By default, Tatum KMS checks for pending transaction in every blockchain - BTC, BCH, BNB, LTC, ETH, ETH ERC20s, XLM, XRP, VET, DOGE, TRON, BSC, CELO, FLOW, XDC.
 To specify concrete blockchains, parameter `--chain` is used with blockchains separated by `,`.
 
 ```
