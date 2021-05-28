@@ -173,7 +173,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
 export const processSignatures = async (pwd: string, testnet: boolean, period: number = 5, path?: string, chains?: Currency[]) => {
     let running = false;
     const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC,
-        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON, Currency.FLOW, Currency.XDC];
+        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON, Currency.BNB, Currency.FLOW, Currency.XDC];
     setInterval(async () => {
         if (running) {
             return;
