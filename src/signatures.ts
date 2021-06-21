@@ -12,6 +12,7 @@ import {
     getPendingTransactionsKMSByChain,
     ltcBroadcast,
     offchainBroadcast,
+    oneBroadcast,
     signBitcoinCashKMSTransaction,
     signBitcoinCashOffchainKMSTransaction,
     signBitcoinKMSTransaction,
@@ -25,8 +26,10 @@ import {
     signEthOffchainKMSTransaction,
     signLitecoinKMSTransaction,
     signLitecoinOffchainKMSTransaction,
+    signOneKMSTransaction,
     signTronKMSTransaction,
     signVetKMSTransaction,
+    signXdcKMSTransaction,
     signXlmKMSTransaction,
     signXlmOffchainKMSTransaction,
     signXrpKMSTransaction,
@@ -34,10 +37,9 @@ import {
     TransactionKMS,
     tronBroadcast,
     vetBroadcast,
+    xdcBroadcast,
     xlmBroadcast,
     xrpBroadcast,
-    signXdcKMSTransaction,
-    xdcBroadcast,
 } from '@tatumio/tatum';
 import {getWallet} from './management';
 import axios from 'axios';
@@ -101,22 +103,26 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
                 : wallets[0].privateKey;
             await flowBroadcast((await flowSignKMSTransaction(transaction, [secret], testnet))?.txId as string, transaction.id);
             return;
+        case Currency.ONE:
+            const onePrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
+                ? await generatePrivateKeyFromMnemonic(Currency.ONE, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                : wallets[0].privateKey;
+            txData = await signOneKMSTransaction(transaction, onePrivateKey, testnet);
+            if (!transaction.withdrawalId) {
+                await oneBroadcast(txData, transaction.id);
+                return;
+            }
+            break;
         case Currency.CELO:
             const celoPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.CELO, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                 : wallets[0].privateKey;
-            // if (transaction.withdrawalId) {
-            //     txData = await signEthOffchainKMSTransaction(transaction, privateKey, testnet);
-            // } else {
             await celoBroadcast(await signCeloKMSTransaction(transaction, celoPrivateKey, testnet), transaction.id);
             return;
         case Currency.BSC:
             const bscPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.BSC, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                 : wallets[0].privateKey;
-            // if (transaction.withdrawalId) {
-            //     txData = await signEthOffchainKMSTransaction(transaction, privateKey, testnet);
-            // } else {
             await bscBroadcast(await signBscKMSTransaction(transaction, bscPrivateKey), transaction.id);
             return;
         // }
