@@ -13,6 +13,7 @@ import {
     ltcBroadcast,
     offchainBroadcast,
     oneBroadcast,
+    polygonBroadcast,
     signBitcoinCashKMSTransaction,
     signBitcoinCashOffchainKMSTransaction,
     signBitcoinKMSTransaction,
@@ -27,6 +28,7 @@ import {
     signLitecoinKMSTransaction,
     signLitecoinOffchainKMSTransaction,
     signOneKMSTransaction,
+    signPolygonKMSTransaction,
     signTronKMSTransaction,
     signVetKMSTransaction,
     signXdcKMSTransaction,
@@ -125,8 +127,12 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
                 : wallets[0].privateKey;
             await bscBroadcast(await signBscKMSTransaction(transaction, bscPrivateKey), transaction.id);
             return;
-        // }
-        // break;
+        case Currency.MATIC:
+            const polygonPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
+                ? await generatePrivateKeyFromMnemonic(Currency.MATIC, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
+                : wallets[0].privateKey;
+            await polygonBroadcast(await signPolygonKMSTransaction(transaction, polygonPrivateKey, testnet), transaction.id);
+            return;
         case Currency.XDC:
             const xdcPrivateKey = (wallets[0].mnemonic && transaction.index !== undefined)
                 ? await generatePrivateKeyFromMnemonic(Currency.XDC, wallets[0].testnet, wallets[0].mnemonic, transaction.index)
@@ -178,8 +184,8 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
 
 export const processSignatures = async (pwd: string, testnet: boolean, period: number = 5, path?: string, chains?: Currency[]) => {
     let running = false;
-    const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC,
-        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON, Currency.BNB, Currency.FLOW, Currency.XDC];
+    const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC, Currency.MATIC,
+        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON, Currency.BNB, Currency.FLOW, Currency.XDC, Currency.ONE];
     setInterval(async () => {
         if (running) {
             return;
