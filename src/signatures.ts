@@ -1,51 +1,54 @@
 import {
-    bcashBroadcast,
-    bnbBroadcast,
-    bscBroadcast,
-    btcBroadcast,
-    celoBroadcast,
-    Currency,
-    dogeBroadcast,
-    ethBroadcast,
-    flowBroadcast,
-    generatePrivateKeyFromMnemonic,
-    getPendingTransactionsKMSByChain,
-    ltcBroadcast,
-    offchainBroadcast,
-    oneBroadcast,
-    polygonBroadcast,
-    signBitcoinCashKMSTransaction,
-    signBitcoinCashOffchainKMSTransaction,
-    signBitcoinKMSTransaction,
-    signBitcoinOffchainKMSTransaction,
-    signBnbKMSTransaction,
-    signBscKMSTransaction,
-    signCeloKMSTransaction,
-    signDogecoinKMSTransaction,
-    signDogecoinOffchainKMSTransaction,
-    signEthKMSTransaction,
-    signEthOffchainKMSTransaction,
-    signLitecoinKMSTransaction,
-    signLitecoinOffchainKMSTransaction,
-    signOneKMSTransaction,
-    signPolygonKMSTransaction,
-    signTronKMSTransaction,
-    signVetKMSTransaction,
-    signXdcKMSTransaction,
-    signXlmKMSTransaction,
-    signXlmOffchainKMSTransaction,
-    signXrpKMSTransaction,
-    signXrpOffchainKMSTransaction,
-    TransactionKMS,
-    tronBroadcast,
-    vetBroadcast,
-    xdcBroadcast,
-    xlmBroadcast,
-    xrpBroadcast,
+  adaBroadcast,
+  bcashBroadcast,
+  bnbBroadcast,
+  bscBroadcast,
+  btcBroadcast,
+  celoBroadcast,
+  Currency,
+  dogeBroadcast,
+  ethBroadcast,
+  flowBroadcast,
+  generatePrivateKeyFromMnemonic,
+  getPendingTransactionsKMSByChain,
+  ltcBroadcast,
+  offchainBroadcast,
+  oneBroadcast,
+  polygonBroadcast,
+  signAdaKMSTransaction,
+  signAdaOffchainKMSTransaction,
+  signBitcoinCashKMSTransaction,
+  signBitcoinCashOffchainKMSTransaction,
+  signBitcoinKMSTransaction,
+  signBitcoinOffchainKMSTransaction,
+  signBnbKMSTransaction,
+  signBscKMSTransaction,
+  signCeloKMSTransaction,
+  signDogecoinKMSTransaction,
+  signDogecoinOffchainKMSTransaction,
+  signEthKMSTransaction,
+  signEthOffchainKMSTransaction,
+  signLitecoinKMSTransaction,
+  signLitecoinOffchainKMSTransaction,
+  signOneKMSTransaction,
+  signPolygonKMSTransaction,
+  signTronKMSTransaction,
+  signVetKMSTransaction,
+  signXdcKMSTransaction,
+  signXlmKMSTransaction,
+  signXlmOffchainKMSTransaction,
+  signXrpKMSTransaction,
+  signXrpOffchainKMSTransaction,
+  TransactionKMS,
+  tronBroadcast,
+  vetBroadcast,
+  xdcBroadcast,
+  xlmBroadcast,
+  xrpBroadcast,
 } from '@tatumio/tatum';
-import {getWallet} from './management';
+import { flowSignKMSTransaction } from '@tatumio/tatum/dist/src/transaction/flow';
 import axios from 'axios';
-import {flowSignKMSTransaction} from '@tatumio/tatum/dist/src/transaction/flow';
+import { getWallet } from './management';
 
 const processTransaction = async (transaction: TransactionKMS, testnet: boolean, pwd: string, path?: string) => {
     const wallets = [];
@@ -173,6 +176,13 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
                 return;
             }
             break;
+        case Currency.ADA:
+            if(transaction.withdrawalId) {
+                txData = await signAdaOffchainKMSTransaction(transaction, wallets[0].mnemonic, testnet);
+            } else {
+                await adaBroadcast(await signAdaKMSTransaction(transaction, wallets.map(w => w.privateKey)), transaction.id);
+                return;
+            }
     }
     await offchainBroadcast({
         currency: transaction.chain,
@@ -185,7 +195,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
 export const processSignatures = async (pwd: string, testnet: boolean, period: number = 5, path?: string, chains?: Currency[]) => {
     let running = false;
     const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC, Currency.MATIC,
-        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON, Currency.BNB, Currency.FLOW, Currency.XDC, Currency.ONE];
+        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON, Currency.BNB, Currency.FLOW, Currency.XDC, Currency.ONE, Currency.ADA];
     setInterval(async () => {
         if (running) {
             return;
