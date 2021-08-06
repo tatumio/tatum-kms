@@ -193,7 +193,7 @@ Tatum API accepts 3 representations of signatureIdes in its requests:
     }
   ```    
 
-## Using Tatum KMS from Docker
+## how to operate tatum-kms from docker
 
 ### Build docker image from Dockerfile
 ```
