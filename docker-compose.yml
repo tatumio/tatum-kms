@@ -1,0 +1,15 @@
+version: '3'
+services:
+  staging-service:
+    image: tatumio/tatum-kms
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tatumio/tatum-kms
+    volumes:
+      # - ./export:/app/export
+      # - ./build:/app/build
+
+volumes:
+  kms-data:
+    driver: local
