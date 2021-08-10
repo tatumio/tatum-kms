@@ -200,7 +200,7 @@ Tatum API accepts 3 representations of signatureIdes in its requests:
 docker build . -t [your prefered image name]
 ```
 
-### Build and run docker container from Docker Image
+### Build and run docker container from Docker Imag
 ```
 sudo docker run -d [Docker image ID or name]
 ```
