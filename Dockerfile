@@ -15,8 +15,6 @@ RUN npm run build && npm link
 
 ENTRYPOINT tatum-kms 
 
-CMD daemon
-
 RUN useradd -ms /bin/bash newuser
 
 USER newuser
@@ -24,3 +22,5 @@ USER newuser
 RUN chown -R newuser
 
 WORKDIR /home/newuser
+
+CMD daemon
