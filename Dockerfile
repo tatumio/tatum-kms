@@ -16,3 +16,7 @@ RUN npm run build && npm link
 ENTRYPOINT tatum-kms 
 
 CMD daemon
+
+USER newuser
+
+WORKDIR /home/newuser
