@@ -18,6 +18,9 @@ ENTRYPOINT tatum-kms
 CMD daemon
 
 RUN useradd -ms /bin/bash newuser
+
 USER newuser
+
+RUN chown -R newuser
 
 WORKDIR /home/newuser
