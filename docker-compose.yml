@@ -11,5 +11,5 @@ services:
       # - ./build:/app/build
 
 volumes:
-  kms-data:
+  tatum-kms-volume:
     driver: local
