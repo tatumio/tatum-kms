@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: tatumio/tatum-kms
     volumes:
-      - tatum-kms-volume:/var/lib/docker
+      - tatum-kms-volume:/var/lib/docker/volumes
 
 volumes:
   tatum-kms-volume:
