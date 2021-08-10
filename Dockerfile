@@ -11,4 +11,6 @@ RUN npm install
 COPY . . 
 
 
-CMD npm run build && npm link 
+RUN npm run build && npm link
+
+ENTRYPOINT tatum-kms 
