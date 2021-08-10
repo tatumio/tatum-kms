@@ -10,10 +10,7 @@ RUN npm install
 
 COPY . . 
 
-
 RUN npm run build && npm link
-
-ENTRYPOINT tatum-kms 
 
 RUN useradd -ms /bin/bash newuser
 
@@ -22,5 +19,7 @@ USER newuser
 RUN chown -R newuser
 
 WORKDIR /home/newuser
+
+ENTRYPOINT tatum-kms 
 
 CMD daemon
