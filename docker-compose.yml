@@ -12,3 +12,6 @@ services:
 volumes:
   tatum-kms-volume:
     driver: local
+
+env_file:
+- .env
