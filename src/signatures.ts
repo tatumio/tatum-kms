@@ -51,6 +51,30 @@ import axios from 'axios';
 import { getWallet } from './management';
 
 const processTransaction = async (transaction: TransactionKMS, testnet: boolean, pwd: string, path?: string) => {
+    /***
+   * before processing any transaction
+   * 1. check to see if the transaction address is not malicious by calling this endpoint with id of the transaction
+   *
+   * {{baseUrl}}/v3/security/address/:address
+   *
+   * if the response.data.status is not == valid, discard this transaction by calling   `return`
+   */
+
+  // (process.env.TATUM_API_URL || "https://api-eu1.tatum.io") + "/v3/security/address/" + transaction.id,
+  const checkMaliciousTransaction = await axios.get(
+    `${
+      process.env.TATUM_API_URL || 'https://api-eu1.tatum.io'
+    }/v3/security/address/${transaction.id}`,
+
+    { headers: { 'x-api-key': process.env.TATUM_API_KEY } }
+  );
+
+  // discard transaction  if response from calling api endpoint is not == 'valid'
+  if (checkMaliciousTransaction?.data?.status !== 'valid') {
+
+    // log to user that this transaction address is not valid
+    return;
+  }
     const wallets = [];
     for (const hash of transaction.hashes) {
         wallets.push(await getWallet(hash, pwd, path, false));

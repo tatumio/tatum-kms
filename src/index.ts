@@ -12,8 +12,8 @@ import {
 } from './management';
 import {processSignatures} from './signatures';
 
-const meow = require('meow');
-const {question} = require('readline-sync');
+import meow from 'meow';
+import { question } from 'readline-sync';
 
 const {input: command, flags} = meow(`
     Usage
