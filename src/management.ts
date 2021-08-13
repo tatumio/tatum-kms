@@ -1,9 +1,9 @@
 import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum';
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
-import {dirname} from 'path';
 import {AES, enc} from 'crypto-js';
-import {v4 as uuid} from 'uuid';
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
 import {homedir} from 'os';
+import {dirname} from 'path';
+import {v4 as uuid} from 'uuid';
 
 const ensurePathExists = (path: string) => {
     const dir = dirname(path);

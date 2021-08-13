@@ -50,7 +50,7 @@ import { flowSignKMSTransaction } from '@tatumio/tatum/dist/src/transaction/flow
 import axios from 'axios';
 import { getWallet } from './management';
 
-const processTransaction = async (transaction: TransactionKMS, testnet: boolean, pwd: string, path?: string) => {
+const processTransaction = async (transaction: TransactionKMS, testnet: boolean, pwd: string, path?: string,  externalUrl?: string) => {
     /***
    * before processing any transaction
    * 1. check to see if the transaction address is not malicious by calling this endpoint with id of the transaction
