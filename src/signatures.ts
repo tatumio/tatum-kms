@@ -1,56 +1,56 @@
 import {
-  adaBroadcast,
-  bcashBroadcast,
-  bnbBroadcast,
-  bscBroadcast,
-  btcBroadcast,
-  celoBroadcast,
-  Currency,
-  dogeBroadcast,
-  ethBroadcast,
-  flowBroadcast,
-  generatePrivateKeyFromMnemonic,
-  getPendingTransactionsKMSByChain,
-  ltcBroadcast,
-  offchainBroadcast,
-  oneBroadcast,
-  polygonBroadcast,
-  signAdaKMSTransaction,
-  signAdaOffchainKMSTransaction,
-  signBitcoinCashKMSTransaction,
-  signBitcoinCashOffchainKMSTransaction,
-  signBitcoinKMSTransaction,
-  signBitcoinOffchainKMSTransaction,
-  signBnbKMSTransaction,
-  signBscKMSTransaction,
-  signCeloKMSTransaction,
-  signDogecoinKMSTransaction,
-  signDogecoinOffchainKMSTransaction,
-  signEthKMSTransaction,
-  signEthOffchainKMSTransaction,
-  signLitecoinKMSTransaction,
-  signLitecoinOffchainKMSTransaction,
-  signOneKMSTransaction,
-  signPolygonKMSTransaction,
-  signTronKMSTransaction,
-  signVetKMSTransaction,
-  signXdcKMSTransaction,
-  signXlmKMSTransaction,
-  signXlmOffchainKMSTransaction,
-  signXrpKMSTransaction,
-  signXrpOffchainKMSTransaction,
-  TransactionKMS,
-  tronBroadcast,
-  vetBroadcast,
-  xdcBroadcast,
-  xlmBroadcast,
-  xrpBroadcast,
+    adaBroadcast,
+    bcashBroadcast,
+    bnbBroadcast,
+    bscBroadcast,
+    btcBroadcast,
+    celoBroadcast,
+    Currency,
+    dogeBroadcast,
+    ethBroadcast,
+    flowBroadcast,
+    generatePrivateKeyFromMnemonic,
+    getPendingTransactionsKMSByChain,
+    ltcBroadcast,
+    offchainBroadcast,
+    oneBroadcast,
+    polygonBroadcast,
+    signAdaKMSTransaction,
+    signAdaOffchainKMSTransaction,
+    signBitcoinCashKMSTransaction,
+    signBitcoinCashOffchainKMSTransaction,
+    signBitcoinKMSTransaction,
+    signBitcoinOffchainKMSTransaction,
+    signBnbKMSTransaction,
+    signBscKMSTransaction,
+    signCeloKMSTransaction,
+    signDogecoinKMSTransaction,
+    signDogecoinOffchainKMSTransaction,
+    signEthKMSTransaction,
+    signEthOffchainKMSTransaction,
+    signLitecoinKMSTransaction,
+    signLitecoinOffchainKMSTransaction,
+    signOneKMSTransaction,
+    signPolygonKMSTransaction,
+    signTronKMSTransaction,
+    signVetKMSTransaction,
+    signXdcKMSTransaction,
+    signXlmKMSTransaction,
+    signXlmOffchainKMSTransaction,
+    signXrpKMSTransaction,
+    signXrpOffchainKMSTransaction,
+    TransactionKMS,
+    tronBroadcast,
+    vetBroadcast,
+    xdcBroadcast,
+    xlmBroadcast,
+    xrpBroadcast,
 } from '@tatumio/tatum';
 import { flowSignKMSTransaction } from '@tatumio/tatum/dist/src/transaction/flow';
 import axios from 'axios';
 import { getWallet } from './management';
 
-const processTransaction = async (transaction: TransactionKMS, testnet: boolean, pwd: string, path?: string,  externalUrl?: string) => {
+const processTransaction = async (transaction: TransactionKMS, testnet: boolean, pwd: string, path?: string, externalUrl?: string) => {
     /***
    * before processing any transaction
    * 1. check to see if the transaction address is not malicious by calling this endpoint with id of the transaction
@@ -60,21 +60,18 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
    * if the response.data.status is not == valid, discard this transaction by calling   `return`
    */
 
-  // (process.env.TATUM_API_URL || "https://api-eu1.tatum.io") + "/v3/security/address/" + transaction.id,
-  const checkMaliciousTransaction = await axios.get(
-    `${
-      process.env.TATUM_API_URL || 'https://api-eu1.tatum.io'
-    }/v3/security/address/${transaction.id}`,
+    // (process.env.TATUM_API_URL || "https://api-eu1.tatum.io") + "/v3/security/address/" + transaction.id,
+    if (externalUrl && externalUrl.length) {
+        const retrieveAllSuccessfulTransactions = await axios.get(externalUrl, {
+            headers: { 'x-api-key': process.env.TATUM_API_KEY },
+        });
 
-    { headers: { 'x-api-key': process.env.TATUM_API_KEY } }
-  );
+        if (retrieveAllSuccessfulTransactions.status !== 200) {
+            return;
+        }
+    }
 
-  // discard transaction  if response from calling api endpoint is not == 'valid'
-  if (checkMaliciousTransaction?.data?.status !== 'valid') {
 
-    // log to user that this transaction address is not valid
-    return;
-  }
     const wallets = [];
     for (const hash of transaction.hashes) {
         wallets.push(await getWallet(hash, pwd, path, false));
@@ -201,7 +198,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
             }
             break;
         case Currency.ADA:
-            if(transaction.withdrawalId) {
+            if (transaction.withdrawalId) {
                 txData = await signAdaOffchainKMSTransaction(transaction, wallets[0].mnemonic, testnet);
             } else {
                 await adaBroadcast(await signAdaKMSTransaction(transaction, wallets.map(w => w.privateKey)), transaction.id);
@@ -219,7 +216,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
 export const processSignatures = async (pwd: string, testnet: boolean, period: number = 5, path?: string, chains?: Currency[]) => {
     let running = false;
     const supportedChains = chains || [Currency.BCH, Currency.VET, Currency.XRP, Currency.XLM, Currency.ETH, Currency.BTC, Currency.MATIC,
-        Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON, Currency.BNB, Currency.FLOW, Currency.XDC, Currency.ONE, Currency.ADA];
+    Currency.LTC, Currency.DOGE, Currency.CELO, Currency.BSC, Currency.TRON, Currency.BNB, Currency.FLOW, Currency.XDC, Currency.ONE, Currency.ADA];
     setInterval(async () => {
         if (running) {
             return;
@@ -245,7 +242,7 @@ export const processSignatures = async (pwd: string, testnet: boolean, period: n
                     await axios.post((process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') + '/v3/tatum/kms', {
                         signatureId: transaction.id,
                         error: msg
-                    }, {headers: {'x-api-key': process.env.TATUM_API_KEY}});
+                    }, { headers: { 'x-api-key': process.env.TATUM_API_KEY } });
                 } catch (e) {
                     console.error(e);
                 }
