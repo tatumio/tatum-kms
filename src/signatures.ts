@@ -76,6 +76,7 @@ const processTransaction = async (transaction: TransactionKMS, testnet: boolean,
     for (const hash of transaction.hashes) {
         wallets.push(await getWallet(hash, pwd, path, false));
     }
+
     let txData = '';
     console.log(`${new Date().toISOString()} - Processing pending transaction - ${JSON.stringify(transaction, null, 2)}.`);
     switch (transaction.chain) {
