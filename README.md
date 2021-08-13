@@ -217,6 +217,6 @@ npm link
 
 ### Run existing tatum-kms Commands
 ```
-Exanple: tatum-kms daemon --period=5
+Example: tatum-kms daemon --period=5
 ```
 
