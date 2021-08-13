@@ -64,6 +64,10 @@ const {input: command, flags} = meow(`
         period: {
             type: 'number',
             default: 5,
+        },
+        'externalUrl':{
+
+            type: 'string'
         }
     }
 });
