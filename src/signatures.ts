@@ -63,7 +63,7 @@ const processTransaction = async (
         try {
             await axios.get(`${externalUrl}/${transaction.id}`);
         } catch (e) {
-            console.error(e.response.data);
+            console.error(e);
             console.error('Transaction not found on external system. ID: ' + transaction.id);
         }
     }
