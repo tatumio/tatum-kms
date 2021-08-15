@@ -46,9 +46,9 @@ import {
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
-import { flowSignKMSTransaction } from '@tatumio/tatum/dist/src/transaction/flow';
+import {flowSignKMSTransaction} from '@tatumio/tatum/dist/src/transaction/flow';
 import axios from 'axios';
-import { getWallet } from './management';
+import {getWallet} from './management';
 
 const processTransaction = async (
     transaction: TransactionKMS,
@@ -58,18 +58,15 @@ const processTransaction = async (
     externalUrl?: string
 ) => {
 
-
-    if (externalUrl && externalUrl.length) {
-        const retrieveAllSuccessfulTransactions = await axios.get(externalUrl, {
-            headers: { 'x-api-key': process.env.TATUM_API_KEY },
-        });
-
-        if (retrieveAllSuccessfulTransactions.status !== 200) {
-            return;
+    if (externalUrl) {
+        console.log('External url is present, checking against it.');
+        try {
+            await axios.get(`${externalUrl}/${transaction.id}`);
+        } catch (e) {
+            console.error(e.response.data);
+            console.error('Transaction not found on external system. ID: ' + transaction.id);
         }
     }
-
-    // discard transaction  if response from calling api endpoint is not == 'valid'
 
     const wallets = [];
     for (const hash of transaction.hashes) {
@@ -95,8 +92,7 @@ const processTransaction = async (
                 await bcashBroadcast(
                     await signBitcoinCashKMSTransaction(
                         transaction,
-                        wallets.map((w)
-                            => w.privateKey),
+                        wallets.map((w) => w.privateKey),
                         testnet
                     ),
                     transaction.id
@@ -310,8 +306,7 @@ const processTransaction = async (
                 await btcBroadcast(
                     await signBitcoinKMSTransaction(
                         transaction,
-                        wallets.map((w)
-                            => w.privateKey)
+                        wallets.map((w) => w.privateKey)
                     ),
                     transaction.id
                 );
@@ -329,8 +324,7 @@ const processTransaction = async (
                 await ltcBroadcast(
                     await signLitecoinKMSTransaction(
                         transaction,
-                        wallets.map((w)
-                            => w.privateKey),
+                        wallets.map((w) => w.privateKey),
                         testnet
                     ),
                     transaction.id
@@ -349,8 +343,7 @@ const processTransaction = async (
                 await dogeBroadcast(
                     await signDogecoinKMSTransaction(
                         transaction,
-                        wallets.map((w)
-                            => w.privateKey),
+                        wallets.map((w) => w.privateKey),
                         testnet
                     ),
                     transaction.id
@@ -369,8 +362,7 @@ const processTransaction = async (
                 await adaBroadcast(
                     await signAdaKMSTransaction(
                         transaction,
-                        wallets.map((w)
-                            => w.privateKey)
+                        wallets.map((w) => w.privateKey)
                     ),
                     transaction.id
                 );
@@ -448,7 +440,7 @@ export const processSignatures = async (
                             signatureId: transaction.id,
                             error: msg,
                         },
-                        { headers: { 'x-api-key': process.env.TATUM_API_KEY } }
+                        {headers: {'x-api-key': process.env.TATUM_API_KEY}}
                     );
                 } catch (e) {
                     console.error(e);

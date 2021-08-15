@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-import {generateWallet} from '@tatumio/tatum';
+import {Currency, generateWallet} from '@tatumio/tatum';
 import axios from 'axios';
 import {
     exportWallets,
@@ -13,7 +13,7 @@ import {
 import {processSignatures} from './signatures';
 
 import meow from 'meow';
-import { question } from 'readline-sync';
+import {question} from 'readline-sync';
 
 const {input: command, flags} = meow(`
     Usage
@@ -65,8 +65,7 @@ const {input: command, flags} = meow(`
             type: 'number',
             default: 5,
         },
-        'externalUrl':{
-
+        externalUrl: {
             type: 'string'
         }
     }
@@ -122,11 +121,11 @@ const startup = async () => {
                     hideEchoBack: true,
                 });
             }
-            process.env.TATUM_API_KEY = flags.apiKey;
-            await processSignatures(pwd, flags.testnet, flags.period, flags.path, flags.chain?.split(','), flags.externalUrl);
+            process.env.TATUM_API_KEY = flags.apiKey as string;
+            await processSignatures(pwd, flags.testnet, flags.period, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
             break;
         case 'generatewallet':
-            console.log(JSON.stringify(await generateWallet(command[1], flags.testnet), null, 2));
+            console.log(JSON.stringify(await generateWallet(command[1] as Currency, flags.testnet), null, 2));
             break;
         case 'export':
             exportWallets(question('Enter password to access wallet store:', {
@@ -134,13 +133,13 @@ const startup = async () => {
             }), flags.path);
             break;
         case 'generatemanagedwallet':
-            await storeWallet(command[1], flags.testnet,
+            await storeWallet(command[1] as Currency, flags.testnet,
                 question('Enter password to access wallet store:', {
                     hideEchoBack: true,
                 }), flags.path);
             break;
         case 'storemanagedwallet':
-            await storeWallet(command[1], flags.testnet,
+            await storeWallet(command[1] as Currency, flags.testnet,
                 question('Enter password to access wallet store:', {
                     hideEchoBack: true,
                 }), flags.path, question('Enter mnemonic to store:', {
@@ -148,7 +147,7 @@ const startup = async () => {
                 }));
             break;
         case 'storemanagedprivatekey':
-            await storePrivateKey(command[1], flags.testnet,
+            await storePrivateKey(command[1] as Currency, flags.testnet,
                 question('Enter password to access wallet store:', {
                     hideEchoBack: true,
                 }), question('Enter private key to store:', {
