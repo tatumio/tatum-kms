@@ -57,20 +57,31 @@ To change periodicity, use `--period` parameter (in seconds).
 tatum-kms daemon --period=5
 ```
 
-By default, Tatum KMS checks for pending transaction in every blockchain - BTC, BCH, BNB, LTC, ETH, ETH ERC20s, XLM, XRP, VET, DOGE, TRON, BSC, CELO, FLOW, XDC.
-To specify concrete blockchains, parameter `--chain` is used with blockchains separated by `,`.
+By default, Tatum KMS checks for pending transaction in every blockchain - BTC, BCH, BNB, LTC, ETH, ETH ERC20s, XLM,
+XRP, VET, DOGE, TRON, BSC, CELO, FLOW, XDC. To specify concrete blockchains, parameter `--chain` is used with
+blockchains separated by `,`.
 
 ```
 tatum-kms daemon --chain=BTC,LTC,ETH
+```
+
+If you want to verify, if transaction, which is being signed using KMS is yours, you can enable 4-eye-principle.
+Add `externalUrl` parameter, which will point to your application server. This server will hold list of valid
+transactions to sign. Every time the tx is fetched from Tatum to be signed, it is validated against the external server
+using simple HTTP GET operation `your_external_url/transaction_id`. If response is 2xx, transaction is being signed.
+Otherwise transaction is skipped and not signed and you should do the appropriate operations on your end.
+
+```
+tatum-kms daemon --external-url=http://192.168.57.63
 ```
 
 ### CLI tools
 
 Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicate with daemon and modify it.
 
-* `generatewallet chain` - generates wallet for a specific blockchain and echos it to the output.
-This method does not add wallet to the managed wallets by Tatum KMS. 
- 
+* `generatewallet chain` - generates wallet for a specific blockchain and echos it to the output. This method does not
+  add wallet to the managed wallets by Tatum KMS.
+
     ```
     bash:$ tatum-kms generatewallet BTC
     {
@@ -191,4 +202,4 @@ Tatum API accepts 3 representations of signatureIdes in its requests:
         "signatureId": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5",
         "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
     }
-  ```    
+  ```
