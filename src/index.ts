@@ -1,9 +1,12 @@
 #!/usr/bin/env node
+import dotenv from 'dotenv';
+dotenv.config();
 import {Currency, generateWallet} from '@tatumio/tatum';
 import axios from 'axios';
 import {
     exportWallets,
     getAddress,
+    getPassword,
     getPrivateKey,
     getWallet,
     removeWallet,
@@ -43,9 +46,9 @@ const {input: command, flags} = meow(`
         --path                            Custom path to wallet store file.
         --period                          Period in seconds to check for new transactions to sign, defaults to 5 seconds. Daemon mode only.
         --chain                           Blockchains to check, separated by comma. Daemon mode only.
-	    --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file. 
-	    --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.  
-        --externalUrl                    Pass in external url to check valid transaction 
+	    --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
+	    --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
+        --externalUrl                    Pass in external url to check valid transaction
 `, {
     flags: {
         path: {
@@ -123,9 +126,7 @@ const startup = async () => {
                     return;
                 }
             } else {
-                pwd = question('Enter password to access wallet store:', {
-                    hideEchoBack: true,
-                });
+                pwd = getPassword()
             }
             process.env.TATUM_API_KEY = flags.apiKey as string;
             await processSignatures(pwd, flags.testnet, flags.period, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
@@ -134,55 +135,34 @@ const startup = async () => {
             console.log(JSON.stringify(await generateWallet(command[1] as Currency, flags.testnet), null, 2));
             break;
         case 'export':
-            exportWallets(question('Enter password to access wallet store:', {
-                hideEchoBack: true,
-            }), flags.path);
+            exportWallets(flags.path);
             break;
         case 'generatemanagedwallet':
-            await storeWallet(command[1] as Currency, flags.testnet,
-                question('Enter password to access wallet store:', {
-                    hideEchoBack: true,
-                }), flags.path);
+            await storeWallet(command[1] as Currency, flags.testnet, flags.path);
             break;
         case 'storemanagedwallet':
             await storeWallet(command[1] as Currency, flags.testnet,
-                question('Enter password to access wallet store:', {
-                    hideEchoBack: true,
-                }), flags.path, question('Enter mnemonic to store:', {
+                flags.path, question('Enter mnemonic to store:', {
                     hideEchoBack: true,
                 }));
             break;
         case 'storemanagedprivatekey':
             await storePrivateKey(command[1] as Currency, flags.testnet,
-                question('Enter password to access wallet store:', {
-                    hideEchoBack: true,
-                }), question('Enter private key to store:', {
+                question('Enter private key to store:', {
                     hideEchoBack: true,
                 }), flags.path);
             break;
         case 'getmanagedwallet':
-            await getWallet(command[1],
-                question('Enter password to access wallet store:', {
-                    hideEchoBack: true,
-                }), flags.path);
+            await getWallet(command[1], flags.path);
             break;
         case 'getprivatekey':
-            await getPrivateKey(command[1], command[2],
-                question('Enter password to access wallet store:', {
-                    hideEchoBack: true,
-                }), flags.path);
+            await getPrivateKey(command[1], command[2], flags.path);
             break;
         case 'getaddress':
-            await getAddress(command[1], command[2],
-                question('Enter password to access wallet store:', {
-                    hideEchoBack: true,
-                }), flags.path);
+            await getAddress(command[1], command[2], flags.path);
             break;
         case 'removewallet':
-            await removeWallet(command[1],
-                question('Enter password to access wallet store:', {
-                    hideEchoBack: true,
-                }), flags.path);
+            await removeWallet(command[1], flags.path);
             break;
         default:
             console.error('Unsupported command. Use tatum-kms --help for details.');
