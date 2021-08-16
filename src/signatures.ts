@@ -46,14 +46,15 @@ import {
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
+import {AxiosInstance} from 'axios';
 import {flowSignKMSTransaction} from '@tatumio/tatum/dist/src/transaction/flow';
-import axios from 'axios';
 import {getWallet} from './management';
 
 const processTransaction = async (
     transaction: TransactionKMS,
     testnet: boolean,
     pwd: string,
+    axios: AxiosInstance,
     path?: string,
     externalUrl?: string
 ) => {
@@ -381,6 +382,7 @@ export const processSignatures = async (
     pwd: string,
     testnet: boolean,
     period: number = 5,
+    axios: AxiosInstance,
     path?: string,
     chains?: Currency[],
     externalUrl?: string
@@ -426,7 +428,7 @@ export const processSignatures = async (
         }
         for (const transaction of transactions) {
             try {
-                await processTransaction(transaction, testnet, pwd, path, externalUrl);
+                await processTransaction(transaction, testnet, pwd, axios, path, externalUrl);
             } catch (e) {
                 const msg = e.response
                     ? JSON.stringify(e.response.data, null, 2)

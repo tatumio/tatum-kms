@@ -11,9 +11,15 @@ import {
     storeWallet
 } from './management';
 import {processSignatures} from './signatures';
-
+import http from 'http';
+import https from 'https';
 import meow from 'meow';
 import {question} from 'readline-sync';
+
+const axiosInstance = axios.create({
+    httpAgent: new http.Agent({keepAlive: true}),
+    httpsAgent: new https.Agent({keepAlive: true})
+});
 
 const {input: command, flags} = meow(`
     Usage
@@ -88,7 +94,7 @@ const startup = async () => {
                 const secretVersion = question('Enter Secret version to obtain secret from Azure Vault API:', {
                     hideEchoBack: true,
                 });
-                const pwd = (await axios.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`)).data?.data[0]?.value;
+                const pwd = (await axiosInstance.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`)).data?.data[0]?.value;
                 if (!pwd) {
                     console.error('Azure Vault secret does not exists.');
                     process.exit(-1);
@@ -105,7 +111,7 @@ const startup = async () => {
                 const alias = question('Enter alias to obtain from VGS Vault API:', {
                     hideEchoBack: true,
                 });
-                const pwd = (await axios.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
+                const pwd = (await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
                     auth: {
                         username,
                         password,
@@ -122,7 +128,7 @@ const startup = async () => {
                 });
             }
             process.env.TATUM_API_KEY = flags.apiKey as string;
-            await processSignatures(pwd, flags.testnet, flags.period, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
+            await processSignatures(pwd, flags.testnet, flags.period, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
             break;
         case 'generatewallet':
             console.log(JSON.stringify(await generateWallet(command[1] as Currency, flags.testnet), null, 2));
