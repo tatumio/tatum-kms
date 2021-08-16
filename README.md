@@ -51,6 +51,12 @@ To change path to the wallet file, parameter `--path` is used.
 tatum-kms daemon --path=/path/to/wallet/store/directory/wallet.dat
 ```
 
+Another way how to provide the password is via env variable:
+
+```
+TATUM_KMS_PASSWORD=password
+```
+
 To change periodicity, use `--period` parameter (in seconds).
 
 ```
