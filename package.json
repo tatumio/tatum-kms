@@ -1,6 +1,6 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "3.3.0",
+  "version": "3.3.1",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "engines": {
@@ -8,7 +8,8 @@
     "npm": "^6"
   },
   "scripts": {
-    "build": "rimraf dist/* && tsc"
+    "build": "rimraf dist/* && tsc",
+    "build": "tsc"
   },
   "files": [
     "dist/"
