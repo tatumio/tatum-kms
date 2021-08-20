@@ -20,7 +20,7 @@ In this architecture, private keys and mnemonics never leave your perimeter, but
 
 ## Installation
 Tatum KMS is shipped via npm. It installs a set of CLI tools and commands to generate and store wallets / private keys securely.
-NodeJS >=14 is required.
+NodeJS >=14 and npm@6 is required. Not working on npm@7!!!
 ```
 npm i -g @tatumio/tatum-kms
 ```
