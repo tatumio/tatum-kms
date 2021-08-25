@@ -1,0 +1,16 @@
+version: '3'
+services:
+  staging-service:
+    image: tatumio/tatum-kms
+    env_file:
+      - .env
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: tatum-kms
+    volumes:
+      - tatum-kms-volume:/var/lib/docker/volumes
+
+volumes:
+  tatum-kms-volume:
+    driver: local
