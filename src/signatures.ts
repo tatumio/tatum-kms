@@ -71,7 +71,7 @@ const processTransaction = async (
 
     const wallets = [];
     for (const hash of transaction.hashes) {
-        wallets.push(await getWallet(hash, pwd, path, false));
+        wallets.push(await getWallet(hash, path, pwd,false));
     }
     let txData = '';
     console.log(
