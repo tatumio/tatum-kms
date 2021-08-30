@@ -1,15 +1,15 @@
-import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum';
-import {AES, enc} from 'crypto-js';
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
-import {homedir} from 'os';
-import {dirname} from 'path';
+import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum';
+import { AES, enc } from 'crypto-js';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
+import { homedir } from 'os';
+import { dirname } from 'path';
 import { question } from 'readline-sync'
-import {v4 as uuid} from 'uuid';
+import { v4 as uuid } from 'uuid';
 
 const ensurePathExists = (path: string) => {
     const dir = dirname(path);
     if (!existsSync(dir)) {
-        mkdirSync(dir, {recursive: true});
+        mkdirSync(dir, { recursive: true });
     }
 };
 
@@ -17,12 +17,12 @@ export const exportWallets = (path?: string) => {
     const pwd = getPassword();
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
-        console.error(JSON.stringify({error: `No such wallet file.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2));
         return;
     }
-    const data = readFileSync(pathToWallet, {encoding: 'utf8'});
+    const data = readFileSync(pathToWallet, { encoding: 'utf8' });
     if (!data?.length) {
-        console.error(JSON.stringify({error: `No such wallet file.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2));
         return;
     }
     console.log(JSON.stringify(JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8)), null, 2));
@@ -33,19 +33,19 @@ export const storeWallet = async (chain: Currency, testnet: boolean, path?: stri
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     const wallet: any = await generateWallet(chain, testnet, mnemonic);
     const key = uuid();
-    const entry = {[key]: {...wallet, chain, testnet}};
+    const entry = { [key]: { ...wallet, chain, testnet } };
     if (!existsSync(pathToWallet)) {
         ensurePathExists(pathToWallet);
         writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(entry), pwd).toString());
     } else {
-        const data = readFileSync(pathToWallet, {encoding: 'utf8'});
+        const data = readFileSync(pathToWallet, { encoding: 'utf8' });
         let walletData = entry;
         if (data?.length > 0) {
-            walletData = {...walletData, ...JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8))};
+            walletData = { ...walletData, ...JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8)) };
         }
         writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(walletData), pwd).toString());
     }
-    const value: any = {signatureId: key};
+    const value: any = { signatureId: key };
     if (wallet.address) {
         value.address = wallet.address;
     }
@@ -59,37 +59,37 @@ export const storePrivateKey = async (chain: Currency, testnet: boolean, private
     const pwd = getPassword();
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     const key = uuid();
-    const entry = {[key]: {privateKey, chain, testnet}};
+    const entry = { [key]: { privateKey, chain, testnet } };
     if (!existsSync(pathToWallet)) {
         ensurePathExists(pathToWallet);
         writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(entry), pwd).toString());
     } else {
-        const data = readFileSync(pathToWallet, {encoding: 'utf8'});
+        const data = readFileSync(pathToWallet, { encoding: 'utf8' });
         let walletData = entry;
         if (data?.length > 0) {
-            walletData = {...walletData, ...JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8))};
+            walletData = { ...walletData, ...JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8)) };
         }
         writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(walletData), pwd).toString());
     }
-    console.log(JSON.stringify({signatureId: key}, null, 2));
+    console.log(JSON.stringify({ signatureId: key }, null, 2));
 };
 
 export const getWallet = async (id: string, path?: string, pwd?: string, print = true) => {
     const password = pwd ?? getPassword();
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
-    const data = readFileSync(pathToWallet, {encoding: 'utf8'});
+    const data = readFileSync(pathToWallet, { encoding: 'utf8' });
     if (!data?.length) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
     try {
         const wallet = JSON.parse(AES.decrypt(data, password).toString(enc.Utf8));
         if (!wallet[id]) {
-            console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+            console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
             return;
         }
         if (print) {
@@ -97,7 +97,7 @@ export const getWallet = async (id: string, path?: string, pwd?: string, print =
         }
         return wallet[id];
     } catch (e) {
-        console.error(JSON.stringify({error: `Wrong password.`}, null, 2));
+        console.error(JSON.stringify({ error: `Wrong password.` }, null, 2));
         return;
     }
 };
@@ -106,20 +106,20 @@ export const getPrivateKey = async (id: string, index: string, path?: string) =>
     const pwd = getPassword();
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
-    const data = readFileSync(pathToWallet, {encoding: 'utf8'});
+    const data = readFileSync(pathToWallet, { encoding: 'utf8' });
     if (!data?.length) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
     const wallet = JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8));
     if (!wallet[id]) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
-    const pk = {privateKey: await generatePrivateKeyFromMnemonic(wallet[id].chain, wallet[id].testnet, wallet[id].mnemonic, parseInt(index))};
+    const pk = { privateKey: await generatePrivateKeyFromMnemonic(wallet[id].chain, wallet[id].testnet, wallet[id].mnemonic, parseInt(index)) };
     console.log(JSON.stringify(pk, null, 2));
 };
 
@@ -127,20 +127,20 @@ export const getAddress = async (id: string, index: string, path?: string) => {
     const pwd = getPassword();
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
-    const data = readFileSync(pathToWallet, {encoding: 'utf8'});
+    const data = readFileSync(pathToWallet, { encoding: 'utf8' });
     if (!data?.length) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
     const wallet = JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8));
     if (!wallet[id]) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
-    const pk = {address: await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index))};
+    const pk = { address: await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index)) };
     console.log(JSON.stringify(pk, null, 2));
 };
 
@@ -148,12 +148,12 @@ export const removeWallet = async (id: string, path?: string) => {
     const pwd = getPassword();
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
-    const data = readFileSync(pathToWallet, {encoding: 'utf8'});
+    const data = readFileSync(pathToWallet, { encoding: 'utf8' });
     if (!data?.length) {
-        console.error(JSON.stringify({error: `No such wallet for signatureId '${id}'.`}, null, 2));
+        console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
     const wallet = JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8));
@@ -162,10 +162,24 @@ export const removeWallet = async (id: string, path?: string) => {
 };
 
 export const getPassword = () => {
-  if(process.env.TATUM_KMS_PASSWORD) {
-    return process.env.TATUM_KMS_PASSWORD;
-  }
-  return question('Enter password to access wallet store:', {
-    hideEchoBack: true,
-  });
+    if (process.env.TATUM_KMS_PASSWORD) {
+        return process.env.TATUM_KMS_PASSWORD;
+    }
+    return question('Enter password to access wallet store:', {
+        hideEchoBack: true,
+    });
+}
+export const getTatumKey = (apiKey: string) => {
+    if (apiKey) {
+        process.env.TATUM_API_KEY = apiKey;
+        return;
+    }
+}
+export const getQuestion = (q: string, e: string) => {
+    if (e) {
+        return e
+    }
+    return question(q, {
+        hideEchoBack: true,
+    });
 }

@@ -46,9 +46,9 @@ import {
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
-import {AxiosInstance} from 'axios';
-import {flowSignKMSTransaction} from '@tatumio/tatum/dist/src/transaction/flow';
-import {getWallet} from './management';
+import { AxiosInstance } from 'axios';
+import { flowSignKMSTransaction } from '@tatumio/tatum/dist/src/transaction/flow';
+import { getWallet } from './management';
 
 const processTransaction = async (
     transaction: TransactionKMS,
@@ -71,7 +71,7 @@ const processTransaction = async (
 
     const wallets = [];
     for (const hash of transaction.hashes) {
-        wallets.push(await getWallet(hash, path, pwd,false));
+        wallets.push(await getWallet(hash, path, pwd, false));
     }
     let txData = '';
     console.log(
@@ -442,7 +442,7 @@ export const processSignatures = async (
                             signatureId: transaction.id,
                             error: msg,
                         },
-                        {headers: {'x-api-key': process.env.TATUM_API_KEY}}
+                        { headers: { 'x-api-key': process.env.TATUM_API_KEY } }
                     );
                 } catch (e) {
                     console.error(e);
