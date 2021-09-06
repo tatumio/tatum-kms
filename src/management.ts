@@ -5,7 +5,8 @@ import { homedir } from 'os';
 import { dirname } from 'path';
 import { question } from 'readline-sync'
 import { v4 as uuid } from 'uuid';
-
+import { ConfigOption, Config } from './config'
+var config = new Config()
 const ensurePathExists = (path: string) => {
     const dir = dirname(path);
     if (!existsSync(dir)) {
@@ -14,7 +15,7 @@ const ensurePathExists = (path: string) => {
 };
 
 export const exportWallets = (path?: string) => {
-    const pwd = getPassword();
+    const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
         console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2));
@@ -29,7 +30,7 @@ export const exportWallets = (path?: string) => {
 };
 
 export const storeWallet = async (chain: Currency, testnet: boolean, path?: string, mnemonic?: string) => {
-    const pwd = getPassword();
+    const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     const wallet: any = await generateWallet(chain, testnet, mnemonic);
     const key = uuid();
@@ -56,7 +57,7 @@ export const storeWallet = async (chain: Currency, testnet: boolean, path?: stri
 };
 
 export const storePrivateKey = async (chain: Currency, testnet: boolean, privateKey: string, path?: string) => {
-    const pwd = getPassword();
+    const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     const key = uuid();
     const entry = { [key]: { privateKey, chain, testnet } };
@@ -75,7 +76,7 @@ export const storePrivateKey = async (chain: Currency, testnet: boolean, private
 };
 
 export const getWallet = async (id: string, path?: string, pwd?: string, print = true) => {
-    const password = pwd ?? getPassword();
+    const password = pwd ?? config.getValue(ConfigOption.KMS_PASSWORD);
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
@@ -103,7 +104,7 @@ export const getWallet = async (id: string, path?: string, pwd?: string, print =
 };
 
 export const getPrivateKey = async (id: string, index: string, path?: string) => {
-    const pwd = getPassword();
+    const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
@@ -124,7 +125,7 @@ export const getPrivateKey = async (id: string, index: string, path?: string) =>
 };
 
 export const getAddress = async (id: string, index: string, path?: string) => {
-    const pwd = getPassword();
+    const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
@@ -145,7 +146,7 @@ export const getAddress = async (id: string, index: string, path?: string) => {
 };
 
 export const removeWallet = async (id: string, path?: string) => {
-    const pwd = getPassword();
+    const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
@@ -162,6 +163,7 @@ export const removeWallet = async (id: string, path?: string) => {
 };
 
 export const getPassword = () => {
+
     if (process.env.TATUM_KMS_PASSWORD) {
         return process.env.TATUM_KMS_PASSWORD;
     }
