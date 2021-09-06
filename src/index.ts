@@ -6,20 +6,19 @@ import axios from 'axios';
 import {
     exportWallets,
     getAddress,
-    getPassword,
     getPrivateKey,
     getWallet,
     removeWallet,
     storePrivateKey,
     storeWallet,
-    getTatumKey,
-    getQuestion
+    getTatumKey
 } from './management';
 import { processSignatures } from './signatures';
 import http from 'http';
 import https from 'https';
 import meow from 'meow';
-// import { question } from 'readline-sync';
+import { ConfigOption, Config } from './config'
+var config = new Config()
 
 const axiosInstance = axios.create({
     httpAgent: new http.Agent({ keepAlive: true }),
@@ -89,9 +88,9 @@ const startup = async () => {
         case 'daemon':
             let pwd = '';
             if (flags.azure) {
-                const vaultUrl = getQuestion('Enter Vault Base URL to obtain secret from Azure Vault API:', process.env.vaultUrl as string);
-                const secretName = getQuestion('Enter Secret name to obtain from Azure Vault API:', process.env.secretName as string);
-                const secretVersion = getQuestion('Enter Secret version to obtain secret from Azure Vault API:', process.env.secretVersion as string);
+                const vaultUrl = config.getValue(ConfigOption.AZURE_VAULTURL);
+                const secretName = config.getValue(ConfigOption.AZURE_SECRETNAME);
+                const secretVersion = config.getValue(ConfigOption.AZURE_SECRETVERSION);
                 const pwd = (await axiosInstance.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`)).data?.data[0]?.value;
                 if (!pwd) {
                     console.error('Azure Vault secret does not exists.');
@@ -100,9 +99,9 @@ const startup = async () => {
                 }
 
             } else if (flags.vgs) {
-                const username = getQuestion('Enter username to VGS Vault API:', process.env.USERNAME as string);
-                const password = getQuestion('Enter password to VGS Vault API:', process.env.PASSWORD as string);
-                const alias = getQuestion('Enter alias to obtain from VGS Vault API:', process.env.ALIAS as string);
+                const username = config.getValue(ConfigOption.VGS_USERNAME);
+                const password = config.getValue(ConfigOption.VGS_PASSWORD);
+                const alias = config.getValue(ConfigOption.VGS_ALIAS);
                 const pwd = (await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
                     auth: {
                         username,
@@ -115,7 +114,7 @@ const startup = async () => {
                     return;
                 }
             } else {
-                pwd = getPassword()
+                pwd = config.getValue(ConfigOption.KMS_PASSWORD)
             }
             getTatumKey(flags.apiKey as string)
             await processSignatures(pwd, flags.testnet, flags.period, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
@@ -131,11 +130,11 @@ const startup = async () => {
             break;
         case 'storemanagedwallet':
             await storeWallet(command[1] as Currency, flags.testnet,
-                flags.path, getQuestion('Enter mnemonic to store:', process.env.MNEMONIC as string));
+                flags.path, config.getValue(ConfigOption.KMS_PASSWORD));
             break;
         case 'storemanagedprivatekey':
             await storePrivateKey(command[1] as Currency, flags.testnet,
-                getQuestion('Enter private key to store:', process.env.PRIVATE_KEY as string), flags.path);
+                config.getValue(ConfigOption.KMS_PRIVATE_KEY), flags.path);
             break;
         case 'getmanagedwallet':
             await getWallet(command[1], flags.path);

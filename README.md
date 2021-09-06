@@ -80,6 +80,19 @@ Otherwise transaction is skipped and not signed and you should do the appropriat
 ```
 tatum-kms daemon --external-url=http://192.168.57.63
 ```
+### Docker mode
+* Docker build: To run as docker container run the following command to build an image
+
+ docker build -t tatum-kms .
+
+* Map Volume: create a folder to map docker volume to local storage
+  mkdir vol
+
+* Docker run:
+ => Interactive
+	  docker run -it tatum-kms --env-file .env -v vol1:/vol
+ => Backend
+	  docker run -d --env-file .env -v vol1:/vol tatum-kms
 
 ### CLI tools
 
