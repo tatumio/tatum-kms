@@ -14,10 +14,7 @@ jobs:
         env:
           DOCKER_USER: 'rachitgod'
           DOCKER_PASSWORD: 'd003c125-a1f0-4bd8-a383-44d9d5cd07b1'
-
-        run: |
-        docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
-
+        run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
 
       - name: build image
         run: docker build . --file Dockerfile -t tatum-kms:latest 
