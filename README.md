@@ -91,9 +91,12 @@ tatum-kms daemon --external-url=http://192.168.57.63
 * Docker run:
  => Interactive
 	  docker run -it tatum-kms --env-file .env -v vol1:/vol
- => Backend
+ => Daemon
 	  docker run -d --env-file .env -v vol1:/vol tatum-kms
 
+* Example:
+  While the above command will run kms as daemon, you can also use docker run to call specific functions such as:
+  docker run -it --env-file .env -v vol1:/vol tatumio/kms:latest storemanagedwallet
 ### CLI tools
 
 Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicate with daemon and modify it.

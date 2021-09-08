@@ -61,7 +61,7 @@ export class Config {
         if (process.env[config.environmentKey]) {
             return process.env[config.environmentKey] as string
         }
-        return process.env[config.environmentKey] ? process.env[config.environmentKey] as string : question(config.question, {
+        return question(config.question, {
             hideEchoBack: true,
         });
     }
