@@ -5,8 +5,6 @@ export enum ConfigOption {
     TATUM_API_KEY,
     VGS_USERNAME,
     VGS_PASSWORD,
-    KMS_MNEMONIC,
-    KMS_PRIVATE_KEY,
     AZURE_SECRETVERSION,
     AZURE_SECRETNAME,
     AZURE_VAULTURL,
@@ -33,14 +31,6 @@ export class Config {
         [ConfigOption.VGS_PASSWORD]: {
             environmentKey: "TATUM_KMS_VGS_PASSWORD",
             question: "Enter password to VGS Vault API:"
-        },
-        [ConfigOption.KMS_MNEMONIC]: {
-            environmentKey: "TATUM_KMS_MNEMONIC",
-            question: "Enter mnemonic to store:"
-        },
-        [ConfigOption.KMS_PRIVATE_KEY]: {
-            environmentKey: "TATUM_KMS_PRIVATE_KEY",
-            question: "Enter private key to store:"
         },
         [ConfigOption.AZURE_SECRETVERSION]: {
             environmentKey: "TATUM_KMS_VGS_ALIAS",

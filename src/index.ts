@@ -11,7 +11,8 @@ import {
     removeWallet,
     storePrivateKey,
     storeWallet,
-    getTatumKey
+    getTatumKey,
+    getQuestion
 } from './management';
 import { processSignatures } from './signatures';
 import http from 'http';
@@ -130,11 +131,11 @@ const startup = async () => {
             break;
         case 'storemanagedwallet':
             await storeWallet(command[1] as Currency, flags.testnet,
-                flags.path, config.getValue(ConfigOption.KMS_PASSWORD));
+                flags.path, getQuestion('Enter mnemonic to store:'));
             break;
         case 'storemanagedprivatekey':
             await storePrivateKey(command[1] as Currency, flags.testnet,
-                config.getValue(ConfigOption.KMS_PRIVATE_KEY), flags.path);
+                getQuestion('Enter private key to store:'), flags.path);
             break;
         case 'getmanagedwallet':
             await getWallet(command[1], flags.path);
