@@ -81,22 +81,27 @@ Otherwise transaction is skipped and not signed and you should do the appropriat
 tatum-kms daemon --external-url=http://192.168.57.63
 ```
 ### Docker mode
-* Docker build: To run as docker container run the following command to build an image
+* Docker pull: To run as docker container run the following command to pull tatum-kms image
 
- docker build -t tatum-kms .
+ docker pull tatumio/tatum-kms
 
 * Map Volume: create a folder to map docker volume to local storage
   mkdir vol
 
 * Docker run:
  => Interactive
-	  docker run -it tatum-kms --env-file .env -v vol1:/vol
+	  docker run -it tatumio/tatum-kms --env-file .env -v vol1:/vol
  => Daemon
-	  docker run -d --env-file .env -v vol1:/vol tatum-kms
+	  docker run -d --env-file .env -v vol1:/vol tatumio/tatum-kms
 
 * Example:
   While the above command will run kms as daemon, you can also use docker run to call specific functions such as:
-  docker run -it --env-file .env -v vol1:/vol tatumio/kms:latest storemanagedwallet
+  docker run -it --env-file .env -v vol1:/vol tatumio/tatum-kms storemanagedwallet
+
+  You can shorten the command and use it as follows:
+  docker run ${COMMON_PARAMS} tatumio/tatum-kms generatemanagedwallet BTC
+  where, COMMON_PARAMS can be exported as all the necessary flags for running the container
+
 ### CLI tools
 
 Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicate with daemon and modify it.

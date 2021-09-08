@@ -177,7 +177,7 @@ export const getTatumKey = (apiKey: string) => {
         return;
     }
 }
-export const getQuestion = (q: string, e: string) => {
+export const getQuestion = (q: string, e?: string) => {
     if (e) {
         return e
     }

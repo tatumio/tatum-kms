@@ -2,7 +2,7 @@ name: Dockerize
 on:
   push:
     branches:
-      - feature/dockerize
+      - master
 jobs:
   build:
     name: 🏗️ Install and build
@@ -12,12 +12,12 @@ jobs:
 
       - name: docker login
         env:
-          DOCKER_USER: 'rachitgod'
-          DOCKER_PASSWORD: 'd003c125-a1f0-4bd8-a383-44d9d5cd07b1'
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
         run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
 
       - name: build image
-        run: docker build . --file Dockerfile -t rachitgod/tatum-kms 
+        run: docker build . --file Dockerfile -t ${{secrets.DOCKER_USER}}/tatum-kms 
     
       - name: push image
-        run: docker push rachitgod/tatum-kms
+        run: docker push ${{secrets.DOCKER_USER}}/tatum-kms
