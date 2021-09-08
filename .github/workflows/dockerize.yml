@@ -17,7 +17,7 @@ jobs:
         run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
 
       - name: build image
-        run: docker build . --file Dockerfile -t rachitgod:latest 
+        run: docker build . --file Dockerfile -t rachitgod/tatum-kms 
     
       - name: push image
-        run: docker push rachitgod/tatum-kms:latest 
+        run: docker push rachitgod/tatum-kms
