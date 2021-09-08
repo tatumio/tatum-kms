@@ -20,4 +20,4 @@ jobs:
         run: docker build . --file Dockerfile -t tatum-kms:latest 
     
       - name: push image
-        run: docker push $DOCKER_USER/tatum-kms:latest 
+        run: docker push rachitgod/tatum-kms:latest 
