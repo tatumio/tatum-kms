@@ -2,7 +2,7 @@ name: Dockerize
 on:
   push:
     branches:
-      - master
+      - feature/dockerize
 jobs:
   build:
     name: 🏗️ Install and build
