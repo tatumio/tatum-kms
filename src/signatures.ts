@@ -426,16 +426,17 @@ export const processSignatures = async (
         } catch (e) {
             console.error(e);
         }
-        let data = [];
+        const data = [];
         for (const transaction of transactions) {
             try {
+                console.log("processing txn", transaction)
                 await processTransaction(transaction, testnet, pwd, axios, path, externalUrl);
             } catch (e) {
                 const msg = e.response
                     ? JSON.stringify(e.response.data, null, 2)
                     : `${e}`;
                 data.push({ signatureId: transaction.id, error: msg })
-                console.error("could not process transaction id ", transaction.id);
+                console.error("could not process transaction id ", transaction.id, "\n error::", e);
             }
         }
         if (data.length > 0) {
@@ -446,8 +447,9 @@ export const processSignatures = async (
                     { errors: data },
                     { headers: { 'x-api-key': process.env.TATUM_API_KEY } }
                 );
+                console.log("send to url kms/batch")
             } catch (e) {
-                console.error("error recieved from API /v3/tatum/kmsBatch\n", e);
+                console.error("error recieved from API /v3/tatum/kms/batch\n", e.config.data);
             }
         }
         running = false;
