@@ -9,7 +9,7 @@ import {
     dogeBroadcast,
     ethBroadcast,
     flowBroadcast,
-    algoBroadcast,
+    algorandBroadcast,
     generatePrivateKeyFromMnemonic,
     getPendingTransactionsKMSByChain,
     ltcBroadcast,
@@ -94,9 +94,9 @@ const processTransaction = async (
                         transaction.index
                     )
                     : wallets[0].privateKey;
-            await algoBroadcast(
+            await algorandBroadcast(
                 (
-                    await SignAlgoKMSTransaction(transaction, [algoSecret], testnet)
+                    await signAlgoKMSTransaction(transaction, [algoSecret], testnet)
                 )?.txId as string,
                 transaction.id
             );
