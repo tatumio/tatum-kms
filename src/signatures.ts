@@ -96,7 +96,7 @@ const processTransaction = async (
                     : wallets[0].privateKey;
             await algorandBroadcast(
                 (
-                    await signAlgoKMSTransaction(transaction, [algoSecret], testnet)
+                    await signAlgoKMSTransaction(transaction, algoSecret, testnet)
                 )?.txId as string,
                 transaction.id
             );
