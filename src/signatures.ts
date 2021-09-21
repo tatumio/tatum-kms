@@ -9,6 +9,7 @@ import {
     dogeBroadcast,
     ethBroadcast,
     flowBroadcast,
+    algorandBroadcast,
     generatePrivateKeyFromMnemonic,
     getPendingTransactionsKMSByChain,
     ltcBroadcast,
@@ -31,6 +32,7 @@ import {
     signLitecoinKMSTransaction,
     signLitecoinOffchainKMSTransaction,
     signOneKMSTransaction,
+    signAlgoKMSTransaction,
     signPolygonKMSTransaction,
     signTronKMSTransaction,
     signVetKMSTransaction,
@@ -82,6 +84,23 @@ const processTransaction = async (
         )}.`
     );
     switch (transaction.chain) {
+        case Currency.ALGO:
+            const algoSecret =
+                wallets[0].mnemonic && transaction.index !== undefined
+                    ? await generatePrivateKeyFromMnemonic(
+                        Currency.ALGO,
+                        wallets[0].testnet,
+                        wallets[0].mnemonic,
+                        transaction.index
+                    )
+                    : wallets[0].privateKey;
+            await algorandBroadcast(
+                (
+                    await signAlgoKMSTransaction(transaction, algoSecret, testnet)
+                )?.txId as string,
+                transaction.id
+            );
+            return;
         case Currency.BCH:
             if (transaction.withdrawalId) {
                 txData = await signBitcoinCashOffchainKMSTransaction(
@@ -406,6 +425,7 @@ export const processSignatures = async (
         Currency.XDC,
         Currency.ONE,
         Currency.ADA,
+        Currency.ALGO,
     ];
     setInterval(async () => {
         if (running) {
