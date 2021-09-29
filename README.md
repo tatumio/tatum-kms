@@ -209,3 +209,14 @@ Tatum API accepts 3 representations of signatureIdes in its requests:
         "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
     }
   ```
+
+## Most common issues / problems
+ ```
+ error:: TypeError: Cannot read property 'mnemonic' of undefined
+ ```
+ 
+ You are using wrong signatureId. There are 2 types of signatureId:
+ * mnemonic based - signature ID holds the mnemonic. You need to always pass index: 0-2^31-1 in the API request to specify, which private key the KMS should generate from that mnemonic. 
+ * private key based - signature ID holds the specific private key. This type of signatureId won't work for mnemonic based operations like BTC, LTC, BCH, DOGE or ADA transfers, where Tatum is taking care of the UTXO management.
+
+This error occurs when you are using your mnemonic based signatureID in the operation, where private key is expected, or you didnt specify an index of the private key to use from the mnemonic based signature ID.
