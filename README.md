@@ -89,8 +89,16 @@ tatum-kms daemon --external-url=http://192.168.57.63
   mkdir vol
 
 * Docker run:
-  => Interactive docker run -it tatumio/tatum-kms --env-file .env -v ~/.tatumrc:/vol => Daemon docker run -d --env-file
-  .env -v ~/.tatumrc:/vol tatumio/tatum-kms
+  => Interactive 
+  docker run -it tatumio/tatum-kms --env-file .env -v ~/.tatumrc:/vol 
+  => Daemon
+   docker run -d --env-file .env -v ~/.tatumrc:/vol tatumio/tatum-kms
+  Where, "~/.tatumrc" is the container volume we are mapping with "/vol"
+  You will need to create a new directory volume "/vol" for mapping ~/.tatumrc to retain the data.
+    mkdir /vol
+  refer to docker volume mapping for more details
+  https://docs.docker.com/storage/volumes/
+
 
 * Example:
   While the above command will run kms as daemon, you can also use docker run to call specific functions such as:
