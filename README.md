@@ -82,12 +82,13 @@ tatum-kms daemon --external-url=http://192.168.57.63
 ```
 ### Docker mode
 * Docker pull: To run as docker container run the following command to pull tatum-kms image
-
- docker pull tatumio/tatum-kms
-
+  ```
+  docker pull tatumio/tatum-kms
+  ```
 * Map Volume: create a folder to map docker volume to local storage
-  mkdir vol
-
+  ```
+  mkdir /vol
+  ```
 * Docker run:
   => Interactive 
   ```
