@@ -1,30 +1,26 @@
 FROM node:14.17.5
 
-# Create app directory 
+# Create app directory
 
-WORKDIR /usr/src/app 
+WORKDIR /usr/src/app
 
-RUN apt-get update
-
-# Install supporting libraries
-
-RUN apt-get install -y libusb-1.0-0-dev usbutils
+RUN apt-get update && apt-get install -y libusb-1.0-0-dev usbutils
 
 RUN ln -s /lib/arm-linux-gnueabihf/libusb-1.0.so.0 libusb-1.0.dll
 
-COPY package*.json ./ 
+COPY package*.json ./
 
 # Installing dependencies
 
-RUN npm install 
+RUN npm install
 
 # Copying files from current directory
 
-COPY . . 
+COPY . .
 
 # Create build and link
 
-RUN npm run build 
+RUN npm run build
 
 RUN npm link
 
