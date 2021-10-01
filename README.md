@@ -85,6 +85,20 @@ tatum-kms daemon --external-url=http://192.168.57.63
   ```
   docker pull tatumio/tatum-kms
   ```
+* Create a .env file in the same directory with the following parameters:
+  ```
+  TATUM_API_KEY=XXXXX-YOUR-API-KEY
+  STOREPASSWORD=XXXXSTOREPASSWORD
+  USERNAME=XXXXUSERNAME
+  ALIAS=XXXXALIAS
+  PASSWORD=XXXXPASSWORD
+  SECRETVERSION=XXVERSION
+  SECRETNAME=XXSECRETNAME
+  VAULTURL=XXXVAULTURL
+
+  ```
+  Replace the values with your custom settings
+  
 * Map Volume: create a folder to map docker volume to local storage
   ```
   mkdir /vol
