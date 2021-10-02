@@ -106,11 +106,11 @@ tatum-kms daemon --external-url=http://192.168.57.63
 * Docker run:
   => Interactive 
   ```
-    docker run -it tatumio/tatum-kms --env-file .env -v ~/.tatumrc:/vol --help
+    docker run -it tatumio/tatum-kms --env-file .env -v /vol:/root/.tatumrc --help
   ```
   => Daemon
   ```
-   docker run -d --env-file .env -v ~/.tatumrc:/vol tatumio/tatum-kms
+   docker run -d --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms
   ```
   Where, "~/.tatumrc" is the container volume we are mapping with "/vol"
   You will need to create a new directory volume "/vol" for mapping ~/.tatumrc to retain the data.
@@ -124,7 +124,7 @@ tatum-kms daemon --external-url=http://192.168.57.63
 * Example:
   While the above command will run kms as daemon, you can also use docker run to call specific functions such as:
   ```
-  docker run -it --env-file .env -v ~/.tatumrc:/vol tatumio/tatum-kms storemanagedwallet
+  docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms storemanagedwallet
   ```
   You can shorten the command and use it as follows:
   ```
