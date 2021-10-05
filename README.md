@@ -106,7 +106,9 @@ tatum-kms daemon --external-url=http://192.168.57.63
 * Docker run:
   => Interactive 
   ```
-    docker run -it tatumio/tatum-kms --env-file .env -v /vol:/root/.tatumrc --help
+    docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms --help
+    docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
+
   ```
   => Daemon
   ```
@@ -124,7 +126,8 @@ tatum-kms daemon --external-url=http://192.168.57.63
 * Example:
   While the above command will run kms as daemon, you can also use docker run to call specific functions such as:
   ```
-  docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms storemanagedwallet
+  docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
+  docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms storemanagedprivatekey BTC
   ```
   You can shorten the command and use it as follows:
   ```
