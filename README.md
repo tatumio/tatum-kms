@@ -85,7 +85,12 @@ tatum-kms daemon --external-url=http://192.168.57.63
   ```
   docker pull tatumio/tatum-kms
   ```
-* Create a .env file in the same directory with the following parameters:
+* Navigate to home directory
+  ```
+  cd $HOME
+  ```
+
+* Create a .env file in the $HOME directory with the following parameters:
   ```
   TATUM_API_KEY=XXXXX-YOUR-API-KEY
   TATUM_KMS_VGS_USERNAME=XXXXUSERNAME

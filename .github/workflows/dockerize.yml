@@ -2,7 +2,7 @@ name: Dockerize
 on:
   push:
     branches:
-      - feature/dockerize
+      - master
 jobs:
   build:
     name: 🏗️ Install and build
@@ -17,7 +17,7 @@ jobs:
         run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
 
       - name: build image
-        run: docker build . --file Dockerfile -t ${{secrets.DOCKER_USER}}/tatum-kms 
+        run: docker build . --file Dockerfile -t ${{secrets.DOCKER_USER}}/tatum-kms:latest -t "${{secrets.DOCKER_USER}}/tatum-kms:$(cat ./package.json | jq -r ".version")"
     
       - name: push image
-        run: docker push ${{secrets.DOCKER_USER}}/tatum-kms
+        run: docker push ${{secrets.DOCKER_USER}}/tatum-kms:latest && docker push ${{secrets.DOCKER_USER}}/tatum-kms:$(cat ./package.json | jq -r ".version")
