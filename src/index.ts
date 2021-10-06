@@ -1,30 +1,32 @@
 #!/usr/bin/env node
 import dotenv from 'dotenv';
 dotenv.config();
-import {Currency, generateWallet} from '@tatumio/tatum';
+import { Currency, generateWallet } from '@tatumio/tatum';
 import axios from 'axios';
 import {
     exportWallets,
     getAddress,
-    getPassword,
     getPrivateKey,
     getWallet,
     removeWallet,
     storePrivateKey,
-    storeWallet
+    storeWallet,
+    getTatumKey,
+    getQuestion
 } from './management';
-import {processSignatures} from './signatures';
+import { processSignatures } from './signatures';
 import http from 'http';
 import https from 'https';
 import meow from 'meow';
-import {question} from 'readline-sync';
+import { ConfigOption, Config } from './config'
+var config = new Config()
 
 const axiosInstance = axios.create({
-    httpAgent: new http.Agent({keepAlive: true}),
-    httpsAgent: new https.Agent({keepAlive: true})
+    httpAgent: new http.Agent({ keepAlive: true }),
+    httpsAgent: new https.Agent({ keepAlive: true })
 });
 
-const {input: command, flags} = meow(`
+const { input: command, flags } = meow(`
     Usage
         $ tatum-kms command
 
@@ -79,7 +81,6 @@ const {input: command, flags} = meow(`
         }
     }
 });
-
 const startup = async () => {
     if (command.length === 0) {
         return;
@@ -88,15 +89,9 @@ const startup = async () => {
         case 'daemon':
             let pwd = '';
             if (flags.azure) {
-                const vaultUrl = question('Enter Vault Base URL to obtain secret from Azure Vault API:', {
-                    hideEchoBack: true,
-                });
-                const secretName = question('Enter Secret name to obtain from Azure Vault API:', {
-                    hideEchoBack: true,
-                });
-                const secretVersion = question('Enter Secret version to obtain secret from Azure Vault API:', {
-                    hideEchoBack: true,
-                });
+                const vaultUrl = config.getValue(ConfigOption.AZURE_VAULTURL);
+                const secretName = config.getValue(ConfigOption.AZURE_SECRETNAME);
+                const secretVersion = config.getValue(ConfigOption.AZURE_SECRETVERSION);
                 const pwd = (await axiosInstance.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`)).data?.data[0]?.value;
                 if (!pwd) {
                     console.error('Azure Vault secret does not exists.');
@@ -105,15 +100,9 @@ const startup = async () => {
                 }
 
             } else if (flags.vgs) {
-                const username = question('Enter username to VGS Vault API:', {
-                    hideEchoBack: true,
-                });
-                const password = question('Enter password to VGS Vault API:', {
-                    hideEchoBack: true,
-                });
-                const alias = question('Enter alias to obtain from VGS Vault API:', {
-                    hideEchoBack: true,
-                });
+                const username = config.getValue(ConfigOption.VGS_USERNAME);
+                const password = config.getValue(ConfigOption.VGS_PASSWORD);
+                const alias = config.getValue(ConfigOption.VGS_ALIAS);
                 const pwd = (await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
                     auth: {
                         username,
@@ -126,9 +115,9 @@ const startup = async () => {
                     return;
                 }
             } else {
-                pwd = getPassword()
+                pwd = config.getValue(ConfigOption.KMS_PASSWORD)
             }
-            process.env.TATUM_API_KEY = flags.apiKey as string;
+            getTatumKey(flags.apiKey as string)
             await processSignatures(pwd, flags.testnet, flags.period, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
             break;
         case 'generatewallet':
@@ -142,15 +131,11 @@ const startup = async () => {
             break;
         case 'storemanagedwallet':
             await storeWallet(command[1] as Currency, flags.testnet,
-                flags.path, question('Enter mnemonic to store:', {
-                    hideEchoBack: true,
-                }));
+                flags.path, getQuestion('Enter mnemonic to store:'));
             break;
         case 'storemanagedprivatekey':
             await storePrivateKey(command[1] as Currency, flags.testnet,
-                question('Enter private key to store:', {
-                    hideEchoBack: true,
-                }), flags.path);
+                getQuestion('Enter private key to store:'), flags.path);
             break;
         case 'getmanagedwallet':
             await getWallet(command[1], flags.path);

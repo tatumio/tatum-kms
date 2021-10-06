@@ -1,0 +1,23 @@
+name: Dockerize
+on:
+  push:
+    branches:
+      - master
+jobs:
+  build:
+    name: 🏗️ Install and build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: docker login
+        env:
+          DOCKER_USER: ${{secrets.DOCKER_USER}}
+          DOCKER_PASSWORD: ${{secrets.DOCKER_PASSWORD}}
+        run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD 
+
+      - name: build image
+        run: docker build . --file Dockerfile -t ${{secrets.DOCKER_USER}}/tatum-kms:latest -t "${{secrets.DOCKER_USER}}/tatum-kms:$(cat ./package.json | jq -r ".version")"
+    
+      - name: push image
+        run: docker push ${{secrets.DOCKER_USER}}/tatum-kms:latest && docker push ${{secrets.DOCKER_USER}}/tatum-kms:$(cat ./package.json | jq -r ".version")

@@ -48,9 +48,9 @@ import {
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
-import {AxiosInstance} from 'axios';
-import {flowSignKMSTransaction} from '@tatumio/tatum/dist/src/transaction/flow';
-import {getWallet} from './management';
+import { AxiosInstance } from 'axios';
+import { flowSignKMSTransaction } from '@tatumio/tatum/dist/src/transaction/flow';
+import { getWallet } from './management';
 
 const processTransaction = async (
     transaction: TransactionKMS,
@@ -73,7 +73,7 @@ const processTransaction = async (
 
     const wallets = [];
     for (const hash of transaction.hashes) {
-        wallets.push(await getWallet(hash, path, pwd,false));
+        wallets.push(await getWallet(hash, path, pwd, false));
     }
     let txData = '';
     console.log(
@@ -446,27 +446,30 @@ export const processSignatures = async (
         } catch (e) {
             console.error(e);
         }
+        const data = [];
         for (const transaction of transactions) {
             try {
+                console.log("processing txn", transaction)
                 await processTransaction(transaction, testnet, pwd, axios, path, externalUrl);
             } catch (e) {
                 const msg = e.response
                     ? JSON.stringify(e.response.data, null, 2)
                     : `${e}`;
-                console.error(e);
-                try {
-                    await axios.post(
-                        (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') +
-                        '/v3/tatum/kms',
-                        {
-                            signatureId: transaction.id,
-                            error: msg,
-                        },
-                        {headers: {'x-api-key': process.env.TATUM_API_KEY}}
-                    );
-                } catch (e) {
-                    console.error(e);
-                }
+                data.push({ signatureId: transaction.id, error: msg })
+                console.error("could not process transaction id ", transaction.id, "\n error::", e);
+            }
+        }
+        if (data.length > 0) {
+            try {
+                await axios.post(
+                    (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') +
+                    '/v3/tatum/kms/batch',
+                    { errors: data },
+                    { headers: { 'x-api-key': process.env.TATUM_API_KEY } }
+                );
+                console.log("send to url kms/batch")
+            } catch (e) {
+                console.error("error recieved from API /v3/tatum/kms/batch\n", e.config.data);
             }
         }
         running = false;

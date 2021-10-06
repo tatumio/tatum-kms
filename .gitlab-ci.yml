@@ -1,0 +1,10 @@
+stages:
+  - build
+
+include:
+  - project: tatum-io/gitlab-ci-templates
+    ref: master
+    file: /templates/build/docker.yml
+
+Build:
+  extends: .build

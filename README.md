@@ -80,6 +80,58 @@ Otherwise transaction is skipped and not signed and you should do the appropriat
 ```
 tatum-kms daemon --external-url=http://192.168.57.63
 ```
+### Docker mode
+* Docker pull: To run as docker container run the following command to pull tatum-kms image
+  ```
+  docker pull tatumio/tatum-kms
+  ```
+* Navigate to home directory
+  ```
+  cd $HOME
+  ```
+
+* Create a .env file in the $HOME directory with the following parameters:
+  ```
+  TATUM_API_KEY=XXXXX-YOUR-API-KEY
+  TATUM_KMS_VGS_USERNAME=XXXXUSERNAME
+  TATUM_KMS_VGS_PASSWORD=XXXXPASSWORDVGS
+  TATUM_KMS_VGS_ALIAS=XXXVSGALIAS
+  TATUM_KMS_PASSWORD=XXXXPASSWORD
+  TATUM_KMS_AZURE_SECRETVERSION=XXVERSION
+  TATUM_KMS_AZURE_SECRETNAME=XXSECRETNAME
+  TATUM_KMS_AZURE_VAULTURL=XXXXVAULTURL
+
+  ```
+  Replace the values with your custom settings
+  
+* Map Volume: map your home folder to map docker volume to local storage.
+  refer to docker volume mapping for more details
+  https://docs.docker.com/storage/volumes/
+
+* Docker run:
+  => Interactive 
+  ```
+    docker run -it --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms --help
+    docker run -it --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
+
+  ```
+  => Daemon
+  ```
+   docker run -d --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms
+  ```
+
+
+* Example:
+  While the above command will run kms as daemon, you can also use docker run to call specific functions such as:
+  ```
+  docker run -it --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
+  docker run -it --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms storemanagedprivatekey BTC
+  ```
+  You can shorten the command and use it as follows:
+  ```
+  docker run ${COMMON_PARAMS} tatumio/tatum-kms generatemanagedwallet BTC
+  ```
+  Where, COMMON_PARAMS can be exported as all the necessary flags for running the container
 
 ### CLI tools
 
