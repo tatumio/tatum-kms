@@ -99,42 +99,40 @@ tatum-kms daemon --external-url=http://192.168.57.63
   ```
   Replace the values with your custom settings
   
-* Map Volume: create a folder to map docker volume to local storage
+* Map Volume: create a folder to map docker volume to local storage.
+* Skip this command if you are using mac os
   ```
-  mkdir /vol
+  mkdir /Volumes
   ```
+  We will be mapping, "~/.tatumrc" with "/Volumes"
+  You will need to create a new directory volume "/Volumes" for mapping ~/.tatumrc to retain the data.
+  
+  refer to docker volume mapping for more details
+  https://docs.docker.com/storage/volumes/
 * Docker run:
   => Interactive 
   ```
-    docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms --help
-    docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
+    docker run -it --env-file .env -v /Volumes:/root/.tatumrc tatumio/tatum-kms --help
+    docker run -it --env-file .env -v /Volumes:/root/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
 
   ```
   => Daemon
   ```
-   docker run -d --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms
+   docker run -d --env-file .env -v /Volumes:/root/.tatumrc tatumio/tatum-kms
   ```
-  Where, "~/.tatumrc" is the container volume we are mapping with "/vol"
-  You will need to create a new directory volume "/vol" for mapping ~/.tatumrc to retain the data.
-  ```
-    mkdir /vol
-  ```
-  refer to docker volume mapping for more details
-  https://docs.docker.com/storage/volumes/
 
 
 * Example:
   While the above command will run kms as daemon, you can also use docker run to call specific functions such as:
   ```
-  docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
-  docker run -it --env-file .env -v /vol:/root/.tatumrc tatumio/tatum-kms storemanagedprivatekey BTC
+  docker run -it --env-file .env -v /Volumes:/root/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
+  docker run -it --env-file .env -v /Volumes:/root/.tatumrc tatumio/tatum-kms storemanagedprivatekey BTC
   ```
   You can shorten the command and use it as follows:
   ```
   docker run ${COMMON_PARAMS} tatumio/tatum-kms generatemanagedwallet BTC
   ```
-  Where, COMMON_PARAMS can be exported as all
-  the necessary flags for running the container
+  Where, COMMON_PARAMS can be exported as all the necessary flags for running the container
 
 ### CLI tools
 
