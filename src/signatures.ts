@@ -37,6 +37,7 @@ import {
     signTronKMSTransaction,
     signVetKMSTransaction,
     signXdcKMSTransaction,
+    signEgldKMSTransaction,
     signXlmKMSTransaction,
     signXlmOffchainKMSTransaction,
     signXrpKMSTransaction,
@@ -45,6 +46,7 @@ import {
     tronBroadcast,
     vetBroadcast,
     xdcBroadcast,
+    egldBroadcast,
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
@@ -295,7 +297,22 @@ const processTransaction = async (
                 transaction.id
             );
             return;
-        case Currency.TRON:
+        case Currency.EGLD:
+              const egldPrivateKey =
+                  wallets[0].mnemonic && transaction.index !== undefined
+                      ? await generatePrivateKeyFromMnemonic(
+                          Currency.EGLD,
+                          wallets[0].testnet,
+                          wallets[0].mnemonic,
+                          transaction.index
+                      )
+                      : wallets[0].privateKey;
+              await egldBroadcast(
+                  await signEgldKMSTransaction(transaction, egldPrivateKey),
+                  transaction.id
+              );
+              return;
+          case Currency.TRON:
             const fromPrivateKey =
                 wallets[0].mnemonic && transaction.index !== undefined
                     ? await generatePrivateKeyFromMnemonic(
@@ -423,6 +440,7 @@ export const processSignatures = async (
         Currency.BNB,
         Currency.FLOW,
         Currency.XDC,
+        Currency.EGLD,
         Currency.ONE,
         Currency.ADA,
         Currency.ALGO,
