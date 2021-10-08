@@ -1,16 +1,17 @@
-import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum';
-import { AES, enc } from 'crypto-js';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs';
-import { homedir } from 'os';
-import { dirname } from 'path';
-import { question } from 'readline-sync'
-import { v4 as uuid } from 'uuid';
-import { ConfigOption, Config } from './config'
-var config = new Config()
+import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum';
+import {AES, enc} from 'crypto-js';
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
+import {homedir} from 'os';
+import {dirname} from 'path';
+import {question} from 'readline-sync';
+import {v4 as uuid} from 'uuid';
+import {Config, ConfigOption} from './config';
+
+var config = new Config();
 const ensurePathExists = (path: string) => {
     const dir = dirname(path);
     if (!existsSync(dir)) {
-        mkdirSync(dir, { recursive: true });
+        mkdirSync(dir, {recursive: true});
     }
 };
 
@@ -18,23 +19,36 @@ export const exportWallets = (path?: string) => {
     const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
-        console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2));
+        console.error(JSON.stringify({error: `No such wallet file.`}, null, 2));
         return;
     }
-    const data = readFileSync(pathToWallet, { encoding: 'utf8' });
+    const data = readFileSync(pathToWallet, {encoding: 'utf8'});
     if (!data?.length) {
-        console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2));
+        console.error(JSON.stringify({error: `No such wallet file.`}, null, 2));
         return;
     }
     console.log(JSON.stringify(JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8)), null, 2));
 };
 
+export const getManagedWallets = (pwd: string, path?: string) => {
+    const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
+    if (!existsSync(pathToWallet)) {
+        console.error(JSON.stringify({error: `No such wallet file.`}, null, 2));
+        return [];
+    }
+    const data = readFileSync(pathToWallet, {encoding: 'utf8'});
+    if (!data?.length) {
+        return [];
+    }
+    return Object.keys(JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8)));
+};
+
 export const storeWallet = async (chain: Currency, testnet: boolean, path?: string, mnemonic?: string) => {
-    const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
+    const pwd = config.getValue(ConfigOption.KMS_PASSWORD);
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     const wallet: any = await generateWallet(chain, testnet, mnemonic);
     const key = uuid();
-    const entry = { [key]: { ...wallet, chain, testnet } };
+    const entry = {[key]: {...wallet, chain, testnet}};
     if (!existsSync(pathToWallet)) {
         ensurePathExists(pathToWallet);
         writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(entry), pwd).toString());

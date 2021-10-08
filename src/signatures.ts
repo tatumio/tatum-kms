@@ -1,5 +1,6 @@
 import {
     adaBroadcast,
+    algorandBroadcast,
     bcashBroadcast,
     bnbBroadcast,
     bscBroadcast,
@@ -7,9 +8,9 @@ import {
     celoBroadcast,
     Currency,
     dogeBroadcast,
+    egldBroadcast,
     ethBroadcast,
     flowBroadcast,
-    algorandBroadcast,
     generatePrivateKeyFromMnemonic,
     getPendingTransactionsKMSByChain,
     ltcBroadcast,
@@ -18,6 +19,7 @@ import {
     polygonBroadcast,
     signAdaKMSTransaction,
     signAdaOffchainKMSTransaction,
+    signAlgoKMSTransaction,
     signBitcoinCashKMSTransaction,
     signBitcoinCashOffchainKMSTransaction,
     signBitcoinKMSTransaction,
@@ -27,17 +29,16 @@ import {
     signCeloKMSTransaction,
     signDogecoinKMSTransaction,
     signDogecoinOffchainKMSTransaction,
+    signEgldKMSTransaction,
     signEthKMSTransaction,
     signEthOffchainKMSTransaction,
     signLitecoinKMSTransaction,
     signLitecoinOffchainKMSTransaction,
     signOneKMSTransaction,
-    signAlgoKMSTransaction,
     signPolygonKMSTransaction,
     signTronKMSTransaction,
     signVetKMSTransaction,
     signXdcKMSTransaction,
-    signEgldKMSTransaction,
     signXlmKMSTransaction,
     signXlmOffchainKMSTransaction,
     signXrpKMSTransaction,
@@ -46,13 +47,12 @@ import {
     tronBroadcast,
     vetBroadcast,
     xdcBroadcast,
-    egldBroadcast,
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
-import { AxiosInstance } from 'axios';
-import { flowSignKMSTransaction } from '@tatumio/tatum/dist/src/transaction/flow';
-import { getWallet } from './management';
+import {AxiosInstance} from 'axios';
+import {flowSignKMSTransaction} from '@tatumio/tatum/dist/src/transaction/flow';
+import {getManagedWallets, getWallet} from './management';
 
 const processTransaction = async (
     transaction: TransactionKMS,
@@ -64,12 +64,12 @@ const processTransaction = async (
 ) => {
 
     if (externalUrl) {
-        console.log('External url is present, checking against it.');
+        console.log(`${new Date().toISOString()} - External url '${externalUrl}' is present, checking against it.`);
         try {
             await axios.get(`${externalUrl}/${transaction.id}`);
         } catch (e) {
             console.error(e);
-            console.error('Transaction not found on external system. ID: ' + transaction.id);
+            console.error(`${new Date().toISOString()} - Transaction not found on external system. ID: ${transaction.id}`);
         }
     }
 
@@ -454,11 +454,12 @@ export const processSignatures = async (
         const transactions = [];
         try {
             for (const supportedChain of supportedChains) {
+                const wallets = getManagedWallets(pwd, path).join(',');
                 console.log(
-                    `${new Date().toISOString()} - Getting pending transaction from ${supportedChain}.`
+                    `${new Date().toISOString()} - Getting pending transaction from ${supportedChain} for wallets ${wallets}.`
                 );
                 transactions.push(
-                    ...(await getPendingTransactionsKMSByChain(supportedChain))
+                    ...(await getPendingTransactionsKMSByChain(supportedChain, wallets))
                 );
             }
         } catch (e) {
@@ -467,27 +468,27 @@ export const processSignatures = async (
         const data = [];
         for (const transaction of transactions) {
             try {
-                console.log("processing txn", transaction)
                 await processTransaction(transaction, testnet, pwd, axios, path, externalUrl);
             } catch (e) {
                 const msg = e.response
                     ? JSON.stringify(e.response.data, null, 2)
                     : `${e}`;
-                data.push({ signatureId: transaction.id, error: msg })
-                console.error("could not process transaction id ", transaction.id, "\n error::", e);
+                data.push({signatureId: transaction.id, error: msg});
+                console.error(`${new Date().toISOString()} - Could not process transaction id ${transaction.id}, error: ${msg}`);
             }
         }
         if (data.length > 0) {
             try {
+                const url = (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') +
+                    '/v3/tatum/kms/batch';
                 await axios.post(
-                    (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') +
-                    '/v3/tatum/kms/batch',
-                    { errors: data },
-                    { headers: { 'x-api-key': process.env.TATUM_API_KEY } }
+                    url,
+                    {errors: data},
+                    {headers: {'x-api-key': process.env.TATUM_API_KEY}}
                 );
-                console.log("send to url kms/batch")
+                console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`);
             } catch (e) {
-                console.error("error recieved from API /v3/tatum/kms/batch\n", e.config.data);
+                console.error(`${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${e.config.data}`);
             }
         }
         running = false;
