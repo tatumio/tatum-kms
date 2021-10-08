@@ -312,7 +312,7 @@ const processTransaction = async (
                   transaction.id
               );
               return;
-          case Currency.TRON:
+        case Currency.TRON:
             const fromPrivateKey =
                 wallets[0].mnemonic && transaction.index !== undefined
                     ? await generatePrivateKeyFromMnemonic(
