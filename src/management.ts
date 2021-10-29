@@ -134,7 +134,7 @@ export const getPrivateKey = async (id: string, index: string, path?: string) =>
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
     }
-    const pk = { privateKey: await generatePrivateKeyFromMnemonic(wallet[id].chain, wallet[id].testnet, wallet[id].mnemonic, parseInt(index)) };
+    const pk = { privateKey: (wallet[id].secret ? wallet[id].secret : await generatePrivateKeyFromMnemonic(wallet[id].chain, wallet[id].testnet, wallet[id].mnemonic, parseInt(index))) };
     console.log(JSON.stringify(pk, null, 2));
 };
 
@@ -154,8 +154,8 @@ export const getAddress = async (id: string, index: string, path?: string) => {
     if (!wallet[id]) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
         return;
-    }
-    const pk = { address: await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index)) };
+    }     
+    const pk = { address: (wallet[id].address ? wallet[id].address : await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index))) };
     console.log(JSON.stringify(pk, null, 2));
 };
 
