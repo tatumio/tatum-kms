@@ -50,7 +50,7 @@ const { input: command, flags } = meow(`
         --chain                           Blockchains to check, separated by comma. Daemon mode only.
 	    --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
 	    --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
-        --externalUrl                    Pass in external url to check valid transaction
+        --externalUrl                     Pass in external url to check valid transaction. This parameter is mandatory for mainnet (if testnet is false).  Daemon mode only.
 `, {
     flags: {
         path: {
