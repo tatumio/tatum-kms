@@ -77,7 +77,8 @@ const { input: command, flags } = meow(`
             default: 5,
         },
         externalUrl: {
-            type: 'string'
+            type: 'string',
+            isRequired: (flags, input) => input[0] === 'daemon' && !flags.testnet
         }
     }
 });
