@@ -75,7 +75,8 @@ If you want to verify, if transaction, which is being signed using KMS is yours,
 Add `externalUrl` parameter, which will point to your application server. This server will hold list of valid
 transactions to sign. Every time the tx is fetched from Tatum to be signed, it is validated against the external server
 using simple HTTP GET operation `your_external_url/transaction_id`. If response is 2xx, transaction is being signed.
-Otherwise transaction is skipped and not signed and you should do the appropriate operations on your end.
+Otherwise transaction is skipped and not signed and you should do the appropriate operations on your end. This parameter
+is mandatory for mainnet, to increase security on production environment. 
 
 ```
 tatum-kms daemon --external-url=http://192.168.57.63
