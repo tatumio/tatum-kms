@@ -70,7 +70,7 @@ blockchains separated by `,`.
 ```
 tatum-kms daemon --chain=BTC,LTC,ETH
 ```
-
+#### 4-eye principle
 If you want to verify, if transaction, which is being signed using KMS is yours, you can enable 4-eye-principle.
 Add `externalUrl` parameter, which will point to your application server. This server will hold list of valid
 transactions to sign. Every time the tx is fetched from Tatum to be signed, it is validated against the external server
