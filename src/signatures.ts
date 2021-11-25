@@ -87,15 +87,7 @@ const processTransaction = async (
     );
     switch (transaction.chain) {
         case Currency.ALGO:
-            const algoSecret =
-                wallets[0].mnemonic && transaction.index !== undefined
-                    ? await generatePrivateKeyFromMnemonic(
-                        Currency.ALGO,
-                        wallets[0].testnet,
-                        wallets[0].mnemonic,
-                        transaction.index
-                    )
-                    : wallets[0].privateKey;
+            const algoSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey;
             await algorandBroadcast(
                 (
                     await signAlgoKMSTransaction(transaction, algoSecret, testnet)
