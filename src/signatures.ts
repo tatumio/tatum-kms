@@ -11,6 +11,7 @@ import {
     egldBroadcast,
     ethBroadcast,
     flowBroadcastTx,
+    flowSignKMSTransaction,
     generatePrivateKeyFromMnemonic,
     getPendingTransactionsKMSByChain,
     ltcBroadcast,
@@ -50,8 +51,8 @@ import {
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
+import {signSolanaKMSTransaction, solanaBroadcast} from '@tatumio/tatum-solana';
 import {AxiosInstance} from 'axios';
-import {flowSignKMSTransaction} from '@tatumio/tatum/dist/src/transaction/flow';
 import {getManagedWallets, getWallet} from './management';
 
 const processTransaction = async (
@@ -94,6 +95,9 @@ const processTransaction = async (
                 )?.txId as string,
                 transaction.id
             );
+            return;
+        case Currency.SOL:
+            await solanaBroadcast(await signSolanaKMSTransaction(transaction, wallets[0].privateKey), transaction.id);
             return;
         case Currency.BCH:
             if (transaction.withdrawalId) {
@@ -290,20 +294,20 @@ const processTransaction = async (
             );
             return;
         case Currency.EGLD:
-              const egldPrivateKey =
-                  wallets[0].mnemonic && transaction.index !== undefined
-                      ? await generatePrivateKeyFromMnemonic(
-                          Currency.EGLD,
-                          wallets[0].testnet,
-                          wallets[0].mnemonic,
-                          transaction.index
-                      )
-                      : wallets[0].privateKey;
-              await egldBroadcast(
-                  await signEgldKMSTransaction(transaction, egldPrivateKey),
-                  transaction.id
-              );
-              return;
+            const egldPrivateKey =
+                wallets[0].mnemonic && transaction.index !== undefined
+                    ? await generatePrivateKeyFromMnemonic(
+                        Currency.EGLD,
+                        wallets[0].testnet,
+                        wallets[0].mnemonic,
+                        transaction.index
+                    )
+                    : wallets[0].privateKey;
+            await egldBroadcast(
+                await signEgldKMSTransaction(transaction, egldPrivateKey),
+                transaction.id
+            );
+            return;
         case Currency.TRON:
             const fromPrivateKey =
                 wallets[0].mnemonic && transaction.index !== undefined
@@ -428,6 +432,7 @@ export const processSignatures = async (
         Currency.DOGE,
         Currency.CELO,
         Currency.BSC,
+        Currency.SOL,
         Currency.TRON,
         Currency.BNB,
         Currency.FLOW,

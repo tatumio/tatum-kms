@@ -4,6 +4,7 @@
     "module": "commonjs",
     "outDir": "./dist",
     "strict": true,
+    "skipLibCheck": true,
     "baseUrl": "./",
     "lib": [
       "ES2020"
