@@ -31,7 +31,7 @@ export const exportWallets = (path?: string) => {
     console.log(JSON.stringify(JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8)), null, 2));
 };
 
-export const getManagedWallets = (pwd: string, path?: string) => {
+export const getManagedWallets = (pwd: string, chain: string, testnet: boolean, path?: string) => {
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
         console.error(JSON.stringify({error: `No such wallet file.`}, null, 2));
@@ -41,7 +41,14 @@ export const getManagedWallets = (pwd: string, path?: string) => {
     if (!data?.length) {
         return [];
     }
-    return Object.keys(JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8)));
+    const wallets = JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8));
+    const keys = [];
+    for (const walletsKey in wallets) {
+        if (chain === wallets[walletsKey].chain && testnet === wallets[walletsKey].testnet) {
+            keys.push(walletsKey);
+        }
+    }
+    return keys;
 };
 
 export const storeWallet = async (chain: Currency, testnet: boolean, path?: string, mnemonic?: string) => {

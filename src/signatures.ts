@@ -451,7 +451,7 @@ export const processSignatures = async (
         const transactions = [];
         try {
             for (const supportedChain of supportedChains) {
-                const wallets = getManagedWallets(pwd, path).join(',');
+                const wallets = getManagedWallets(pwd, supportedChain, testnet, path).join(',');
                 console.log(
                     `${new Date().toISOString()} - Getting pending transaction from ${supportedChain} for wallets ${wallets}.`
                 );
