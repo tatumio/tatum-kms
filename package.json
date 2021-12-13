@@ -38,7 +38,7 @@
   "dependencies": {
     "@tatumio/tatum": "1.29.26",
     "@tatumio/tatum-kcs": "^2.0.0-alpha.80",
-    "@tatumio/tatum-solana": "^2.0.0-alpha.77",
+    "@tatumio/tatum-solana": "^2.0.0-alpha.80",
     "crypto-js": "^4.0.0",
     "dotenv": "^10.0.0",
     "meow": "^7.0.1",
