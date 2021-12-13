@@ -52,7 +52,7 @@ import {
     xrpBroadcast,
 } from '@tatumio/tatum';
 import {generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, kcsBroadcast, signKcsKMSTransaction} from '@tatumio/tatum-kcs'
-import {signSolanaKMSTransaction, solanaBroadcast} from '@tatumio/tatum-solana';
+import {signKMSTransaction as signSolanaKMSTransaction, broadcast as solanaBroadcast} from '@tatumio/tatum-solana';
 import {AxiosInstance} from 'axios';
 import {getManagedWallets, getWallet} from './management';
 
