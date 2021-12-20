@@ -1,6 +1,6 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "4.0.5",
+  "version": "4.0.6",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "engines": {
