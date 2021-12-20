@@ -207,6 +207,10 @@ const processTransaction = async (
                         transaction.index
                     )
                     : wallets[0].privateKey;
+            const u = transaction.serializedTransaction;
+            const r = JSON.parse(u)
+            r.body.privateKey = secret;
+            transaction.serializedTransaction = JSON.stringify(r)
             await flowBroadcastTx(
                 (
                     await flowSignKMSTransaction(transaction, [secret], testnet)
