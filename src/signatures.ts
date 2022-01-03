@@ -475,6 +475,7 @@ export const processSignatures = async (
         Currency.ADA,
         Currency.ALGO,
         Currency.KCS,
+        Currency.GLMR
     ];
     setInterval(async () => {
         if (running) {
