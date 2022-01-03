@@ -1,6 +1,7 @@
 import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum';
 import {generateWallet as generateSolanaWallet} from '@tatumio/tatum-solana';
 import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs';
+import { generateWallet as generateMoonbeamWallet } from '@tatumio/tatum-moonbeam';
 import {AES, enc} from 'crypto-js';
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
 import {homedir} from 'os';
@@ -55,8 +56,20 @@ export const getManagedWallets = (pwd: string, chain: string, testnet: boolean, 
 export const storeWallet = async (chain: Currency, testnet: boolean, path?: string, mnemonic?: string) => {
     const pwd = config.getValue(ConfigOption.KMS_PASSWORD);
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
-    const wallet: any = chain === Currency.SOL ? await generateSolanaWallet() : (
-        chain === Currency.KCS ? await generateKcsWallet(mnemonic, {testnet}) : await generateWallet(chain, testnet, mnemonic));
+    let wallet:any;
+    switch (chain) {
+        case Currency.SOL:
+            wallet = await generateSolanaWallet();
+            break;
+        case Currency.KCS:
+            wallet = await generateKcsWallet(mnemonic, { testnet });
+            break;
+        case Currency.GLMR:
+            wallet = generateMoonbeamWallet(mnemonic, { testnet })
+            break;
+        default:
+            wallet = await generateWallet(chain, testnet, mnemonic);
+    }
     const key = uuid();
     const entry = {[key]: {...wallet, chain, testnet}};
     if (!existsSync(pathToWallet)) {
