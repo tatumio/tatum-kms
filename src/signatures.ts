@@ -52,6 +52,7 @@ import {
     xrpBroadcast,
 } from '@tatumio/tatum';
 import {generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, broadcast as kcsBroadcast, signKMSTransaction as signKcsKMSTransaction} from '@tatumio/tatum-kcs'
+import {generatePrivateKeyFromMnemonic as moonbeamGeneratePrivateKeyFromMnemonic, broadcast as moonbeamBradcast, signKMSTransaction as signMoonbeamKMSTransaction} from '@tatumio/tatum-moonbeam'
 import {signKMSTransaction as signSolanaKMSTransaction, broadcast as solanaBroadcast} from '@tatumio/tatum-solana';
 import {AxiosInstance} from 'axios';
 import {getManagedWallets, getWallet} from './management';
@@ -261,6 +262,20 @@ const processTransaction = async (
                     : wallets[0].privateKey;
             await bscBroadcast(
                 await signBscKMSTransaction(transaction, bscPrivateKey),
+                transaction.id
+            );
+            return;
+        case Currency.GLMR:
+            const moonbeamPrivateKey =
+                wallets[0].mnemonic && transaction.index !== undefined
+                    ? await moonbeamGeneratePrivateKeyFromMnemonic(
+                        wallets[0].testnet,
+                        wallets[0].mnemonic,
+                        transaction.index
+                    )
+                    : wallets[0].privateKey;
+            await moonbeamBradcast(
+                await signMoonbeamKMSTransaction(transaction, moonbeamPrivateKey),
                 transaction.id
             );
             return;
