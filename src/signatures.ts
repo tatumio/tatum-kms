@@ -51,8 +51,8 @@ import {
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
-import {generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, kcsBroadcast, signKcsKMSTransaction} from '@tatumio/tatum-kcs'
-import {signKMSTransaction as signSolanaKMSTransaction, broadcast as solanaBroadcast} from '@tatumio/tatum-solana';
+import {broadcast as kcsBroadcast, generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, signKMSTransaction as signKcsKMSTransaction} from '@tatumio/tatum-kcs'
+import {broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransaction} from '@tatumio/tatum-solana';
 import {AxiosInstance} from 'axios';
 import {getManagedWallets, getWallet} from './management';
 
@@ -284,7 +284,7 @@ const processTransaction = async (
             );
             return;
         case Currency.KCS:
-            const kcsPrivateKey = 
+            const kcsPrivateKey =
                 wallets[0].mnemonic && transaction.index !== undefined
                     ? await kcsGeneratePrivateKeyFromMnemonic(wallets[0].testnet, wallets[0].mnemonic, transaction.index)
                     : wallets[0].privateKey;
