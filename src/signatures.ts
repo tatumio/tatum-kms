@@ -51,9 +51,9 @@ import {
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
-import {generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, broadcast as kcsBroadcast, signKMSTransaction as signKcsKMSTransaction} from '@tatumio/tatum-kcs'
-import {generatePrivateKeyFromMnemonic as moonbeamGeneratePrivateKeyFromMnemonic, broadcast as moonbeamBradcast, signKMSTransaction as signMoonbeamKMSTransaction} from '@tatumio/tatum-moonbeam'
-import {signKMSTransaction as signSolanaKMSTransaction, broadcast as solanaBroadcast} from '@tatumio/tatum-solana';
+import {broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransaction} from '@tatumio/tatum-solana';
+import {broadcast as kcsBroadcast, generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, signKMSTransaction as signKcsKMSTransaction} from '@tatumio/tatum-kcs'
+import {broadcast as moonbeamBradcast, generatePrivateKeyFromMnemonic as moonbeamGeneratePrivateKeyFromMnemonic, signKMSTransaction as signMoonbeamKMSTransaction} from '@tatumio/tatum-moonbeam'
 import {AxiosInstance} from 'axios';
 import {getManagedWallets, getWallet} from './management';
 
