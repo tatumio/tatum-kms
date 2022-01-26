@@ -1088,6 +1088,20 @@
     reflect-metadata "^0.1.13"
     web3 "1.4.0"
 
+"@tatumio/tatum-core@^2.0.0-alpha.98":
+  version "2.0.0-alpha.98"
+  resolved "https://registry.yarnpkg.com/@tatumio/tatum-core/-/tatum-core-2.0.0-alpha.98.tgz#e90770133fd8bba252f7053752f9a1a9d496316c"
+  integrity sha512-lS5N4oUax/4NOxO2kjCjV6cUc783K7cNorBhbbtQczLCz6tlWoxTb9444f/ptU+Gr9pSgTcveSUhVhMPfp99LQ==
+  dependencies:
+    axios "^0.21.1"
+    axios-retry "^3.1.9"
+    bignumber.js "^9.0.0"
+    class-transformer "^0.2.3"
+    class-validator "0.13.0"
+    form-data "^4.0.0"
+    reflect-metadata "^0.1.13"
+    web3 "1.4.0"
+
 "@tatumio/tatum-kcs@^2.0.0-alpha.90":
   version "2.0.0-alpha.90"
   resolved "https://registry.yarnpkg.com/@tatumio/tatum-kcs/-/tatum-kcs-2.0.0-alpha.90.tgz#cdc9fbf392a1cec07e51b7691650bb9923453128"
@@ -1102,14 +1116,15 @@
     web3-core "1.4.0"
     web3-utils "1.4.0"
 
-"@tatumio/tatum-solana@^2.0.0-alpha.90":
-  version "2.0.0-alpha.90"
-  resolved "https://registry.yarnpkg.com/@tatumio/tatum-solana/-/tatum-solana-2.0.0-alpha.90.tgz#51e7e018ba20a7d7e9388b75a4295f24779a7015"
-  integrity sha512-9SKhJQZOI5S1oPtv8nNvycLJvcvb4N28xSbl/LMma3m4K9PWXkmr40X3/eyFsS6w9zyL9H62LT5bJYhEr8wVAQ==
+"@tatumio/tatum-solana@^2.0.0-alpha.98":
+  version "2.0.0-alpha.98"
+  resolved "https://registry.yarnpkg.com/@tatumio/tatum-solana/-/tatum-solana-2.0.0-alpha.98.tgz#1df08dbb2a2677f609481da46b3ffa3d9e252345"
+  integrity sha512-jUN1HWI+X6kCGmDipfvZ3PPj7BLhfPkCzLuH6f5kM4cR/WZsfNRQIMn8tjQPbGd9YkBPWp6K/l1saqy39xfRXQ==
   dependencies:
     "@solana/spl-token" "^0.1.8"
     "@solana/web3.js" "^1.31.0"
-    "@tatumio/tatum-core" "^2.0.0-alpha.90"
+    "@tatumio/tatum-core" "^2.0.0-alpha.98"
+    base-58 "^0.0.1"
     reflect-metadata "^0.1.13"
 
 "@tatumio/tatum@^1.30.5":
@@ -1855,6 +1870,11 @@ balanced-match@^1.0.0:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.2.tgz#e83e3a7e3f300b34cb9d87f615fa0cbf357690ee"
   integrity sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==
+
+base-58@^0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/base-58/-/base-58-0.0.1.tgz#85d3e70251075661933388f831d1eb8b8f6314e3"
+  integrity sha1-hdPnAlEHVmGTM4j4MdHri49jFOM=
 
 base-x@3.0.9, base-x@^3.0.2, base-x@^3.0.6, base-x@^3.0.8:
   version "3.0.9"
