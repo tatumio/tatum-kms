@@ -72,6 +72,7 @@ const processTransaction = async (
         } catch (e) {
             console.error(e);
             console.error(`${new Date().toISOString()} - Transaction not found on external system. ID: ${transaction.id}`);
+            return
         }
     }
 
