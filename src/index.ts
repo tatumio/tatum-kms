@@ -51,6 +51,7 @@ const { input: command, flags } = meow(`
 	    --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
 	    --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
         --externalUrl                     Pass in external url to check valid transaction. This parameter is mandatory for mainnet (if testnet is false).  Daemon mode only.
+        --privateKeyValue                 When storing private key using "storemanagedprivatekey" command you can pass the value of a private key using this flag so command doesn't show prompt, but instead uses value from this flag to store the private key. IMPORTANT! Use carefully since in this way the private key is exposed to the viewer.
 `, {
     flags: {
         path: {
@@ -79,6 +80,9 @@ const { input: command, flags } = meow(`
         externalUrl: {
             type: 'string',
             isRequired: (flags, input) => input[0] === 'daemon' && !flags.testnet
+        },
+        privateKeyValue: {
+            type: 'string',
         }
     }
 });
@@ -135,8 +139,8 @@ const startup = async () => {
                 flags.path, getQuestion('Enter mnemonic to store:'));
             break;
         case 'storemanagedprivatekey':
-            await storePrivateKey(command[1] as Currency, flags.testnet,
-                getQuestion('Enter private key to store:'), flags.path);
+            var privateKeyValue = (flags.privateKeyValue !== undefined) ? flags.privateKeyValue : getQuestion('Enter private key to store:');
+            await storePrivateKey(command[1] as Currency, flags.testnet, privateKeyValue, flags.path);
             break;
         case 'getmanagedwallet':
             await getWallet(command[1], flags.path);
