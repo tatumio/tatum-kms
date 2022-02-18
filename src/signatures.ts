@@ -13,7 +13,7 @@ import {
     flowBroadcastTx,
     flowSignKMSTransaction,
     generatePrivateKeyFromMnemonic,
-    getPendingTransactionsKMSByChain,
+    getPendingTransactionsKMSByChain, klaytnBroadcast,
     ltcBroadcast,
     offchainBroadcast,
     oneBroadcast,
@@ -32,7 +32,7 @@ import {
     signDogecoinOffchainKMSTransaction,
     signEgldKMSTransaction,
     signEthKMSTransaction,
-    signEthOffchainKMSTransaction,
+    signEthOffchainKMSTransaction, signKlayKMSTransaction,
     signLitecoinKMSTransaction,
     signLitecoinOffchainKMSTransaction,
     signOneKMSTransaction,
@@ -284,6 +284,25 @@ const processTransaction = async (
                 transaction.id
             );
             return;
+        case Currency.KLAY:
+            const klaytnPrivateKey =
+                wallets[0].mnemonic && transaction.index !== undefined
+                    ? await generatePrivateKeyFromMnemonic(
+                        Currency.KLAY,
+                        wallets[0].testnet,
+                        wallets[0].mnemonic,
+                        transaction.index
+                    )
+                    : wallets[0].privateKey;
+            await klaytnBroadcast(
+                await signKlayKMSTransaction(
+                    transaction,
+                    klaytnPrivateKey,
+                    testnet
+                ),
+                transaction.id
+            );
+            return;
         case Currency.KCS:
             const kcsPrivateKey =
                 wallets[0].mnemonic && transaction.index !== undefined
@@ -447,6 +466,7 @@ export const processSignatures = async (
         Currency.ETH,
         Currency.BTC,
         Currency.MATIC,
+        Currency.KLAY,
         Currency.LTC,
         Currency.DOGE,
         Currency.CELO,
