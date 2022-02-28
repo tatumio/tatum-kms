@@ -1514,10 +1514,10 @@
     base-58 "^0.0.1"
     reflect-metadata "^0.1.13"
 
-"@tatumio/tatum@1.31.4":
-  version "1.31.4"
-  resolved "https://registry.yarnpkg.com/@tatumio/tatum/-/tatum-1.31.4.tgz#74f4dd4914fc98bde02260b54a38421037f1e1e0"
-  integrity sha512-3UVcnb1wGpiioRowLnPeF0YiJnuHICKpCFrbp4nD9CLZLgq0YcwUL/qGPQaofRh1Yhlu6PT6jz+bi47E4qufUw==
+"@tatumio/tatum@1.32.1":
+  version "1.32.1"
+  resolved "https://registry.yarnpkg.com/@tatumio/tatum/-/tatum-1.32.1.tgz#fdc8fda342e00cd2fc653fff19e32efb7b8dbe4f"
+  integrity sha512-D2N2yF3BWUnMV3UKkgkG0JL5K8uny7cmdHImAqfKkiqApTVCroeiApwJXpiYm1Y28R2D5yJ8w8Z32UonyGibfA==
   dependencies:
     "@binance-chain/javascript-sdk" "^4.1.1"
     "@celo-tools/celo-ethers-wrapper" "0.0.5"
