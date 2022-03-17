@@ -53,6 +53,7 @@ import {
 } from '@tatumio/tatum';
 import {broadcast as kcsBroadcast, generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, signKMSTransaction as signKcsKMSTransaction} from '@tatumio/tatum-kcs'
 import {broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransaction} from '@tatumio/tatum-solana';
+import {TatumTerraSDK} from '@tatumio/terra'
 import {AxiosInstance} from 'axios';
 import {getManagedWallets, getWallet} from './management';
 
@@ -129,6 +130,18 @@ const processTransaction = async (
                 ),
                 transaction.id
             );
+            return;
+        case Currency.LUNA:
+            const sdk = TatumTerraSDK({apiKey: process.env.TATUM_API_KEY as string})
+            await sdk.blockchain.broadcast(
+                {
+                    txData: await sdk.kms.sign(
+                        transaction,
+                        wallets[0].privateKey,
+                        testnet
+                    ),
+                    signatureId: transaction.id
+                });
             return;
         case Currency.VET:
             const pk =
@@ -474,6 +487,7 @@ export const processSignatures = async (
         Currency.SOL,
         Currency.TRON,
         Currency.BNB,
+        Currency.LUNA,
         Currency.FLOW,
         Currency.XDC,
         Currency.EGLD,
@@ -521,7 +535,7 @@ export const processSignatures = async (
                 await axios.post(
                     url,
                     {errors: data},
-                    {headers: {'x-api-key': process.env.TATUM_API_KEY}}
+                    {headers: {'x-api-key': process.env.TATUM_API_KEY as string}}
                 );
                 console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`);
             } catch (e) {

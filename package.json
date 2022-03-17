@@ -1,6 +1,6 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "4.1.1",
+  "version": "4.1.2",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "engines": {
@@ -8,7 +8,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "run-daemon-testnet": "node dist/index.js daemon --testnet"
+    "run-daemon-testnet": "node dist/index.js daemon --testnet --api-key=YOUR_API_KEY --chain=KLAY"
   },
   "files": [
     "dist/"
@@ -36,7 +36,8 @@
   },
   "homepage": "https://github.com/tatumio/tatum-kms#readme",
   "dependencies": {
-    "@tatumio/tatum": "1.32.1",
+    "@tatumio/tatum": "1.33.6",
+    "@tatumio/terra": "2.0.1-alpha.245",
     "@tatumio/tatum-kcs": "2.0.0-alpha.90",
     "@tatumio/tatum-solana": "2.0.0-alpha.98",
     "crypto-js": "^4.0.0",

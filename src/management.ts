@@ -1,6 +1,7 @@
 import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum';
-import {generateWallet as generateSolanaWallet} from '@tatumio/tatum-solana';
 import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs';
+import {generateWallet as generateSolanaWallet} from '@tatumio/tatum-solana';
+import {TatumTerraSDK} from '@tatumio/terra'
 import {AES, enc} from 'crypto-js';
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs';
 import {homedir} from 'os';
@@ -55,8 +56,16 @@ export const getManagedWallets = (pwd: string, chain: string, testnet: boolean, 
 export const storeWallet = async (chain: Currency, testnet: boolean, path?: string, mnemonic?: string) => {
     const pwd = config.getValue(ConfigOption.KMS_PASSWORD);
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
-    const wallet: any = chain === Currency.SOL ? await generateSolanaWallet() : (
-        chain === Currency.KCS ? await generateKcsWallet(mnemonic, {testnet}) : await generateWallet(chain, testnet, mnemonic));
+    let wallet: any;
+    if (chain === Currency.SOL) {
+        wallet = await generateSolanaWallet();
+    } else if (chain === Currency.KCS) {
+        wallet = await generateKcsWallet(mnemonic, {testnet});
+    } else if (chain === Currency.LUNA) {
+        wallet = TatumTerraSDK({apiKey: process.env.TATUM_API_KEY as string}).wallet.wallet();
+    } else {
+        wallet = await generateWallet(chain, testnet, mnemonic);
+    }
     const key = uuid();
     const entry = {[key]: {...wallet, chain, testnet}};
     if (!existsSync(pathToWallet)) {
