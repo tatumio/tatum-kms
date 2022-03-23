@@ -51,11 +51,11 @@ import {
     xlmBroadcast,
     xrpBroadcast,
 } from '@tatumio/tatum';
-import {broadcast as kcsBroadcast, generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, signKMSTransaction as signKcsKMSTransaction} from '@tatumio/tatum-kcs'
-import {broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransaction} from '@tatumio/tatum-solana';
-import {TatumTerraSDK} from '@tatumio/terra'
-import {AxiosInstance} from 'axios';
-import {getManagedWallets, getWallet} from './management';
+import { broadcast as kcsBroadcast, generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, signKMSTransaction as signKcsKMSTransaction } from '@tatumio/tatum-kcs'
+import { broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransaction } from '@tatumio/tatum-solana';
+import { TatumTerraSDK } from '@tatumio/terra'
+import { AxiosInstance } from 'axios';
+import { getManagedWallets, getWallet } from './management';
 
 const processTransaction = async (
     transaction: TransactionKMS,
@@ -132,7 +132,7 @@ const processTransaction = async (
             );
             return;
         case Currency.LUNA:
-            const sdk = TatumTerraSDK({apiKey: process.env.TATUM_API_KEY as string})
+            const sdk = TatumTerraSDK({ apiKey: process.env.TATUM_API_KEY as string })
             await sdk.blockchain.broadcast(
                 {
                     txData: await sdk.kms.sign(
@@ -461,7 +461,7 @@ const processTransaction = async (
     });
 };
 
-export const processSignatures = async (
+export const processSignaturesDaemon = (
     pwd: string,
     testnet: boolean,
     period: number = 5,
@@ -470,7 +470,29 @@ export const processSignatures = async (
     chains?: Currency[],
     externalUrl?: string
 ) => {
-    let running = false;
+    return new Promise(function () {
+        let running = false;
+        setInterval(async () => {
+            if (running) {
+                return;
+            }
+            running = true;
+            await processSignatures(pwd, testnet, axios, path, chains, externalUrl)
+            running = false;
+        }, period * 1000);
+    })
+
+}
+
+export const processSignatures = async (
+    pwd: string,
+    testnet: boolean,
+    axios: AxiosInstance,
+    path?: string,
+    chains?: Currency[],
+    externalUrl?: string
+) => {
+
     const supportedChains = chains || [
         Currency.BCH,
         Currency.VET,
@@ -496,52 +518,53 @@ export const processSignatures = async (
         Currency.ALGO,
         Currency.KCS,
     ];
-    setInterval(async () => {
-        if (running) {
-            return;
-        }
-        running = true;
 
-        const transactions = [];
+    const transactions = [];
+
+    for (const supportedChain of supportedChains) {
         try {
-            for (const supportedChain of supportedChains) {
-                const wallets = getManagedWallets(pwd, supportedChain, testnet, path).join(',');
-                console.log(
-                    `${new Date().toISOString()} - Getting pending transaction from ${supportedChain} for wallets ${wallets}.`
-                );
-                transactions.push(
-                    ...(await getPendingTransactionsKMSByChain(supportedChain, wallets))
-                );
-            }
+            const wallets = getManagedWallets(pwd, supportedChain, testnet, path).join(',');
+            console.log(
+                `${new Date().toISOString()} - Getting pending transaction from ${supportedChain} for wallets ${wallets}.`
+            );
+            transactions.push(
+                ...(await getPendingTransactionsKMSByChain(supportedChain, wallets))
+            );
         } catch (e) {
             console.error(e);
         }
-        const data = [];
-        for (const transaction of transactions) {
-            try {
-                await processTransaction(transaction, testnet, pwd, axios, path, externalUrl);
-            } catch (e) {
-                const msg = e.response
-                    ? JSON.stringify(e.response.data, null, 2)
-                    : `${e}`;
-                data.push({signatureId: transaction.id, error: msg});
-                console.error(`${new Date().toISOString()} - Could not process transaction id ${transaction.id}, error: ${msg}`);
-            }
+    }
+
+    const data = [];
+    for (const transaction of transactions) {
+        try {
+            await processTransaction(transaction, testnet, pwd, axios, path, externalUrl);
+        } catch (e) {
+            const msg = e.response
+                ? JSON.stringify(e.response.data, null, 2)
+                : `${e}`;
+            data.push({ signatureId: transaction.id, error: msg });
+            console.error(`${new Date().toISOString()} - Could not process transaction id ${transaction.id}, error: ${msg}`);
         }
-        if (data.length > 0) {
-            try {
-                const url = (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') +
-                    '/v3/tatum/kms/batch';
-                await axios.post(
-                    url,
-                    {errors: data},
-                    {headers: {'x-api-key': process.env.TATUM_API_KEY as string}}
-                );
-                console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`);
-            } catch (e) {
-                console.error(`${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${e.config.data}`);
-            }
+    }
+    if (data.length > 0) {
+        try {
+            const url = (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') +
+                '/v3/tatum/kms/batch';
+            await axios.post(
+                url,
+                { errors: data },
+                { headers: { 'x-api-key': process.env.TATUM_API_KEY as string } }
+            );
+            console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`);
+        } catch (e) {
+            console.error(`${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${e.config.data}`);
         }
-        running = false;
-    }, period * 1000);
+    }
+
+
+    return {
+        transactions
+    }
+
 };

@@ -14,7 +14,7 @@ import {
     getTatumKey,
     getQuestion
 } from './management';
-import { processSignatures } from './signatures';
+import { processSignatures, processSignaturesAsDaemon } from './signatures';
 import http from 'http';
 import https from 'https';
 import meow from 'meow';
@@ -82,44 +82,52 @@ const { input: command, flags } = meow(`
         }
     }
 });
+
+const getPwd = (source: "AZURE" | "VGS" | "PWD") => {
+    if (source == 'AZURE') {
+        const vaultUrl = config.getValue(ConfigOption.AZURE_VAULTURL);
+        const secretName = config.getValue(ConfigOption.AZURE_SECRETNAME);
+        const secretVersion = config.getValue(ConfigOption.AZURE_SECRETVERSION);
+        const pwd = (await axiosInstance.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`)).data?.data[0]?.value;
+        if (!pwd) {
+            console.error('Azure Vault secret does not exists.');
+            process.exit(-1);
+            return;
+        }
+
+    } else if (source == 'VGS') {
+        const username = config.getValue(ConfigOption.VGS_USERNAME);
+        const password = config.getValue(ConfigOption.VGS_PASSWORD);
+        const alias = config.getValue(ConfigOption.VGS_ALIAS);
+        const pwd = (await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
+            auth: {
+                username,
+                password,
+            }
+        })).data?.data[0]?.value;
+        if (!pwd) {
+            console.error('VGS Vault alias does not exists.');
+            process.exit(-1);
+            return;
+        }
+    } else {
+        pwd = config.getValue(ConfigOption.KMS_PASSWORD)
+    }
+}
+
 const startup = async () => {
     if (command.length === 0) {
         return;
     }
     switch (command[0]) {
         case 'daemon':
-            let pwd = '';
-            if (flags.azure) {
-                const vaultUrl = config.getValue(ConfigOption.AZURE_VAULTURL);
-                const secretName = config.getValue(ConfigOption.AZURE_SECRETNAME);
-                const secretVersion = config.getValue(ConfigOption.AZURE_SECRETVERSION);
-                const pwd = (await axiosInstance.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`)).data?.data[0]?.value;
-                if (!pwd) {
-                    console.error('Azure Vault secret does not exists.');
-                    process.exit(-1);
-                    return;
-                }
-
-            } else if (flags.vgs) {
-                const username = config.getValue(ConfigOption.VGS_USERNAME);
-                const password = config.getValue(ConfigOption.VGS_PASSWORD);
-                const alias = config.getValue(ConfigOption.VGS_ALIAS);
-                const pwd = (await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
-                    auth: {
-                        username,
-                        password,
-                    }
-                })).data?.data[0]?.value;
-                if (!pwd) {
-                    console.error('VGS Vault alias does not exists.');
-                    process.exit(-1);
-                    return;
-                }
-            } else {
-                pwd = config.getValue(ConfigOption.KMS_PASSWORD)
-            }
+            const pwd = getPwd(flags.azure ? 'AZURE' : flags.vgs ? 'VGS' : 'PWD');
             getTatumKey(flags.apiKey as string)
-            await processSignatures(pwd, flags.testnet, flags.period, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
+            await processSignaturesAsDaemon(pwd, flags.testnet, flags.period, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
+            break;
+        case 'processsignatures':
+            const pwd = getPwd(flags.azure ? 'AZURE' : flags.vgs ? 'VGS' : 'PWD');
+            await processSignatures(pwd, flags.testnet, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
             break;
         case 'generatewallet':
             console.log(JSON.stringify(await generateWallet(command[1] as Currency, flags.testnet), null, 2));
