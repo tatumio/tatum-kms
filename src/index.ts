@@ -121,15 +121,24 @@ const startup = async () => {
     if (command.length === 0) {
         return;
     }
-
+    const getPwdSource = () => {
+        if (flags.azure) {
+            return 'AZURE';
+        }
+        if (flags.vgs) {
+            return 'VGS';
+        }
+        return 'PWD';
+    }
+    
     switch (command[0]) {
         case 'daemon':
-            const daemonPwd = await getPwd(flags.azure ? 'AZURE' : flags.vgs ? 'VGS' : 'PWD');
+            const daemonPwd = await getPwd(getPwdSource());
             getTatumKey(flags.apiKey as string)
             await processSignaturesAsDaemon(daemonPwd, flags.testnet, flags.period, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
             break;
         case 'processsignatures':
-            const adHockPwd = await getPwd(flags.azure ? 'AZURE' : flags.vgs ? 'VGS' : 'PWD');
+            const adHockPwd = await getPwd(getPwdSource());
             await processSignatures(adHockPwd, flags.testnet, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
             break;
         case 'generatewallet':
