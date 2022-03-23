@@ -83,7 +83,7 @@ const { input: command, flags } = meow(`
     }
 });
 
-const getPwd = (source: "AZURE" | "VGS" | "PWD") => {
+const getPwd = async (source: "AZURE" | "VGS" | "PWD") => {
     if (source == 'AZURE') {
         const vaultUrl = config.getValue(ConfigOption.AZURE_VAULTURL);
         const secretName = config.getValue(ConfigOption.AZURE_SECRETNAME);
@@ -121,15 +121,16 @@ const startup = async () => {
     if (command.length === 0) {
         return;
     }
+
     switch (command[0]) {
         case 'daemon':
-            const pwd = getPwd(flags.azure ? 'AZURE' : flags.vgs ? 'VGS' : 'PWD');
+            const daemonPwd = await getPwd(flags.azure ? 'AZURE' : flags.vgs ? 'VGS' : 'PWD');
             getTatumKey(flags.apiKey as string)
-            await processSignaturesAsDaemon(pwd, flags.testnet, flags.period, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
+            await processSignaturesAsDaemon(daemonPwd, flags.testnet, flags.period, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
             break;
         case 'processsignatures':
-            const pwd = getPwd(flags.azure ? 'AZURE' : flags.vgs ? 'VGS' : 'PWD');
-            await processSignatures(pwd, flags.testnet, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
+            const adHockPwd = await getPwd(flags.azure ? 'AZURE' : flags.vgs ? 'VGS' : 'PWD');
+            await processSignatures(adHockPwd, flags.testnet, axiosInstance, flags.path, flags.chain?.split(',') as Currency[], flags.externalUrl);
             break;
         case 'generatewallet':
             console.log(JSON.stringify(await generateWallet(command[1] as Currency, flags.testnet), null, 2));

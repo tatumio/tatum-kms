@@ -461,7 +461,7 @@ const processTransaction = async (
     });
 };
 
-export const processSignaturesDaemon = (
+export const processSignaturesAsDaemon = (
     pwd: string,
     testnet: boolean,
     period: number = 5,
