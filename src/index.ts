@@ -94,6 +94,7 @@ const getPwd = (source: "AZURE" | "VGS" | "PWD") => {
             process.exit(-1);
             return;
         }
+        return pwd;
 
     } else if (source == 'VGS') {
         const username = config.getValue(ConfigOption.VGS_USERNAME);
@@ -110,8 +111,9 @@ const getPwd = (source: "AZURE" | "VGS" | "PWD") => {
             process.exit(-1);
             return;
         }
+        return pwd;
     } else {
-        pwd = config.getValue(ConfigOption.KMS_PASSWORD)
+        return config.getValue(ConfigOption.KMS_PASSWORD);
     }
 }
 
