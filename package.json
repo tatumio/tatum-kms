@@ -1,6 +1,6 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "4.1.3",
+  "version": "4.1.4",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "engines": {
@@ -36,7 +36,7 @@
   },
   "homepage": "https://github.com/tatumio/tatum-kms#readme",
   "dependencies": {
-    "@tatumio/tatum": "1.34.0",
+    "@tatumio/tatum": "1.34.6",
     "@tatumio/terra": "2.0.1-alpha.245",
     "@tatumio/tatum-kcs": "2.0.0-alpha.90",
     "@tatumio/tatum-solana": "2.0.0-alpha.98",
