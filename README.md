@@ -118,7 +118,7 @@ tatum-kms daemon --external-url=http://192.168.57.63
   ```
   => Daemon
   ```
-   docker run -d --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms
+   docker run -d --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms daemon
   ```
 
 
