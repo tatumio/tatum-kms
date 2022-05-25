@@ -118,7 +118,7 @@ tatum-kms daemon --external-url=http://192.168.57.63
   ```
   => Daemon
   ```
-   docker run -d --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms
+   docker run -d --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms daemon
   ```
 
 
@@ -183,7 +183,13 @@ Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicat
         "signatureId": "e3015fc0-2112-4c8a-b8bf-353b86f63ba5"
     }
   ```   
-  
+
+* `storemanagedwalletbatch signatureId startIndex count` store "count" private keys for specific wallet "signatureId" starting from derivationIndex "startIndex".
+
+    ```
+    bash:$ tatum-kms storemanagedwalletbatch e3015fc0-2112-4c8a-b8bf-353b86f63ba5 1 100
+  ```   
+
 * `getmanagedwallet signatureId` - obtain managed wallet / private key from wallet store.
  
     ```
