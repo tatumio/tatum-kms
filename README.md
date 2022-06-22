@@ -184,10 +184,10 @@ Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicat
     }
   ```   
 
-* `storemanagedwalletbatch signatureId startIndex count` store "count" private keys for specific wallet "signatureId" starting from derivationIndex "startIndex".
+* `generatemanagedprivatekeybatch BTC count` store "count" private keys for a specific blockchain
 
     ```
-    bash:$ tatum-kms storemanagedwalletbatch e3015fc0-2112-4c8a-b8bf-353b86f63ba5 1 100
+    bash:$ tatum-kms generatemanagedprivatekeybatch BTC 100
   ```   
 
 * `getmanagedwallet signatureId` - obtain managed wallet / private key from wallet store.

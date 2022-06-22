@@ -53,9 +53,7 @@ export const getManagedWallets = (pwd: string, chain: string, testnet: boolean, 
     return keys;
 };
 
-export const storeWallet = async (chain: Currency, testnet: boolean, path?: string, mnemonic?: string) => {
-    const pwd = config.getValue(ConfigOption.KMS_PASSWORD);
-    const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
+const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: string) => {
     let wallet: any;
     if (chain === Currency.SOL) {
         wallet = await generateSolanaWallet();
@@ -66,6 +64,13 @@ export const storeWallet = async (chain: Currency, testnet: boolean, path?: stri
     } else {
         wallet = await generateWallet(chain, testnet, mnemonic);
     }
+    return wallet
+}
+
+export const storeWallet = async (chain: Currency, testnet: boolean, path?: string, mnemonic?: string, print = true) => {
+    const pwd = config.getValue(ConfigOption.KMS_PASSWORD);
+    const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
+    const wallet = await generatePureWallet(chain, testnet, mnemonic)
     const key = uuid();
     const entry = {[key]: {...wallet, chain, testnet}};
     if (!existsSync(pathToWallet)) {
@@ -86,7 +91,10 @@ export const storeWallet = async (chain: Currency, testnet: boolean, path?: stri
     if (wallet.xpub) {
         value.xpub = wallet.xpub;
     }
-    console.log(JSON.stringify(value, null, 2));
+    if (print) {
+        console.log(JSON.stringify(value, null, 2));
+    }
+    return { ...wallet, ...value }
 };
 
 export const storePrivateKey = async (chain: Currency, testnet: boolean, privateKey: string, path?: string, print = true) => {
@@ -111,18 +119,16 @@ export const storePrivateKey = async (chain: Currency, testnet: boolean, private
     return { signatureId: key }
 };
 
-export const storeWalletBatch = async (id: string, startDerivationIndex: string, count: string, path?: string, pwd?: string) => {
-    const password = pwd ?? config.getValue(ConfigOption.KMS_PASSWORD);
-    const wallet = await getWallet(id, path, pwd, false)
+export const generateManagedPrivateKeyBatch = async (chain: Currency, count: string, testnet: boolean, path?: string) => {
+    config.getValue(ConfigOption.KMS_PASSWORD);
     const cnt = Number(count)
-    const idx = Number(startDerivationIndex)
-    console.log('store wallet batch:', JSON.stringify(wallet), ` startIndex: ${startDerivationIndex} count: ${count}`)
     for (let i = 0; i < cnt; i++) {
-        const index = idx + i
-        const privKey = await getPrivateKey(id, `${index}`, path, password,false)
-        const address = await getAddress(id, `${index}`, path, password,false)
-        const { signatureId } = await storePrivateKey(wallet.chain, wallet.testnet, privKey as string, path, false)
-        console.log(`{ signatureId: ${signatureId}, address: ${address?.address}, index: ${index} }`)
+        const wallet = await generatePureWallet(chain, testnet)
+        const address = wallet.address ? wallet.address : await generateAddressFromXPub(chain, testnet, wallet.xpub, 1)
+        const privateKey = wallet.secret ? wallet.secret
+          : await generatePrivateKeyFromMnemonic(chain, testnet, wallet.mnemonic, 1)
+        const { signatureId } = await storePrivateKey(chain, testnet, privateKey as string, path, false)
+        console.log(`{ signatureId: ${signatureId}, address: ${address} }`)
     }
 };
 

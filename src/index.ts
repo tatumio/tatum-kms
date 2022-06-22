@@ -11,7 +11,7 @@ import {
     removeWallet,
     storePrivateKey,
     storeWallet,
-    storeWalletBatch,
+    generateManagedPrivateKeyBatch,
     getTatumKey,
     getQuestion
 } from './management';
@@ -19,7 +19,7 @@ import { processSignatures } from './signatures';
 import http from 'http';
 import https from 'https';
 import meow from 'meow';
-import { ConfigOption, Config } from './config'
+import { Config, ConfigOption } from './config'
 const config = new Config()
 
 const axiosInstance = axios.create({
@@ -37,7 +37,7 @@ const { input: command, flags } = meow(`
         generatemanagedwallet <chain>     Generate wallet for a specific blockchain and add it to the managed wallets.
         storemanagedwallet <chain>        Store mnemonic-based wallet for a specific blockchain and add it to the managed wallets.
         storemanagedprivatekey <chain>    Store private key of a specific blockchain and add it to the managed wallets.
-        storemanagedwalletbatch <signatureId> <i> <cnt> Store "cnt" private keys for specific wallet "signatureId" starting from derivationIndex "i"
+        generatemanagedprivatekeybatch <chain> <cnt> Store "cnt" private keys and addresses for a specific blockchain.
         getprivatekey <signatureId> <i>   Obtain managed wallet from wallet store and generate private key for given derivation index.
         getaddress <signatureId> <i>      Obtain managed wallet from wallet store and generate address for given derivation index.
         getmanagedwallet <signatureId>    Obtain managed wallet / private key from wallet store.
@@ -140,8 +140,8 @@ const startup = async () => {
             await storePrivateKey(command[1] as Currency, flags.testnet,
                 getQuestion('Enter private key to store:'), flags.path);
             break;
-        case 'storemanagedwalletbatch':
-            await storeWalletBatch(command[1], command[2], command[3], flags.path);
+        case 'generatemanagedprivatekeybatch':
+            await generateManagedPrivateKeyBatch(command[1] as Currency, command[2], flags.testnet, flags.path);
             break;
         case 'getmanagedwallet':
             await getWallet(command[1], flags.path);
