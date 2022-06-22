@@ -184,7 +184,7 @@ Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicat
     }
   ```   
 
-* `generatemanagedprivatekeybatch chain count` - generate and store "count" private keys for a specific blockchain. This operation is usefull, if you wanna pregenerate bigger amount of managed private keys for later use.
+* `generatemanagedprivatekeybatch chain count` - generate and store "count" number of private keys for a specific blockchain. This operation is usefull, if you wanna pregenerate bigger amount of managed private keys for later use.
 
     ```
     bash:$ tatum-kms generatemanagedprivatekeybatch BTC 100
