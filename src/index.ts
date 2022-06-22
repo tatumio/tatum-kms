@@ -32,17 +32,17 @@ const { input: command, flags } = meow(`
         $ tatum-kms command
 
     Commands
-        daemon                            Run as a daemon, which periodically checks for a new transactions to sign.
-        generatewallet <chain>            Generate wallet for a specific blockchain and echo it to the output.
-        generatemanagedwallet <chain>     Generate wallet for a specific blockchain and add it to the managed wallets.
-        storemanagedwallet <chain>        Store mnemonic-based wallet for a specific blockchain and add it to the managed wallets.
-        storemanagedprivatekey <chain>    Store private key of a specific blockchain and add it to the managed wallets.
-        generatemanagedprivatekeybatch <chain> <cnt> Store "cnt" private keys and addresses for a specific blockchain.
-        getprivatekey <signatureId> <i>   Obtain managed wallet from wallet store and generate private key for given derivation index.
-        getaddress <signatureId> <i>      Obtain managed wallet from wallet store and generate address for given derivation index.
-        getmanagedwallet <signatureId>    Obtain managed wallet / private key from wallet store.
-        removewallet <signatureId>        Remove managed wallet from wallet store.
-        export                            Export all managed wallets.
+        daemon                            		Run as a daemon, which periodically checks for a new transactions to sign.
+        generatewallet <chain>            		Generate wallet for a specific blockchain and echo it to the output.
+        generatemanagedwallet <chain>     		Generate wallet for a specific blockchain and add it to the managed wallets.
+        storemanagedwallet <chain>        		Store mnemonic-based wallet for a specific blockchain and add it to the managed wallets.
+        storemanagedprivatekey <chain>    		Store private key of a specific blockchain and add it to the managed wallets.
+        generatemanagedprivatekeybatch <chain> <cnt> 	generate and store "cnt" number of private keys for a specific blockchain. This operation is usefull, if you wanna pregenerate bigger amount of managed private keys for later use.
+        getprivatekey <signatureId> <i>   		Obtain managed wallet from wallet store and generate private key for given derivation index.
+        getaddress <signatureId> <i>      		Obtain managed wallet from wallet store and generate address for given derivation index.
+        getmanagedwallet <signatureId>    		Obtain managed wallet / private key from wallet store.
+        removewallet <signatureId>        		Remove managed wallet from wallet store.
+export                            			Export all managed wallets.
 
     Options
         --api-key                         Tatum API Key to communicate with Tatum API. Daemon mode only.
