@@ -53,9 +53,7 @@ export const getManagedWallets = (pwd: string, chain: string, testnet: boolean, 
     return keys;
 };
 
-export const storeWallet = async (chain: Currency, testnet: boolean, path?: string, mnemonic?: string) => {
-    const pwd = config.getValue(ConfigOption.KMS_PASSWORD);
-    const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
+const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: string) => {
     let wallet: any;
     if (chain === Currency.SOL) {
         wallet = await generateSolanaWallet();
@@ -66,6 +64,13 @@ export const storeWallet = async (chain: Currency, testnet: boolean, path?: stri
     } else {
         wallet = await generateWallet(chain, testnet, mnemonic);
     }
+    return wallet
+}
+
+export const storeWallet = async (chain: Currency, testnet: boolean, path?: string, mnemonic?: string, print = true) => {
+    const pwd = config.getValue(ConfigOption.KMS_PASSWORD);
+    const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
+    const wallet = await generatePureWallet(chain, testnet, mnemonic)
     const key = uuid();
     const entry = {[key]: {...wallet, chain, testnet}};
     if (!existsSync(pathToWallet)) {
@@ -86,10 +91,13 @@ export const storeWallet = async (chain: Currency, testnet: boolean, path?: stri
     if (wallet.xpub) {
         value.xpub = wallet.xpub;
     }
-    console.log(JSON.stringify(value, null, 2));
+    if (print) {
+        console.log(JSON.stringify(value, null, 2));
+    }
+    return { ...wallet, ...value }
 };
 
-export const storePrivateKey = async (chain: Currency, testnet: boolean, privateKey: string, path?: string) => {
+export const storePrivateKey = async (chain: Currency, testnet: boolean, privateKey: string, path?: string, print = true) => {
     const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     const key = uuid();
@@ -105,7 +113,23 @@ export const storePrivateKey = async (chain: Currency, testnet: boolean, private
         }
         writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(walletData), pwd).toString());
     }
-    console.log(JSON.stringify({ signatureId: key }, null, 2));
+    if (print) {
+        console.log(JSON.stringify({signatureId: key}, null, 2));
+    }
+    return { signatureId: key }
+};
+
+export const generateManagedPrivateKeyBatch = async (chain: Currency, count: string, testnet: boolean, path?: string) => {
+    config.getValue(ConfigOption.KMS_PASSWORD);
+    const cnt = Number(count)
+    for (let i = 0; i < cnt; i++) {
+        const wallet = await generatePureWallet(chain, testnet)
+        const address = wallet.address ? wallet.address : await generateAddressFromXPub(chain, testnet, wallet.xpub, 1)
+        const privateKey = wallet.secret ? wallet.secret
+          : await generatePrivateKeyFromMnemonic(chain, testnet, wallet.mnemonic, 1)
+        const { signatureId } = await storePrivateKey(chain, testnet, privateKey as string, path, false)
+        console.log(`{ signatureId: ${signatureId}, address: ${address} }`)
+    }
 };
 
 export const getWallet = async (id: string, path?: string, pwd?: string, print = true) => {
@@ -136,48 +160,54 @@ export const getWallet = async (id: string, path?: string, pwd?: string, print =
     }
 };
 
-export const getPrivateKey = async (id: string, index: string, path?: string) => {
-    const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
+export const getPrivateKey = async (id: string, index: string, path?: string, password?: string, print = true) => {
+    const pwd = password ?? config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
-        return;
+        return null;
     }
     const data = readFileSync(pathToWallet, { encoding: 'utf8' });
     if (!data?.length) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
-        return;
+        return null;
     }
     const wallet = JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8));
     if (!wallet[id]) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
-        return;
+        return null;
     }
     const pk = { privateKey: (wallet[id].secret
             ? wallet[id].secret
             : await generatePrivateKeyFromMnemonic(wallet[id].chain, wallet[id].testnet, wallet[id].mnemonic, parseInt(index))) };
-    console.log(JSON.stringify(pk, null, 2));
+    if (print) {
+        console.log(JSON.stringify(pk, null, 2));
+    }
+    return pk.privateKey as string;
 };
 
-export const getAddress = async (id: string, index: string, path?: string) => {
-    const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
+export const getAddress = async (id: string, index: string, path?: string, pwd?: string, print = true) => {
+    const password = pwd ?? config.getValue(ConfigOption.KMS_PASSWORD)
     const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat';
     if (!existsSync(pathToWallet)) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
-        return;
+        return null;
     }
     const data = readFileSync(pathToWallet, { encoding: 'utf8' });
     if (!data?.length) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
-        return;
+        return null;
     }
-    const wallet = JSON.parse(AES.decrypt(data, pwd).toString(enc.Utf8));
+    const wallet = JSON.parse(AES.decrypt(data, password).toString(enc.Utf8));
     if (!wallet[id]) {
         console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2));
-        return;
+        return null;
     }
     const pk = { address: (wallet[id].address ? wallet[id].address : await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index))) };
-    console.log(JSON.stringify(pk, null, 2));
+    if (print) {
+        console.log(JSON.stringify(pk, null, 2));
+    }
+    return { address: pk.address }
 };
 
 export const removeWallet = async (id: string, path?: string) => {
