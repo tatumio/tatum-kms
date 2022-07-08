@@ -447,7 +447,7 @@ export const processSignatures = async (
       try {
         await processTransaction(transaction, testnet, pwd, axios, path, externalUrl)
       } catch (e) {
-        const msg = e.response ? JSON.stringify(e.response.data, null, 2) : `${e}`
+        const msg = (<any>e).response ? JSON.stringify((<any>e).response.data, null, 2) : `${e}`
         data.push({ signatureId: transaction.id, error: msg })
         console.error(`${new Date().toISOString()} - Could not process transaction id ${transaction.id}, error: ${msg}`)
       }
@@ -458,7 +458,9 @@ export const processSignatures = async (
         await axios.post(url, { errors: data }, { headers: { 'x-api-key': process.env.TATUM_API_KEY as string } })
         console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`)
       } catch (e) {
-        console.error(`${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${e.config.data}`)
+        console.error(
+          `${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${(<any>e).config.data}`,
+        )
       }
     }
     running = false

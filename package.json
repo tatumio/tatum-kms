@@ -46,7 +46,7 @@
     "meow": "^7.0.1",
     "readline-sync": "^1.4.10",
     "reflect-metadata": "^0.1.13",
-    "uuid": "^8.2.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/readline-sync": "^1.4.4",
@@ -54,6 +54,6 @@
     "@typescript-eslint/parser": "^5.30.5",
     "eslint": "^8.19.0",
     "rimraf": "^3.0.2",
-    "typescript": "^3.9.7"
+    "typescript": "4.7.4"
   }
 }
