@@ -8,6 +8,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "lint": "eslint . --ext .ts",
     "run-daemon-testnet": "node dist/index.js daemon --testnet --api-key=YOUR_API_KEY --chain=KLAY"
   },
   "files": [
@@ -37,20 +38,22 @@
   "homepage": "https://github.com/tatumio/tatum-kms#readme",
   "dependencies": {
     "@tatumio/tatum": "1.34.6",
-    "@tatumio/terra": "2.0.1-alpha.245",
     "@tatumio/tatum-kcs": "2.0.0-alpha.90",
     "@tatumio/tatum-solana": "2.0.0-alpha.98",
+    "@tatumio/terra": "2.0.1-alpha.245",
     "crypto-js": "^4.0.0",
     "dotenv": "^10.0.0",
     "meow": "^7.0.1",
     "readline-sync": "^1.4.10",
     "reflect-metadata": "^0.1.13",
-    "uuid": "^8.2.0"
+    "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/readline-sync": "^1.4.4",
+    "@typescript-eslint/eslint-plugin": "^5.30.5",
+    "@typescript-eslint/parser": "^5.30.5",
+    "eslint": "^8.19.0",
     "rimraf": "^3.0.2",
-    "tslint": "^6.1.2",
-    "typescript": "^3.9.7"
+    "typescript": "4.7.4"
   }
 }

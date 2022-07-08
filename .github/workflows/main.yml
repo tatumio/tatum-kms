@@ -30,6 +30,8 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
       - run: yarn install
 
+      - run: yarn lint
+
       - run: yarn build
 
       - run: yarn publish --access public
