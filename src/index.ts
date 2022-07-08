@@ -44,7 +44,7 @@ const { input: command, flags } = meow(
         getaddress <signatureId> <i>      		Obtain managed wallet from wallet store and generate address for given derivation index.
         getmanagedwallet <signatureId>    		Obtain managed wallet / private key from wallet store.
         removewallet <signatureId>        		Remove managed wallet from wallet store.
-export                            			Export all managed wallets.
+        export                            	  Export all managed wallets.
 
     Options
         --api-key                         Tatum API Key to communicate with Tatum API. Daemon mode only.
@@ -52,8 +52,8 @@ export                            			Export all managed wallets.
         --path                            Custom path to wallet store file.
         --period                          Period in seconds to check for new transactions to sign, defaults to 5 seconds. Daemon mode only.
         --chain                           Blockchains to check, separated by comma. Daemon mode only.
-	    --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
-	    --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
+	      --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
+	      --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
         --externalUrl                     Pass in external url to check valid transaction. This parameter is mandatory for mainnet (if testnet is false).  Daemon mode only.
 `,
   {
