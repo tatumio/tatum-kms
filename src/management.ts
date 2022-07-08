@@ -259,7 +259,6 @@ export const removeWallet = async (id: string, path?: string) => {
 export const getTatumKey = (apiKey: string) => {
   if (apiKey) {
     process.env.TATUM_API_KEY = apiKey
-    return
   }
 }
 export const getQuestion = (q: string, e?: string) => {

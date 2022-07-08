@@ -392,11 +392,11 @@ const processTransaction = async (
 export const processSignatures = async (
   pwd: string,
   testnet: boolean,
-  period = 5,
   axios: AxiosInstance,
   path?: string,
   chains?: Currency[],
   externalUrl?: string,
+  period = 5,
 ) => {
   let running = false
   const supportedChains = chains || [
