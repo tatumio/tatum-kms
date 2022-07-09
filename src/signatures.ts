@@ -61,6 +61,7 @@ import { broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransa
 import { TatumTerraSDK } from '@tatumio/terra'
 import { AxiosInstance } from 'axios'
 import { getManagedWallets, getWallet } from './management'
+import { KMS_CONSTANTS } from './constants'
 
 const processTransaction = async (
   transaction: TransactionKMS,
@@ -393,17 +394,17 @@ const getPendingTransactions = async (
   chain: Currency,
   signatureIds: string[],
 ): Promise<TransactionKMS[]> => {
-  const LIMIT = 25_000
-  const OUTPUT_LIMIT = 5
-  if (signatureIds.length > LIMIT) {
-    console.error(`${new Date().toISOString()} - Error: Exceeded limit ${LIMIT} of wallets for chain ${chain}.`)
+  if (signatureIds.length > KMS_CONSTANTS.SIGNATURE_IDS) {
+    console.error(
+      `${new Date().toISOString()} - Error: Exceeded limit ${KMS_CONSTANTS.SIGNATURE_IDS} wallets for chain ${chain}.`,
+    )
     return []
   }
 
   console.log(
     `${new Date().toISOString()} - Getting pending transaction from ${chain} for ${
-      signatureIds.length > OUTPUT_LIMIT ? signatureIds.length + ' ' : ''
-    }wallets${signatureIds.length > OUTPUT_LIMIT ? '' : ' ' + signatureIds.join(',')}.`,
+      signatureIds.length > KMS_CONSTANTS.OUTPUT_WALLETS ? signatureIds.length + ' ' : ''
+    }wallets${signatureIds.length > KMS_CONSTANTS.OUTPUT_WALLETS ? '' : ' ' + signatureIds.join(',')}.`,
   )
   try {
     const url = (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') + `/v3/kms/pending/${chain}`
