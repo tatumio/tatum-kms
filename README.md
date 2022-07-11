@@ -1,7 +1,7 @@
 # Tatum KMS
 Key Management System for Tatum-powered applications.
 
-## Security Principals
+## Security Principles
 Tatum KMS is used to store private keys and mnemonics of the blockchain wallets securely. KMS periodically pulls pending
 transactions to sign from Tatum Cloud, signs them locally using stored private keys, and broadcasts them to the blockchain.
 
@@ -26,61 +26,66 @@ npm i -g @tatumio/tatum-kms
 ```
 
 ## Usage
-To see list of all available commands, please see help.
+To see list of all available commands, please see the help.
 
 ```
 tatum-kms --help
 ```
 
 ### Daemon mode
-By default, Tatum KMS runs as a daemon and periodically checks (defaults to once every 15 seconds) any new pending transactions to sign.
+By default, Tatum KMS runs as a daemon and periodically checks for any new pending transactions to sign.
 
 ```
 tatum-kms daemon
 ```
 
-After a successful startup, daemon will require the password to the wallet store. In wallet store, data are encrypted and password is stored only in memory of the daemon.
-```
-bash:$ tatum-kms daemon
-Enter password to decrypt wallet store:
-```
-Wallet store is saved in the home folder of the user in .tatumrc folder, e.g. `/home/admin/.tatumrc/wallet.dat`.
-To change path to the wallet file, parameter `--path` is used.
+By default, Tatum KMS checks for the pending transactions every 15 seconds using [this API call](https://apidoc.tatum.io/tag/Key-Management-System#operation/GetPendingTransactionsToSign). One API call consumes 1 credit from your monthly credit allowance.
 
-```
-tatum-kms daemon --path=/path/to/wallet/store/directory/wallet.dat
-```
-
-Another way how to provide the password is via env variable:
-
-```
-TATUM_KMS_PASSWORD=password
-```
-
-To change periodicity, use `--period` parameter (in seconds).
+To change the frequency of the check, use the `--period` parameter and set it the number of seconds.
 
 ```
 tatum-kms daemon --period=5
 ```
 
-By default, Tatum KMS checks for pending transaction in every blockchain - BTC, BCH, BNB, LTC, ETH, ETH ERC20s, XLM,
-XRP, VET, DOGE, TRON, BSC, CELO, FLOW, XDC, EGLD. To specify concrete blockchains, parameter `--chain` is used with
-blockchains separated by `,`.
+After successful startup, the daemon requires the password to the wallet store. In the wallet store, the data is encrypted and the password is stored only in the daemon memory.
+```
+bash:$ tatum-kms daemon
+Enter password to decrypt wallet store:
+```
+The wallet store is saved in the user's home folder, under the `.tatumrc` folder; for example, `/home/admin/.tatumrc/wallet.dat`.
+To change the path to the wallet file, use the `--path` parameter.
+
+```
+tatum-kms daemon --path=/path/to/wallet/store/directory/wallet.dat
+```
+
+Alternatively, you can provide the password via the environment variable:
+
+```
+TATUM_KMS_PASSWORD=password
+```
+
+By default, Tatum KMS checks for pending transaction in all the supported blockchains: BTC, BCH, BNB, LTC, ETH, ETH ERC20s, XLM,
+XRP, VET, DOGE, TRON, BSC, CELO, FLOW, XDC, EGLD. To check for the transactions only in some blockchains, use the `--chain` parameter and list the blockchains to check separated with a comma (`,`).
 
 ```
 tatum-kms daemon --chain=BTC,LTC,ETH
 ```
+
 #### 4-eye principle
-If you want to verify, if transaction, which is being signed using KMS is yours, you can enable 4-eye-principle.
-Add `externalUrl` parameter, which will point to your application server. This server will hold list of valid
-transactions to sign. Every time the tx is fetched from Tatum to be signed, it is validated against the external server
-using simple HTTP GET operation `your_external_url/transaction_id`. If response is 2xx, transaction is being signed.
-Otherwise transaction is skipped and not signed and you should do the appropriate operations on your end. This parameter
-is mandatory for mainnet, to increase security on production environment. 
+To verify whether the transaction to sign with KMS is yours, enable the 4-eye-principle.
+
+To do so, add the `external-url` parameter and set it to your application server. This server should hold the list of valid
+transactions to sign. The `external-url` parameter is mandatory on the mainnet to make the production environment more secure.
 
 ```
 tatum-kms daemon --external-url=http://192.168.57.63
 ```
+
+Every time a transaction from Tatum is fetched to be signed, it is validated against the external server
+using a simple HTTP GET operation: `your_external_url/transaction_id`. If the response is 2xx, the transaction is signed.
+Otherwise, the transaction is skipped and is not signed, and you should take the appropriate steps on your end to fix the situation.
+
 ### Docker mode
 * Docker pull: To run as docker container run the following command to pull tatum-kms image
   ```
