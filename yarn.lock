@@ -1628,10 +1628,10 @@
     base-58 "^0.0.1"
     reflect-metadata "^0.1.13"
 
-"@tatumio/tatum@1.34.6":
-  version "1.34.6"
-  resolved "https://registry.yarnpkg.com/@tatumio/tatum/-/tatum-1.34.6.tgz#b29039929e48fd39885ce29c3f84134b3e72be84"
-  integrity sha512-KjIBulgmVMAU5VQZr7snud6JvGW1UDOnlD/UHdqbVBUe2bpGfwNkCWZhMj+mYjLjqcBuHP5oGLTXvg++ibHwmw==
+"@tatumio/tatum@1.35.8":
+  version "1.35.8"
+  resolved "https://registry.yarnpkg.com/@tatumio/tatum/-/tatum-1.35.8.tgz#06ed89d40c01ddd0563b15bea8d9d620125c4f86"
+  integrity sha512-iYyrZ0sE+YMhV50sRS+kiQtNnTY7lPfjyvfL/aKc8XhuQI3lJdhz2VPi+6Pe6/rTDYK46gJHJF3nMw2/qgiwmw==
   dependencies:
     "@binance-chain/javascript-sdk" "^4.1.1"
     "@celo-tools/celo-ethers-wrapper" "0.0.5"
@@ -1647,7 +1647,7 @@
     "@solana/spl-token" "^0.1.8"
     "@solana/web3.js" "^1.30.2"
     "@tatumio/bitcoincashjs2-lib" "4.1.2"
-    algosdk "^1.11.1"
+    algosdk "1.16.0"
     axios "^0.21.1"
     axios-retry "^3.1.9"
     base32.js "^0.1.0"
@@ -2530,10 +2530,10 @@ algo-msgpack-with-bigint@^2.1.1:
   resolved "https://registry.yarnpkg.com/algo-msgpack-with-bigint/-/algo-msgpack-with-bigint-2.1.1.tgz#38bb717220525b3ff42232eefdcd9efb9ad405d6"
   integrity sha512-F1tGh056XczEaEAqu7s+hlZUDWwOBT70Eq0lfMpBP2YguSQVyxRbprLq5rELXKQOyOaixTWYhMeMQMzP0U5FoQ==
 
-algosdk@^1.11.1:
-  version "1.12.0"
-  resolved "https://registry.yarnpkg.com/algosdk/-/algosdk-1.12.0.tgz#77e2a22568495210d26ecd1f830e98cc069815b5"
-  integrity sha512-Iqek0AwcCeXLywVg4E8gWWjmuPZ10P7PUmpZrlR71FSNyEtX4Ie+UgrNHWhkYnhyykRU5mjtvD4Hrb2eOepsGA==
+algosdk@1.16.0:
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/algosdk/-/algosdk-1.16.0.tgz#2aec5bf0cfc4da6363d2ad214536d717ad6fb145"
+  integrity sha512-oD1PEuzjJFXSx7/zwFB5N337kqykhxaPXEGgbw4IWKgjq1eRn++RAa+FH9PRwv+n9nOdzFfy83uWYwkVqliRuw==
   dependencies:
     algo-msgpack-with-bigint "^2.1.1"
     buffer "^6.0.2"
