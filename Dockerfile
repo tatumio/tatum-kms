@@ -13,9 +13,9 @@ COPY package*.json ./
 COPY yarn.lock ./
 
 # Installing dependencies
-
+RUN yarn cache clean
 RUN yarn install --frozen-lockfile --unsafe-perm
-RUN yarn add usb --build-from-source
+RUN yarn add usb
 # Copying files from current directory
 
 COPY . .
