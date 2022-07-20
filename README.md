@@ -37,6 +37,7 @@ tatum-kms --help
 
 ### Daemon mode
 By default, Tatum KMS runs as a daemon and periodically checks (defaults to once every 15 seconds) any new pending transactions to sign.
+Retrieving pending transactions to sign consumes credits from the monthly credit allowance of your API key, 1 credit for every 500 signature IDs per API call.
 
 ```
 tatum-kms daemon
