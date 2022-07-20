@@ -13,6 +13,7 @@ COPY package*.json ./
 COPY yarn.lock ./
 
 # Installing dependencies
+RUN apk add --no-cache git
 RUN yarn cache clean
 RUN yarn install --frozen-lockfile --unsafe-perm
 RUN yarn add usb
