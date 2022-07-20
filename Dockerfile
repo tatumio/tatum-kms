@@ -1,4 +1,4 @@
-FROM node:14-alpine3.12 AS builder
+FROM node:14-alpine3.16 AS builder
 
 # Create app directory
 
