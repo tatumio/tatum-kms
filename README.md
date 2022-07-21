@@ -13,7 +13,7 @@ The most sensitive information in this architecture is the password, which is us
 as a parameter or obtained from the environment variables. 
 There are three ways of entering a password to the KMS:
 * during the start of the KMS, the password is entered manually and stored in the memory during the daemon's runtime.
-* password is stored in the [VGS Vault](https://verygoodsecurity), obtained during startup, and stored in the memory during the daemon's runtime.
+* password is stored in the [VGS Vault](https://www.verygoodsecurity.com/), obtained during startup, and stored in the memory during the daemon's runtime.
 * password is stored in the [Azure Vault](https://azure.microsoft.com/en-us/services/key-vault/), obtained during startup, and stored in the memory during the daemon's runtime.
 
 In this architecture, private keys and mnemonics never leave your perimeter, but they are encrypted if anybody gains access to the file system.
@@ -39,7 +39,7 @@ By default, Tatum KMS runs as a daemon and periodically checks for any new pendi
 tatum-kms daemon
 ```
 
-By default, Tatum KMS checks for the pending transactions every 15 seconds using [this API call](https://apidoc.tatum.io/tag/Key-Management-System#operation/GetPendingTransactionsToSign). One API call consumes 1 credit from your monthly credit allowance.
+By default, Tatum KMS checks for the pending transactions every 5 seconds using [this API call](https://apidoc.tatum.io/tag/Key-Management-System#operation/GetPendingTransactionsToSign). One API call consumes 1 credit from your monthly credit allowance.
 
 To change the frequency of the check, use the `--period` parameter and set it the number of seconds.
 
