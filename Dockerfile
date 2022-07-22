@@ -1,11 +1,11 @@
-FROM node:14-alpine3.12 AS builder
+FROM node:14-alpine3.16 AS builder
 
 # Create app directory
 
 WORKDIR /usr/src/app
 
 RUN apk --virtual build-dependencies add \
-    libtool curl jq py3-configobj py3-pip py3-setuptools python3 python3-dev g++ make libusb-dev eudev-dev linux-headers && ln -sf python3 /usr/bin/python
+    git libtool curl jq py3-configobj py3-pip py3-setuptools python3 python3-dev g++ make libusb-dev eudev-dev linux-headers && ln -sf python3 /usr/bin/python
 
 RUN ln -s /lib/arm-linux-gnueabihf/libusb-1.0.so.0 libusb-1.0.dll
 
@@ -13,9 +13,9 @@ COPY package*.json ./
 COPY yarn.lock ./
 
 # Installing dependencies
-
+RUN yarn cache clean
 RUN yarn install --frozen-lockfile --unsafe-perm
-RUN yarn add usb --build-from-source
+RUN yarn add usb
 # Copying files from current directory
 
 COPY . .
