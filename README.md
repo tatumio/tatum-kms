@@ -36,19 +36,18 @@ tatum-kms --help
 ```
 
 ### Daemon mode
-By default, Tatum KMS runs as a daemon and periodically checks (defaults to once every 15 seconds) any new pending transactions to sign.
-Retrieving pending transactions to sign consumes credits from the monthly credit allowance of your API key, 1 credit for every 500 signature IDs per API call.
+By default, Tatum KMS runs as a daemon and periodically checks for any new pending transactions to sign.
 
 ```
 tatum-kms daemon
 ```
 
-By default, Tatum KMS checks for the pending transactions every 5 seconds using [this API call](https://apidoc.tatum.io/tag/Key-Management-System#operation/GetPendingTransactionsToSign). One API call consumes 1 credit from your monthly credit allowance.
+Tatum KMS checks for the pending transactions every 5 seconds by default. Retrieving the pending transactions consumes credits from the monthly credit allowance of your API key, 1 credit for every 500 signature IDs per API call.
 
 To change the frequency of the check, use the `--period` parameter and set it the number of seconds.
 
 ```
-tatum-kms daemon --period=5
+tatum-kms daemon --period=15
 ```
 
 After successful startup, the daemon requires the password to the wallet store. In the wallet store, the data is encrypted and the password is stored only in the daemon memory.
