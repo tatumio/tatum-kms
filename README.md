@@ -9,6 +9,9 @@ transactions to sign from Tatum Cloud, signs them locally using stored private k
 Tatum KMS generates and stores the private keys and mnemonic in the local file system's encrypted file.
 The wallet file is encrypted using the AES-GCM-256 cipher.
 
+You can use max 25k signatureIds per one blockchain and one Tatum API key. If you overreach this limit,
+system will inform you by error message and stop signing your transactions until your data fulfill this limit.
+
 The most sensitive information in this architecture is the password, which is used to encrypt the file. The password is never passed
 as a parameter or obtained from the environment variables. 
 There are three ways of entering a password to the KMS:
@@ -33,7 +36,8 @@ tatum-kms --help
 ```
 
 ### Daemon mode
-By default, Tatum KMS runs as a daemon and periodically checks for any new pending transactions to sign.
+By default, Tatum KMS runs as a daemon and periodically checks (defaults to once every 15 seconds) any new pending transactions to sign.
+Retrieving pending transactions to sign consumes credits from the monthly credit allowance of your API key, 1 credit for every 500 signature IDs per API call.
 
 ```
 tatum-kms daemon

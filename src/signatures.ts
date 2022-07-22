@@ -13,7 +13,6 @@ import {
   flowBroadcastTx,
   flowSignKMSTransaction,
   generatePrivateKeyFromMnemonic,
-  getPendingTransactionsKMSByChain,
   klaytnBroadcast,
   ltcBroadcast,
   offchainBroadcast,
@@ -62,6 +61,7 @@ import { broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransa
 import { TatumTerraSDK } from '@tatumio/terra'
 import { AxiosInstance } from 'axios'
 import { getManagedWallets, getWallet } from './management'
+import { KMS_CONSTANTS } from './constants'
 
 const processTransaction = async (
   transaction: TransactionKMS,
@@ -389,6 +389,40 @@ const processTransaction = async (
   })
 }
 
+const getPendingTransactions = async (
+  axios: AxiosInstance,
+  chain: Currency,
+  signatureIds: string[],
+): Promise<TransactionKMS[]> => {
+  if (signatureIds.length > KMS_CONSTANTS.SIGNATURE_IDS) {
+    console.error(
+      `${new Date().toISOString()} - Error: Exceeded limit ${KMS_CONSTANTS.SIGNATURE_IDS} wallets for chain ${chain}.`,
+    )
+    return []
+  }
+
+  console.log(
+    `${new Date().toISOString()} - Getting pending transaction from ${chain} for ${
+      signatureIds.length > KMS_CONSTANTS.OUTPUT_WALLETS ? signatureIds.length + ' ' : ''
+    }wallets${signatureIds.length > KMS_CONSTANTS.OUTPUT_WALLETS ? '' : ' ' + signatureIds.join(',')}.`,
+  )
+  try {
+    const url = (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') + `/v3/kms/pending/${chain}`
+    const { data } = await axios.post(
+      url,
+      { signatureIds },
+      { headers: { 'x-api-key': process.env.TATUM_API_KEY as string } },
+    )
+    return data as TransactionKMS[]
+  } catch (e) {
+    console.error(
+      `${new Date().toISOString()} - Error received from API /v3/kms/pending/${chain} - ${(e as any).config.data}: ` +
+        e,
+    )
+  }
+  return []
+}
+
 export const processSignatures = async (
   pwd: string,
   testnet: boolean,
@@ -433,11 +467,8 @@ export const processSignatures = async (
     const transactions = []
     try {
       for (const supportedChain of supportedChains) {
-        const wallets = getManagedWallets(pwd, supportedChain, testnet, path).join(',')
-        console.log(
-          `${new Date().toISOString()} - Getting pending transaction from ${supportedChain} for wallets ${wallets}.`,
-        )
-        transactions.push(...(await getPendingTransactionsKMSByChain(supportedChain, wallets)))
+        const wallets = getManagedWallets(pwd, supportedChain, testnet, path)
+        transactions.push(...(await getPendingTransactions(axios, supportedChain, wallets)))
       }
     } catch (e) {
       console.error(e)
