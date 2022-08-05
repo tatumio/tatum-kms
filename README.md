@@ -22,6 +22,16 @@ There are three ways of entering a password to the KMS:
 In this architecture, private keys and mnemonics never leave your perimeter, but they are encrypted if anybody gains access to the file system.
 
 ## Installation
+
+### Supported operating systems
+You can run KMS on the following operating systems:
+- **macOS:** Natively or via [Docker](https://hub.docker.com/repository/docker/tatumio/tatum-kms)
+- **Unix:** Natively or via [Docker](https://hub.docker.com/repository/docker/tatumio/tatum-kms)
+- **MS Windows:** Only via [Docker](https://hub.docker.com/repository/docker/tatumio/tatum-kms)
+
+We recommend that you run KMS from the [Docker image](https://hub.docker.com/repository/docker/tatumio/tatum-kms) regardless of the operating system used.
+
+### Installing from npm
 Tatum KMS is shipped via npm. It installs a set of CLI tools and commands to generate and store wallets / private keys securely.
 NodeJS >=14 and npm@6 is required. Not working on npm@7!!!
 ```
