@@ -111,11 +111,16 @@ Otherwise, the transaction is skipped and is not signed, and you should take the
 
 * Create a .env file in the $HOME directory with the following parameters:
   ```
+  # required
   TATUM_API_KEY=XXXXX-YOUR-API-KEY
+  # either password, or Azure or VGS fields are required
+  # password setup
+  TATUM_KMS_PASSWORD=XXXXPASSWORD  
+  # VGS setup
   TATUM_KMS_VGS_USERNAME=XXXXUSERNAME
   TATUM_KMS_VGS_PASSWORD=XXXXPASSWORDVGS
   TATUM_KMS_VGS_ALIAS=XXXVSGALIAS
-  TATUM_KMS_PASSWORD=XXXXPASSWORD
+  # Azure setup
   TATUM_KMS_AZURE_SECRETVERSION=XXVERSION
   TATUM_KMS_AZURE_SECRETNAME=XXSECRETNAME
   TATUM_KMS_AZURE_VAULTURL=XXXXVAULTURL
