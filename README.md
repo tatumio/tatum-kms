@@ -14,10 +14,11 @@ system will inform you by error message and stop signing your transactions until
 
 The most sensitive information in this architecture is the password, which is used to encrypt the file. The password is never passed
 as a parameter or obtained from the environment variables. 
-There are three ways of entering a password to the KMS:
+There are 4 ways of entering a password to the KMS:
 * during the start of the KMS, the password is entered manually and stored in the memory during the daemon's runtime.
 * password is stored in the [VGS Vault](https://www.verygoodsecurity.com/), obtained during startup, and stored in the memory during the daemon's runtime.
 * password is stored in the [Azure Vault](https://azure.microsoft.com/en-us/services/key-vault/), obtained during startup, and stored in the memory during the daemon's runtime.
+* password is stored in the [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/), obtained during startup, and stored in the memory during the daemon's runtime.
 
 In this architecture, private keys and mnemonics never leave your perimeter, but they are encrypted if anybody gains access to the file system.
 
@@ -113,9 +114,15 @@ Otherwise, the transaction is skipped and is not signed, and you should take the
   ```
   # required
   TATUM_API_KEY=XXXXX-YOUR-API-KEY
-  # either password, or Azure or VGS fields are required
+  # either password, AWS, Azure or VGS fields are required
   # password setup
   TATUM_KMS_PASSWORD=XXXXPASSWORD  
+  # AWS setup
+  TATUM_KMS_AWS_REGION=us-east-1
+  TATUM_KMS_AWS_SECRET_NAME=YOUR_KMS_SECRET_NAME
+  TATUM_KMS_AWS_ACCESS_KEY_ID=AKIAYWGKDBVRGMCASWIE
+  TATUM_KMS_AWS_SECRET_ACCESS_KEY=ZxDq62BZGyGe2CzwnVjL/IH8NnJG5Fu0isN7wev9
+  TATUM_KMS_AWS_SECRET_KEY=pwd
   # VGS setup
   TATUM_KMS_VGS_USERNAME=XXXXUSERNAME
   TATUM_KMS_VGS_PASSWORD=XXXXPASSWORDVGS

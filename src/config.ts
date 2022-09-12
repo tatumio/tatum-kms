@@ -8,6 +8,11 @@ export enum ConfigOption {
   AZURE_SECRETVERSION,
   AZURE_SECRETNAME,
   AZURE_VAULTURL,
+  AWS_REGION,
+  AWS_SECRET_NAME,
+  AWS_SECRET_KEY,
+  AWS_ACCESS_KEY_ID,
+  AWS_SECRET_ACCESS_KEY,
 }
 
 export class Config {
@@ -43,6 +48,26 @@ export class Config {
     [ConfigOption.AZURE_VAULTURL]: {
       environmentKey: 'TATUM_KMS_AZURE_VAULTURL',
       question: 'Enter Vault Base URL to obtain secret from Azure Vault API:',
+    },
+    [ConfigOption.AWS_REGION]: {
+      environmentKey: 'TATUM_KMS_AWS_REGION',
+      question: 'Enter AWS Region to obtain secret from AWS Secrets Manager:',
+    },
+    [ConfigOption.AWS_ACCESS_KEY_ID]: {
+      environmentKey: 'TATUM_KMS_AWS_ACCESS_KEY_ID',
+      question: 'Enter AWS Access key ID to obtain secret from AWS Secrets Manager:',
+    },
+    [ConfigOption.AWS_SECRET_ACCESS_KEY]: {
+      environmentKey: 'TATUM_KMS_AWS_SECRET_ACCESS_KEY',
+      question: 'Enter AWS Secret access key to obtain secret from AWS Secrets Manager:',
+    },
+    [ConfigOption.AWS_SECRET_NAME]: {
+      environmentKey: 'TATUM_KMS_AWS_SECRET_NAME',
+      question: 'Enter AWS Secret name to obtain secret from AWS Secrets Manager:',
+    },
+    [ConfigOption.AWS_SECRET_KEY]: {
+      environmentKey: 'TATUM_KMS_AWS_SECRET_KEY',
+      question: 'Enter AWS Secret key from you stored secret to obtain password from AWS Secrets Manager:',
     },
   }
 

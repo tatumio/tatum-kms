@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { Currency, generateWallet } from '@tatumio/tatum'
+import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import axios from 'axios'
 import dotenv from 'dotenv'
 import http from 'http'
@@ -52,8 +53,9 @@ const { input: command, flags } = meow(
         --path                            Custom path to wallet store file.
         --period                          Period in seconds to check for new transactions to sign, defaults to 5 seconds. Daemon mode only.
         --chain                           Blockchains to check, separated by comma. Daemon mode only.
-	       --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
-	       --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
+	    --aws                             Using AWS Secrets Manager (https://aws.amazon.com/secrets-manager/) as a secure storage of the password which unlocks the wallet file.
+	    --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
+        --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
         --externalUrl                     Pass in external url to check valid transaction. This parameter is mandatory for mainnet (if testnet is false).  Daemon mode only.
 `,
   {
@@ -72,6 +74,9 @@ const { input: command, flags } = meow(
         isRequired: true,
       },
       vgs: {
+        type: 'boolean',
+      },
+      aws: {
         type: 'boolean',
       },
       azure: {
@@ -106,6 +111,18 @@ const startup = async () => {
           process.exit(-1)
           return
         }
+      } else if (flags.aws) {
+        const client = new SecretsManagerClient({ region: config.getValue(ConfigOption.AWS_REGION), credentials: {
+            accessKeyId: config.getValue(ConfigOption.AWS_ACCESS_KEY_ID),
+            secretAccessKey: config.getValue(ConfigOption.AWS_SECRET_ACCESS_KEY),
+          } })
+        const result = await client.send(new GetSecretValueCommand({ SecretId: config.getValue(ConfigOption.AWS_SECRET_NAME) }))
+        if (!result.SecretString) {
+          console.error('AWS secret does not exists.')
+          process.exit(-1)
+          return
+        }
+        pwd = JSON.parse(result.SecretString)[config.getValue(ConfigOption.AWS_SECRET_KEY)]
       } else if (flags.vgs) {
         const username = config.getValue(ConfigOption.VGS_USERNAME)
         const password = config.getValue(ConfigOption.VGS_PASSWORD)
