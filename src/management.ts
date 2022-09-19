@@ -59,8 +59,6 @@ const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: 
     wallet = await generateSolanaWallet()
   } else if (chain === Currency.KCS) {
     wallet = await generateKcsWallet(mnemonic, { testnet })
-  } else if (chain === Currency.LUNA) {
-    wallet = TatumTerraSDK({ apiKey: process.env.TATUM_API_KEY as string }).wallet.wallet()
   } else {
     wallet = await generateWallet(chain, testnet, mnemonic)
   }
@@ -147,6 +145,35 @@ export const generateManagedPrivateKeyBatch = async (
       : await generatePrivateKeyFromMnemonic(chain, testnet, wallet.mnemonic, 1)
     const { signatureId } = await storePrivateKey(chain, testnet, privateKey as string, path, false)
     console.log(`{ signatureId: ${signatureId}, address: ${address} }`)
+  }
+}
+
+export const getWalletWithMnemonicForChain = async (chain: Currency, path?: string, pwd?: string, print = true) => {
+  const password = pwd ?? config.getValue(ConfigOption.KMS_PASSWORD)
+  const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
+  if (!existsSync(pathToWallet)) {
+    console.error(JSON.stringify({ error: `No such wallet for chain '${chain}'.` }, null, 2))
+    return
+  }
+  const data = readFileSync(pathToWallet, { encoding: 'utf8' })
+  if (!data?.length) {
+    console.error(JSON.stringify({ error: `No such wallet for chain '${chain}'.` }, null, 2))
+    return
+  }
+  try {
+    const walletData: Partial<{[key: string]: {chain?: string; mnemonic?: string}}> = JSON.parse(AES.decrypt(data, password).toString(enc.Utf8))
+    const wallets: any[] = Object.values(walletData ?? {}).filter(w => w?.chain === chain && w?.mnemonic !== null && w?.mnemonic !== undefined)
+    if (wallets.length === 0) {
+      console.error(JSON.stringify({ error: `No such wallet for chain '${chain}'.` }, null, 2))
+      return
+    }
+    if (print) {
+      console.log(JSON.stringify(wallets, null, 2))
+    }
+    return wallets
+  } catch (e) {
+    console.error(JSON.stringify({ error: `Wrong password.` }, null, 2))
+    return
   }
 }
 

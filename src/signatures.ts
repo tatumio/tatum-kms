@@ -59,8 +59,8 @@ import {
 } from '@tatumio/tatum-kcs'
 import { broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransaction } from '@tatumio/tatum-solana'
 import { TatumTerraSDK } from '@tatumio/terra'
-import { AxiosInstance } from 'axios'
-import { getManagedWallets, getWallet } from './management'
+  import { AxiosInstance } from 'axios'
+  import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
 import { KMS_CONSTANTS } from './constants'
 
 const processTransaction = async (
@@ -82,9 +82,12 @@ const processTransaction = async (
     }
   }
 
-  const wallets = []
+  let wallets: any[] = []
   for (const hash of transaction.hashes) {
     wallets.push(await getWallet(hash, path, pwd, false))
+  }
+  if (transaction.signatures && transaction.signatures.length > 0) {
+    wallets.push(...await getWalletWithMnemonicForChain(transaction.chain, path, pwd, false) ?? [])
   }
   let txData = ''
   console.log(`${new Date().toISOString()} - Processing pending transaction - ${JSON.stringify(transaction, null, 2)}.`)
@@ -92,7 +95,7 @@ const processTransaction = async (
     case Currency.ALGO: {
       const algoSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey
       await algorandBroadcast(
-        (await signAlgoKMSTransaction(transaction, algoSecret, testnet))?.txId as string,
+        (await signAlgoKMSTransaction(transaction, algoSecret, testnet)) as string,
         transaction.id,
       )
       return
@@ -119,14 +122,6 @@ const processTransaction = async (
     }
     case Currency.BNB: {
       await bnbBroadcast(await signBnbKMSTransaction(transaction, wallets[0].privateKey, testnet), transaction.id)
-      return
-    }
-    case Currency.LUNA: {
-      const sdk = TatumTerraSDK({ apiKey: process.env.TATUM_API_KEY as string })
-      await sdk.blockchain.broadcast({
-        txData: await sdk.kms.sign(transaction, wallets[0].privateKey, testnet),
-        signatureId: transaction.id,
-      })
       return
     }
     case Currency.VET: {
@@ -335,13 +330,31 @@ const processTransaction = async (
       break
     }
     case Currency.LTC: {
+      const signatures = transaction.signatures;
+      const privateKeys: string[] = wallets.reduce((pkAgg, w) => {
+        signatures?.forEach(async s => {
+          if (w.mnemonic !== undefined && s.index !== undefined && s.index !== null) { 
+            const key = await generatePrivateKeyFromMnemonic(
+              Currency.LTC,
+              w.testnet,
+              w.mnemonic,
+              s.index,
+            )
+            if (key) pkAgg.push(key);
+          } else {
+            pkAgg.push(w.privateKey)
+          }
+        })
+
+        return pkAgg;
+      }, []);
       if (transaction.withdrawalId) {
         txData = await signLitecoinOffchainKMSTransaction(transaction, wallets[0].mnemonic, testnet)
       } else {
         await ltcBroadcast(
           await signLitecoinKMSTransaction(
             transaction,
-            wallets.map(w => w.privateKey),
+            privateKeys,
             testnet,
           ),
           transaction.id,
@@ -449,7 +462,6 @@ export const processSignatures = async (
     Currency.SOL,
     Currency.TRON,
     Currency.BNB,
-    Currency.LUNA,
     Currency.FLOW,
     Currency.XDC,
     Currency.EGLD,
