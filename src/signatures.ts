@@ -58,7 +58,6 @@ import {
   signKMSTransaction as signKcsKMSTransaction,
 } from '@tatumio/tatum-kcs'
 import { broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransaction } from '@tatumio/tatum-solana'
-import { TatumTerraSDK } from '@tatumio/terra'
 import { AxiosInstance } from 'axios'
 import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
 import { KMS_CONSTANTS } from './constants'

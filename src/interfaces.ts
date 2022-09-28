@@ -8,7 +8,7 @@ export interface Signature {
 export interface ParcialWallet {
   mnemonic: string
   testnet: boolean
-  privateKey: any
+  privateKey: string
 }
 
 export interface PartialWallet {
@@ -21,4 +21,10 @@ export interface PartialWallet {
 export interface WalletsValidationOptions {
   chain?: Currency
   id?: string
+}
+
+export interface StoreWalletValue {
+  signatureId: string
+  address?: string
+  xpub?: string
 }

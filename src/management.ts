@@ -1,7 +1,6 @@
 import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
 import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
 import { generateWallet as generateSolanaWallet } from '@tatumio/tatum-solana'
-import { TatumTerraSDK } from '@tatumio/terra'
 import { AES, enc } from 'crypto-js'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { homedir } from 'os'
@@ -10,7 +9,7 @@ import { question } from 'readline-sync'
 import { v4 as uuid } from 'uuid'
 import { Config, ConfigOption } from './config'
 import _ from 'lodash'
-import { PartialWallet, WalletsValidationOptions } from './interfaces'
+import { PartialWallet, StoreWalletValue, WalletsValidationOptions } from './interfaces'
 
 const config = new Config()
 const ensurePathExists = (path: string) => {
@@ -90,7 +89,7 @@ export const storeWallet = async (
     }
     writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(walletData), pwd).toString())
   }
-  const value: any = { signatureId: key }
+  const value: StoreWalletValue = { signatureId: key }
   if (wallet.address) {
     value.address = wallet.address
   }
