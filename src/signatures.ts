@@ -70,14 +70,16 @@ function getPrivateKeys(wallets: ParcialWallet[], signatures: Signature[], curre
     return []
   }
   return wallets.reduce((pkAgg: string[], w: ParcialWallet) => {
-    signatures?.forEach(async (s: Signature) => {
-      if (!_.isNil(w.mnemonic) && !_.isNil(s.index)) {
-        const key = await generatePrivateKeyFromMnemonic(currency, w.testnet, w.mnemonic, s.index)
-        if (key) pkAgg.push(key)
-      } else {
-        pkAgg.push(w.privateKey)
-      }
-    })
+    if (signatures.length > 0) {
+      signatures?.forEach(async (s: Signature) => {
+        if (!_.isNil(w.mnemonic) && !_.isNil(s.index)) {
+          const key = await generatePrivateKeyFromMnemonic(currency, w.testnet, w.mnemonic, s.index)
+          if (key) pkAgg.push(key)
+        }
+      })
+    } else {
+      pkAgg.push(w.privateKey)
+    }
 
     return pkAgg
   }, [])
@@ -369,6 +371,7 @@ const processTransaction = async (
     }
     case Currency.LTC: {
       const privateKeys = getPrivateKeys(wallets, signatures, Currency.LTC)
+      console.log('privatekeys', privateKeys, wallets, signatures)
       if (blockchainSignature.withdrawalId) {
         txData = await signLitecoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
