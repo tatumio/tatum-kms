@@ -5,13 +5,13 @@ export interface Signature {
   index: number
 }
 
-export interface ParcialWallet {
+export interface Wallet {
   mnemonic: string
   testnet: boolean
   privateKey: string
 }
 
-export interface PartialWallet {
+export interface SignedMnemonicWalletForChain {
   [key: string]: {
     chain?: string | undefined
     mnemonic?: string | undefined

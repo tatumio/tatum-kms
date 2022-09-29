@@ -62,10 +62,10 @@ import { AxiosInstance } from 'axios'
 import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
 import { KMS_CONSTANTS } from './constants'
 import _ from 'lodash'
-import { ParcialWallet, Signature } from './interfaces'
+import { Wallet, Signature } from './interfaces'
 
 const getPrivateKeys = async (
-  wallets: ParcialWallet[],
+  wallets: Wallet[],
   signatures: Signature[],
   currency: Currency,
 ): Promise<string[]> => {

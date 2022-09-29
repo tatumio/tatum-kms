@@ -9,7 +9,7 @@ import { question } from 'readline-sync'
 import { v4 as uuid } from 'uuid'
 import { Config, ConfigOption } from './config'
 import _ from 'lodash'
-import { PartialWallet, StoreWalletValue, WalletsValidationOptions } from './interfaces'
+import { SignedMnemonicWalletForChain, StoreWalletValue, WalletsValidationOptions } from './interfaces'
 
 const config = new Config()
 const ensurePathExists = (path: string) => {
@@ -168,7 +168,7 @@ export const getWalletFromPath = (errorMessage: string, path?: string, pwd?: str
   return JSON.parse(AES.decrypt(data, password).toString(enc.Utf8))
 }
 
-export const findWalletWithMnemonic = (walletData: Partial<PartialWallet>, chain: Currency) => {
+export const findWalletWithMnemonic = (walletData: Partial<SignedMnemonicWalletForChain>, chain: Currency) => {
   return Object.keys(walletData)
     .filter(k => walletData[k]?.chain === chain && !_.isNil(walletData[k]?.mnemonic))
     .reduce((wallets, k) => ({ ...wallets, [k]: walletData[k] }), {})
