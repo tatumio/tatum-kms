@@ -70,7 +70,7 @@ const getPrivateKeys = async (
   currency: Currency,
 ): Promise<string[]> => {
   const keys: string[] = []
-  if (!wallets || (wallets && wallets.length === 0)) {
+  if (!wallets || (wallets?.length === 0)) {
     return keys
   }
   for (const w of wallets) {
