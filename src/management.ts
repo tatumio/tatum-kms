@@ -1,7 +1,6 @@
 import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
 import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
 import { generateWallet as generateSolanaWallet } from '@tatumio/tatum-solana'
-import { TatumTerraSDK } from '@tatumio/terra'
 import { AES, enc } from 'crypto-js'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { homedir } from 'os'
@@ -9,6 +8,8 @@ import { dirname } from 'path'
 import { question } from 'readline-sync'
 import { v4 as uuid } from 'uuid'
 import { Config, ConfigOption } from './config'
+import _ from 'lodash'
+import { SignedMnemonicWalletForChain, StoreWalletValue, WalletsValidationOptions } from './interfaces'
 
 const config = new Config()
 const ensurePathExists = (path: string) => {
@@ -59,8 +60,6 @@ const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: 
     wallet = await generateSolanaWallet()
   } else if (chain === Currency.KCS) {
     wallet = await generateKcsWallet(mnemonic, { testnet })
-  } else if (chain === Currency.LUNA) {
-    wallet = TatumTerraSDK({ apiKey: process.env.TATUM_API_KEY as string }).wallet.wallet()
   } else {
     wallet = await generateWallet(chain, testnet, mnemonic)
   }
@@ -90,7 +89,7 @@ export const storeWallet = async (
     }
     writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(walletData), pwd).toString())
   }
-  const value: any = { signatureId: key }
+  const value: StoreWalletValue = { signatureId: key }
   if (wallet.address) {
     value.address = wallet.address
   }
@@ -150,28 +149,80 @@ export const generateManagedPrivateKeyBatch = async (
   }
 }
 
-export const getWallet = async (id: string, path?: string, pwd?: string, print = true) => {
+export const getWalletFromPath = (errorMessage: string, path?: string, pwd?: string) => {
+  if (_.isNil(path) || _.isNil(pwd)) {
+    console.error('No path or password entered')
+    return
+  }
   const password = pwd ?? config.getValue(ConfigOption.KMS_PASSWORD)
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
-    console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2))
+    console.error(errorMessage)
     return
   }
   const data = readFileSync(pathToWallet, { encoding: 'utf8' })
   if (!data?.length) {
-    console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2))
+    console.error(errorMessage)
     return
   }
+  return JSON.parse(AES.decrypt(data, password).toString(enc.Utf8))
+}
+
+export const findWalletWithMnemonic = (walletData: Partial<SignedMnemonicWalletForChain>, chain: Currency) => {
+  return Object.keys(walletData)
+    .filter(k => walletData[k]?.chain === chain && !_.isNil(walletData[k]?.mnemonic))
+    .reduce((wallets, k) => ({ ...wallets, [k]: walletData[k] }), {})
+}
+
+// TODO: validate all properties from wallet and create a type or interface to replace any bellow
+export const isWalletsValid = (wallets: any, options: WalletsValidationOptions) => {
+  if (Object.keys(wallets).length === 0) {
+    console.error(JSON.stringify({ error: `No such wallet for chain '${options.chain}'.` }, null, 2))
+    return false
+  }
+  if (options.id && !wallets[options.id]) {
+    console.error(JSON.stringify({ error: `No such wallet for signatureId '${options.id}'.` }, null, 2))
+    return false
+  }
+
+  return true
+}
+
+export const getWalletWithMnemonicForChain = async (chain: Currency, path?: string, pwd?: string, print = true) => {
   try {
-    const wallet = JSON.parse(AES.decrypt(data, password).toString(enc.Utf8))
-    if (!wallet[id]) {
-      console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2))
+    const data = getWalletFromPath(
+      JSON.stringify({ error: `No such wallet for chain '${chain}'.` }, null, 2),
+      path || homedir() + '/.tatumrc/wallet.dat',
+      pwd,
+    )
+    const wallets = findWalletWithMnemonic(data, chain)
+    if (!wallets && !isWalletsValid(wallets, { chain })) {
       return
     }
     if (print) {
-      console.log(JSON.stringify(wallet[id], null, 2))
+      console.log(JSON.stringify(wallets, null, 2))
     }
-    return wallet[id]
+    return Object.values(wallets)
+  } catch (e) {
+    console.error(JSON.stringify({ error: `Wrong password.` }, null, 2))
+    return
+  }
+}
+
+export const getWallet = async (id: string, path?: string, pwd?: string, print = true) => {
+  try {
+    const data = getWalletFromPath(
+      JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2),
+      path || homedir() + '/.tatumrc/wallet.dat',
+      pwd,
+    )
+    if (!data && !isWalletsValid(data, { id })) {
+      return
+    }
+    if (print) {
+      console.log(JSON.stringify(data[id], null, 2))
+    }
+    return data[id]
   } catch (e) {
     console.error(JSON.stringify({ error: `Wrong password.` }, null, 2))
     return
