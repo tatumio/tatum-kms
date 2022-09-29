@@ -64,24 +64,29 @@ import { KMS_CONSTANTS } from './constants'
 import _ from 'lodash'
 import { ParcialWallet, Signature } from './interfaces'
 
-function getPrivateKeys(wallets: ParcialWallet[], signatures: Signature[], currency: Currency): string[] {
+const getPrivateKeys = async (
+  wallets: ParcialWallet[],
+  signatures: Signature[],
+  currency: Currency,
+): Promise<string[]> => {
+  const keys: string[] = []
   if (!wallets || (wallets && wallets.length === 0)) {
-    return []
+    return keys
   }
-  return wallets.reduce((pkAgg: string[], w: ParcialWallet) => {
+  for (const w of wallets) {
     if (signatures.length > 0) {
-      signatures?.forEach(async (s: Signature) => {
+      for (const s of signatures) {
         if (!_.isNil(w.mnemonic) && !_.isNil(s.index)) {
           const key = await generatePrivateKeyFromMnemonic(currency, w.testnet, w.mnemonic, s.index)
-          if (key) pkAgg.push(key)
+          if (key) keys.push(key)
         }
-      })
+      }
     } else {
-      pkAgg.push(w.privateKey)
+      keys.push(w.privateKey)
     }
+  }
 
-    return pkAgg
-  }, [])
+  return keys
 }
 
 const processTransaction = async (
@@ -108,10 +113,10 @@ const processTransaction = async (
   for (const hash of blockchainSignature.hashes) {
     wallets.push(await getWallet(hash, path, pwd, false))
   }
-  if (blockchainSignature.signatures && blockchainSignature.signatures.length > 0) {
+  const signatures = blockchainSignature.signatures ?? []
+  if (signatures.length > 0) {
     wallets.push(...((await getWalletWithMnemonicForChain(blockchainSignature.chain, path, pwd, false)) ?? []))
   }
-  const signatures = blockchainSignature.signatures ?? []
 
   let txData = ''
   console.log(
@@ -359,7 +364,7 @@ const processTransaction = async (
       break
     }
     case Currency.BTC: {
-      const privateKeys = getPrivateKeys(wallets, signatures, Currency.LTC)
+      const privateKeys = await getPrivateKeys(wallets, signatures, Currency.LTC)
       if (blockchainSignature.withdrawalId) {
         txData = await signBitcoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
@@ -369,8 +374,7 @@ const processTransaction = async (
       break
     }
     case Currency.LTC: {
-      const privateKeys = getPrivateKeys(wallets, signatures, Currency.LTC)
-      console.log('privatekeys', privateKeys, wallets, signatures)
+      const privateKeys = await getPrivateKeys(wallets, signatures, Currency.LTC)
       if (blockchainSignature.withdrawalId) {
         txData = await signLitecoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
