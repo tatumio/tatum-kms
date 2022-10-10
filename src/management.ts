@@ -1,6 +1,6 @@
+import {TatumSolanaSDK} from '@tatumio/solana';
 import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
 import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
-import { generateWallet as generateSolanaWallet } from '@tatumio/tatum-solana'
 import { AES, enc } from 'crypto-js'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import { homedir } from 'os'
@@ -57,7 +57,8 @@ export const getManagedWallets = (pwd: string, chain: string, testnet: boolean, 
 const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: string) => {
   let wallet: any
   if (chain === Currency.SOL) {
-    wallet = await generateSolanaWallet()
+    const sdk = TatumSolanaSDK({apiKey: ''})
+    wallet = sdk.wallet.wallet()
   } else if (chain === Currency.KCS) {
     wallet = await generateKcsWallet(mnemonic, { testnet })
   } else {

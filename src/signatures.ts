@@ -1,3 +1,4 @@
+import {TatumSolanaSDK} from '@tatumio/solana';
 import {
   adaBroadcast,
   algorandBroadcast,
@@ -57,12 +58,13 @@ import {
   generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic,
   signKMSTransaction as signKcsKMSTransaction,
 } from '@tatumio/tatum-kcs'
-import { broadcast as solanaBroadcast, signKMSTransaction as signSolanaKMSTransaction } from '@tatumio/tatum-solana'
 import { AxiosInstance } from 'axios'
 import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
 import { KMS_CONSTANTS } from './constants'
 import _ from 'lodash'
 import { Wallet, Signature } from './interfaces'
+
+const TATUM_URL = process.env.TATUM_API_URL || 'https://api-eu1.tatum.io';
 
 const getPrivateKeys = async (
   wallets: Wallet[],
@@ -132,10 +134,10 @@ const processTransaction = async (
       return
     }
     case Currency.SOL: {
-      await solanaBroadcast(
-        await signSolanaKMSTransaction(blockchainSignature, wallets[0].privateKey),
-        blockchainSignature.id,
-      )
+      const apiKey = process.env.TATUM_API_KEY as string;
+      const solSDK = TatumSolanaSDK({apiKey: apiKey, url: TATUM_URL as any})
+      const txData = await solSDK.kms.sign(blockchainSignature, wallets.map(w => w.privateKey))
+      await axios.post(`${TATUM_URL}/v3/solana/broadcast`, {txData, signatureId: blockchainSignature.id}, {headers: { 'x-api-key': apiKey }})
       return
     }
     case Currency.BCH: {
@@ -443,7 +445,7 @@ const getPendingTransactions = async (
     }wallets${signatureIds.length > KMS_CONSTANTS.OUTPUT_WALLETS ? '' : ' ' + signatureIds.join(',')}.`,
   )
   try {
-    const url = (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') + `/v3/kms/pending/${chain}`
+    const url = `${TATUM_URL}/v3/kms/pending/${chain}`
     const { data } = await axios.post(
       url,
       { signatureIds },
@@ -520,7 +522,7 @@ export const processSignatures = async (
     }
     if (data.length > 0) {
       try {
-        const url = (process.env.TATUM_API_URL || 'https://api-eu1.tatum.io') + '/v3/tatum/kms/batch'
+        const url = `${TATUM_URL}/v3/tatum/kms/batch`
         await axios.post(url, { errors: data }, { headers: { 'x-api-key': process.env.TATUM_API_KEY as string } })
         console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`)
       } catch (e) {
