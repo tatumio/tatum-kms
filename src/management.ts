@@ -1,15 +1,17 @@
+import {GetSecretValueCommand, SecretsManagerClient} from '@aws-sdk/client-secrets-manager';
 import {TatumSolanaSDK} from '@tatumio/solana';
-import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
-import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
-import { AES, enc } from 'crypto-js'
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
-import { homedir } from 'os'
-import { dirname } from 'path'
-import { question } from 'readline-sync'
-import { v4 as uuid } from 'uuid'
-import { Config, ConfigOption } from './config'
+import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum'
+import {generateWallet as generateKcsWallet} from '@tatumio/tatum-kcs'
+import {AxiosInstance} from 'axios';
+import {AES, enc} from 'crypto-js'
+import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs'
 import _ from 'lodash'
-import { SignedMnemonicWalletForChain, StoreWalletValue, WalletsValidationOptions } from './interfaces'
+import {homedir} from 'os'
+import {dirname} from 'path'
+import {question} from 'readline-sync'
+import {v4 as uuid} from 'uuid'
+import {Config, ConfigOption} from './config'
+import {PasswordType, SignedMnemonicWalletForChain, StoreWalletValue, WalletsValidationOptions} from './interfaces'
 
 const config = new Config()
 const ensurePathExists = (path: string) => {
@@ -19,8 +21,55 @@ const ensurePathExists = (path: string) => {
   }
 }
 
-export const exportWallets = (path?: string) => {
-  const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
+export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosInstance) => {
+  if (pwdType === PasswordType.AZURE) {
+    const vaultUrl = config.getValue(ConfigOption.AZURE_VAULTURL)
+    const secretName = config.getValue(ConfigOption.AZURE_SECRETNAME)
+    const secretVersion = config.getValue(ConfigOption.AZURE_SECRETVERSION)
+    const pwd = (await axiosInstance.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`))
+        .data?.data[0]?.value
+    if (!pwd) {
+      console.error('Azure Vault secret does not exists.')
+      process.exit(-1)
+      return
+    }
+    return pwd
+  } else if (pwdType === PasswordType.AWS) {
+    const client = new SecretsManagerClient({ region: config.getValue(ConfigOption.AWS_REGION), credentials: {
+        accessKeyId: config.getValue(ConfigOption.AWS_ACCESS_KEY_ID),
+        secretAccessKey: config.getValue(ConfigOption.AWS_SECRET_ACCESS_KEY),
+      } })
+    const result = await client.send(new GetSecretValueCommand({ SecretId: config.getValue(ConfigOption.AWS_SECRET_NAME) }))
+    if (!result.SecretString) {
+      console.error('AWS secret does not exists.')
+      process.exit(-1)
+      return
+    }
+    return JSON.parse(result.SecretString)[config.getValue(ConfigOption.AWS_SECRET_KEY)]
+  } else if (pwdType === PasswordType.VGS) {
+    const username = config.getValue(ConfigOption.VGS_USERNAME)
+    const password = config.getValue(ConfigOption.VGS_PASSWORD)
+    const alias = config.getValue(ConfigOption.VGS_ALIAS)
+    const pwd = (
+        await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
+          auth: {
+            username,
+            password,
+          },
+        })
+    ).data?.data[0]?.value
+    if (!pwd) {
+      console.error('VGS Vault alias does not exists.')
+      process.exit(-1)
+      return
+    }
+    return pwd
+  } else {
+    return config.getValue(ConfigOption.KMS_PASSWORD)
+  }
+}
+
+export const exportWallets = (pwd: string, path1: string | undefined, path?: string) => {
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2))
@@ -70,11 +119,11 @@ const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: 
 export const storeWallet = async (
   chain: Currency,
   testnet: boolean,
+  pwd: string,
   path?: string,
   mnemonic?: string,
   print = true,
 ) => {
-  const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   const wallet = await generatePureWallet(chain, testnet, mnemonic)
   const key = uuid()
@@ -107,10 +156,10 @@ export const storePrivateKey = async (
   chain: Currency,
   testnet: boolean,
   privateKey: string,
+  pwd: string,
   path?: string,
   print = true,
 ) => {
-  const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   const key = uuid()
   const entry = { [key]: { privateKey, chain, testnet } }
@@ -135,6 +184,7 @@ export const generateManagedPrivateKeyBatch = async (
   chain: Currency,
   count: string,
   testnet: boolean,
+  pwd: string,
   path?: string,
 ) => {
   config.getValue(ConfigOption.KMS_PASSWORD)
@@ -145,7 +195,7 @@ export const generateManagedPrivateKeyBatch = async (
     const privateKey = wallet.secret
       ? wallet.secret
       : await generatePrivateKeyFromMnemonic(chain, testnet, wallet.mnemonic, 1)
-    const { signatureId } = await storePrivateKey(chain, testnet, privateKey as string, path, false)
+    const { signatureId } = await storePrivateKey(chain, testnet, privateKey as string, pwd, path, false)
     console.log(`{ signatureId: ${signatureId}, address: ${address} }`)
   }
 }
@@ -210,7 +260,7 @@ export const getWalletWithMnemonicForChain = async (chain: Currency, path?: stri
   }
 }
 
-export const getWallet = async (id: string, path?: string, pwd?: string, print = true) => {
+export const getWallet = async (id: string, pwd: string, path?: string, print = true) => {
   try {
     const data = getWalletFromPath(
       JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2),
@@ -291,8 +341,7 @@ export const getAddress = async (id: string, index: string, path?: string, pwd?:
   return { address: pk.address }
 }
 
-export const removeWallet = async (id: string, path?: string) => {
-  const pwd = config.getValue(ConfigOption.KMS_PASSWORD)
+export const removeWallet = async (id: string, pwd: string, path?: string) => {
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2))

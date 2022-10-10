@@ -113,7 +113,7 @@ const processTransaction = async (
   }
   const wallets = []
   for (const hash of blockchainSignature.hashes) {
-    wallets.push(await getWallet(hash, path, pwd, false))
+    wallets.push(await getWallet(hash, pwd, path, false))
   }
   const signatures = blockchainSignature.signatures ?? []
   if (signatures.length > 0) {
