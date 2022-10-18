@@ -2255,6 +2255,14 @@
     axios "^0.26.0"
     form-data "^4.0.0"
 
+"@tatumio/api-client@2.0.1-alpha.313":
+  version "2.0.1-alpha.313"
+  resolved "https://registry.yarnpkg.com/@tatumio/api-client/-/api-client-2.0.1-alpha.313.tgz#7421d377a809f1860c3766c68567b721d59c654f"
+  integrity sha512-tnpqMdKwo7FJZ2N3hrMW5VEGoWEVM3VnoQtZx/9FVwQJftkBqDvKrD6ZuvfSSKNKjDj2CAMz5++eHdQBF7eXKg==
+  dependencies:
+    axios "^0.26.0"
+    form-data "^4.0.0"
+
 "@tatumio/bitcoincash-ops@2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@tatumio/bitcoincash-ops/-/bitcoincash-ops-2.0.0.tgz#37b577267fe795cef1ad0bb38967e914345fd129"
@@ -2299,6 +2307,17 @@
     bignumber.js "^9.0.2"
     form-data "^4.0.0"
 
+"@tatumio/shared-abstract-sdk@2.0.1-alpha.313":
+  version "2.0.1-alpha.313"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-abstract-sdk/-/shared-abstract-sdk-2.0.1-alpha.313.tgz#fa283bae965afc19204cae4b0825013869f77de2"
+  integrity sha512-DQYRvk83Q956WkNc9AdC+g0qorYist9Vveo8PbJq/N2EWBFWPbUYpvZPH79jQnQxhx6oYjpO+lu8WBsgIdQBcQ==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.313"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.313"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    form-data "^4.0.0"
+
 "@tatumio/shared-blockchain-abstract@2.0.1-alpha.308":
   version "2.0.1-alpha.308"
   resolved "https://registry.yarnpkg.com/@tatumio/shared-blockchain-abstract/-/shared-blockchain-abstract-2.0.1-alpha.308.tgz#605e47b6379cbbc82930e08d964ea8bb85715e09"
@@ -2312,12 +2331,34 @@
     bignumber.js "^9.0.2"
     form-data "^4.0.0"
 
+"@tatumio/shared-blockchain-abstract@2.0.1-alpha.313":
+  version "2.0.1-alpha.313"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-blockchain-abstract/-/shared-blockchain-abstract-2.0.1-alpha.313.tgz#7afdf33c97242005e79e43b5827f73b25be5cc2f"
+  integrity sha512-vxh2yBLzr3G1rsrXjFKxVOsW/WZ1vZum4n1T+fSQRLDvN7bnu8DIrDslprcPq2yHteHbh86ZezaI5UVmVBSBqQ==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.313"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.313"
+    "@tatumio/shared-core" "2.0.1-alpha.313"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.313"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    form-data "^4.0.0"
+
 "@tatumio/shared-core@2.0.1-alpha.308":
   version "2.0.1-alpha.308"
   resolved "https://registry.yarnpkg.com/@tatumio/shared-core/-/shared-core-2.0.1-alpha.308.tgz#bbf63d8c0191e8260bec3fe88f54186e0aba1891"
   integrity sha512-OTD6zd1HbYgz5EDLVFzGWg8cgsNlBWQIPYxFTvJqmE9EWdoeyaHY5Ae2WzmMUL+T4NyeIH32khiFRuvw0SEr5Q==
   dependencies:
     "@tatumio/api-client" "2.0.1-alpha.308"
+    axios "^0.26.0"
+    form-data "^4.0.0"
+
+"@tatumio/shared-core@2.0.1-alpha.313":
+  version "2.0.1-alpha.313"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-core/-/shared-core-2.0.1-alpha.313.tgz#9554f7098604f8a64aafa5d87b11ec4958813109"
+  integrity sha512-fDdilwS1h0NUuS7/WVOnShIen8cIfozbDAF4X2gyo4aaHQh1w52rSPh3j32SQZgZ/zUw8frWd0EHVZSDGZMC+Q==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.313"
     axios "^0.26.0"
     form-data "^4.0.0"
 
@@ -2328,6 +2369,29 @@
   dependencies:
     "@tatumio/api-client" "2.0.1-alpha.308"
     axios "^0.26.0"
+    form-data "^4.0.0"
+
+"@tatumio/shared-testing-common@2.0.1-alpha.313":
+  version "2.0.1-alpha.313"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-testing-common/-/shared-testing-common-2.0.1-alpha.313.tgz#e596d622ed7a378dfbfdc64419e0ab9aa9e0b1a1"
+  integrity sha512-Ck3hA/zgDEoKIgqGqN12Fhi+NgeqrJ+UfhkCLmGhMF0Emhsalg+a+tYROA9pvp6N2p8f2yAxluCI1CJttJl0Xw==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.313"
+    axios "^0.26.0"
+    form-data "^4.0.0"
+
+"@tatumio/shared-testing-xrp-based@2.0.1-alpha.313":
+  version "2.0.1-alpha.313"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-testing-xrp-based/-/shared-testing-xrp-based-2.0.1-alpha.313.tgz#a6868db25e2adfdde0013fdbded3f3698d14bfa9"
+  integrity sha512-q9Ud/z/YCaTot+Hqnd/ApIR1FZIncAwPRH6hxB/vWUWjgSozGlgAp9Sv96q9DzEuacx7ZiNwAQWYOTCv/1LP5Q==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.313"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.313"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.313"
+    "@tatumio/shared-core" "2.0.1-alpha.313"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.313"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
     form-data "^4.0.0"
 
 "@tatumio/solana@2.0.1-alpha.308":
@@ -2432,6 +2496,38 @@
     url-parse "^1.5.3"
     web3 "^1.7.0"
     web3-eth "^1.7.0"
+
+"@tatumio/xlm@2.0.1-alpha.313":
+  version "2.0.1-alpha.313"
+  resolved "https://registry.yarnpkg.com/@tatumio/xlm/-/xlm-2.0.1-alpha.313.tgz#786d006adea401286bd2aff908be1e0db8dce9ad"
+  integrity sha512-FW6wEFdgnomeA0TuqgBq6kbemupNoAY6xmKJgfkaWWx6xYggko4g/0xUOHJKIbawvooc/ZYW0cTj6pcqWVEnyw==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.313"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.313"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.313"
+    "@tatumio/shared-core" "2.0.1-alpha.313"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.313"
+    "@tatumio/shared-testing-xrp-based" "2.0.1-alpha.313"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    form-data "^4.0.0"
+    stellar-sdk "^9.1.0"
+
+"@tatumio/xrp@2.0.1-alpha.313":
+  version "2.0.1-alpha.313"
+  resolved "https://registry.yarnpkg.com/@tatumio/xrp/-/xrp-2.0.1-alpha.313.tgz#ffdb29bcf09def59681e70bd723472f8d704ad64"
+  integrity sha512-fFWddxProU8fjOCjIqeGGkpnRjXRkfue3hEOTjL/KK4aZxzpqYH9YnP6Cz8eaD56Kj6mQ8PPPQ65NroiLekVTQ==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.313"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.313"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.313"
+    "@tatumio/shared-core" "2.0.1-alpha.313"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.313"
+    "@tatumio/shared-testing-xrp-based" "2.0.1-alpha.313"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    form-data "^4.0.0"
+    ripple-lib "^1.7.1"
 
 "@types/bech32@^1.1.2":
   version "1.1.4"
@@ -3425,19 +3521,19 @@ axios@0.21.1:
   dependencies:
     follow-redirects "^1.10.0"
 
+axios@0.21.4, axios@^0.21.1:
+  version "0.21.4"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
+  integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
+  dependencies:
+    follow-redirects "^1.14.0"
+
 axios@^0.19.0:
   version "0.19.2"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.19.2.tgz#3ea36c5d8818d0d5f8a8a97a6d36b86cdc00cb27"
   integrity sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==
   dependencies:
     follow-redirects "1.5.10"
-
-axios@^0.21.1:
-  version "0.21.4"
-  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
-  integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
-  dependencies:
-    follow-redirects "^1.14.0"
 
 axios@^0.26.0:
   version "0.26.1"
@@ -9347,7 +9443,7 @@ statuses@2.0.1:
   resolved "https://registry.yarnpkg.com/statuses/-/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==
 
-stellar-base@^6.0.3:
+stellar-base@^6.0.3, stellar-base@^6.0.6:
   version "6.0.6"
   resolved "https://registry.yarnpkg.com/stellar-base/-/stellar-base-6.0.6.tgz#2f95ad35ab6901a2fc0d5cb5b483436241b7123c"
   integrity sha512-v0t9jeP456plMpye8W2vRq2lTvMUvRkskH5GGfqgMTeX+gBAwp7Y67wYphRt2pGQ2NXtxlsgEBSBKWvNxGp76A==
@@ -9379,6 +9475,28 @@ stellar-sdk@^8.1.0:
     lodash "^4.17.11"
     randombytes "^2.1.0"
     stellar-base "^6.0.3"
+    toml "^2.3.0"
+    tslib "^1.10.0"
+    urijs "^1.19.1"
+    utility-types "^3.7.0"
+
+stellar-sdk@^9.1.0:
+  version "9.1.0"
+  resolved "https://registry.yarnpkg.com/stellar-sdk/-/stellar-sdk-9.1.0.tgz#6950a1ca8c268218b9be179c120c23f284ea6f5a"
+  integrity sha512-Y2B/pGM+eEC4Iuf6vGBGD86AdXYHCahuEiTa7kMOSDR/SXv7UQdOcrEpho+ZjTqZP0cYBe9UOTkYiW12Sm3IzQ==
+  dependencies:
+    "@types/eventsource" "^1.1.2"
+    "@types/node" ">= 8"
+    "@types/randombytes" "^2.0.0"
+    "@types/urijs" "^1.19.6"
+    axios "0.21.4"
+    bignumber.js "^4.0.0"
+    detect-node "^2.0.4"
+    es6-promise "^4.2.4"
+    eventsource "^1.0.7"
+    lodash "^4.17.21"
+    randombytes "^2.1.0"
+    stellar-base "^6.0.6"
     toml "^2.3.0"
     tslib "^1.10.0"
     urijs "^1.19.1"

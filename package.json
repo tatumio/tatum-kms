@@ -1,6 +1,6 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "6.2.0",
+  "version": "6.3.0",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "engines": {
@@ -41,6 +41,8 @@
     "@tatumio/tatum": "1.37.0",
     "@tatumio/tatum-kcs": "2.0.0-alpha.108",
     "@tatumio/solana": "2.0.1-alpha.308",
+    "@tatumio/xlm": "2.0.1-alpha.313",
+    "@tatumio/xrp": "2.0.1-alpha.313",
     "crypto-js": "^4.0.0",
     "dotenv": "^10.0.0",
     "lodash": "^4.17.21",
