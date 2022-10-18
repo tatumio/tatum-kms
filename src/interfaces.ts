@@ -1,5 +1,12 @@
 import { Currency } from '@tatumio/tatum'
 
+export enum PasswordType {
+  CMD_LINE,
+  AWS,
+  AZURE,
+  VGS,
+}
+
 export interface Signature {
   id: string
   index: number

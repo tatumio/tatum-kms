@@ -1,16 +1,17 @@
 #!/usr/bin/env node
-import { Currency, generateWallet } from '@tatumio/tatum'
-import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+import {Currency, generateWallet} from '@tatumio/tatum'
 import axios from 'axios'
 import dotenv from 'dotenv'
 import http from 'http'
 import https from 'https'
 import meow from 'meow'
-import { Config, ConfigOption } from './config'
+import {Config} from './config'
+import {PasswordType} from './interfaces';
 import {
   exportWallets,
   generateManagedPrivateKeyBatch,
   getAddress,
+  getPassword,
   getPrivateKey,
   getQuestion,
   getTatumKey,
@@ -19,7 +20,7 @@ import {
   storePrivateKey,
   storeWallet,
 } from './management'
-import { processSignatures } from './signatures'
+import {processSignatures} from './signatures'
 
 dotenv.config()
 const config = new Config()
@@ -93,56 +94,27 @@ const { input: command, flags } = meow(
     },
   },
 )
+
+const getPasswordType = (): PasswordType => {
+  if (flags.aws) {
+    return PasswordType.AWS
+  }
+  if (flags.azure) {
+    return PasswordType.AZURE
+  }
+  if (flags.vgs) {
+    return PasswordType.VGS
+  }
+  return PasswordType.CMD_LINE
+}
+
 const startup = async () => {
   if (command.length === 0) {
     return
   }
   switch (command[0]) {
     case 'daemon': {
-      let pwd = ''
-      if (flags.azure) {
-        const vaultUrl = config.getValue(ConfigOption.AZURE_VAULTURL)
-        const secretName = config.getValue(ConfigOption.AZURE_SECRETNAME)
-        const secretVersion = config.getValue(ConfigOption.AZURE_SECRETVERSION)
-        pwd = (await axiosInstance.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`))
-          .data?.data[0]?.value
-        if (!pwd) {
-          console.error('Azure Vault secret does not exists.')
-          process.exit(-1)
-          return
-        }
-      } else if (flags.aws) {
-        const client = new SecretsManagerClient({ region: config.getValue(ConfigOption.AWS_REGION), credentials: {
-            accessKeyId: config.getValue(ConfigOption.AWS_ACCESS_KEY_ID),
-            secretAccessKey: config.getValue(ConfigOption.AWS_SECRET_ACCESS_KEY),
-          } })
-        const result = await client.send(new GetSecretValueCommand({ SecretId: config.getValue(ConfigOption.AWS_SECRET_NAME) }))
-        if (!result.SecretString) {
-          console.error('AWS secret does not exists.')
-          process.exit(-1)
-          return
-        }
-        pwd = JSON.parse(result.SecretString)[config.getValue(ConfigOption.AWS_SECRET_KEY)]
-      } else if (flags.vgs) {
-        const username = config.getValue(ConfigOption.VGS_USERNAME)
-        const password = config.getValue(ConfigOption.VGS_PASSWORD)
-        const alias = config.getValue(ConfigOption.VGS_ALIAS)
-        pwd = (
-          await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
-            auth: {
-              username,
-              password,
-            },
-          })
-        ).data?.data[0]?.value
-        if (!pwd) {
-          console.error('VGS Vault alias does not exists.')
-          process.exit(-1)
-          return
-        }
-      } else {
-        pwd = config.getValue(ConfigOption.KMS_PASSWORD)
-      }
+      const pwd = await getPassword(getPasswordType(), axiosInstance)
       getTatumKey(flags.apiKey as string)
       await processSignatures(
         pwd,
@@ -159,27 +131,28 @@ const startup = async () => {
       console.log(JSON.stringify(await generateWallet(command[1] as Currency, flags.testnet), null, 2))
       break
     case 'export':
-      exportWallets(flags.path)
+      exportWallets(await getPassword(getPasswordType(), axiosInstance), flags.path)
       break
     case 'generatemanagedwallet':
-      await storeWallet(command[1] as Currency, flags.testnet, flags.path)
+      await storeWallet(command[1] as Currency, flags.testnet, await getPassword(getPasswordType(), axiosInstance), flags.path)
       break
     case 'storemanagedwallet':
-      await storeWallet(command[1] as Currency, flags.testnet, flags.path, getQuestion('Enter mnemonic to store:'))
+      await storeWallet(command[1] as Currency, flags.testnet, await getPassword(getPasswordType(), axiosInstance), flags.path, getQuestion('Enter mnemonic to store:'))
       break
     case 'storemanagedprivatekey':
       await storePrivateKey(
         command[1] as Currency,
         flags.testnet,
         getQuestion('Enter private key to store:'),
+        await getPassword(getPasswordType(), axiosInstance),
         flags.path,
       )
       break
     case 'generatemanagedprivatekeybatch':
-      await generateManagedPrivateKeyBatch(command[1] as Currency, command[2], flags.testnet, flags.path)
+      await generateManagedPrivateKeyBatch(command[1] as Currency, command[2], flags.testnet, await getPassword(getPasswordType(), axiosInstance), flags.path)
       break
     case 'getmanagedwallet':
-      await getWallet(command[1], flags.path)
+      await getWallet(command[1], await getPassword(getPasswordType(), axiosInstance), flags.path)
       break
     case 'getprivatekey':
       await getPrivateKey(command[1], command[2], flags.path)
@@ -188,7 +161,7 @@ const startup = async () => {
       await getAddress(command[1], command[2], flags.path)
       break
     case 'removewallet':
-      await removeWallet(command[1], flags.path)
+      await removeWallet(command[1], await getPassword(getPasswordType(), axiosInstance), flags.path)
       break
     default:
       console.error('Unsupported command. Use tatum-kms --help for details.')
