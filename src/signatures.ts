@@ -69,24 +69,32 @@ const getPrivateKeys = async (
   signatures: Signature[],
   currency: Currency,
 ): Promise<string[]> => {
-  const keys: string[] = []
   if (!wallets || (wallets?.length === 0)) {
-    return keys
+    return []
   }
+  const keys: Set<string> = new Set<string>()
+  const isMultipleKeysApproach = signatures.length > 0
   for (const w of wallets) {
-    if (signatures.length > 0) {
+    if (isMultipleKeysApproach) {
       for (const s of signatures) {
         if (!_.isNil(w.mnemonic) && !_.isNil(s.index)) {
           const key = await generatePrivateKeyFromMnemonic(currency, w.testnet, w.mnemonic, s.index)
-          if (key) keys.push(key)
+          if (key) {
+            keys.add(key)
+          }
+        } 
+        else if (w.privateKey) {
+          keys.add(w.privateKey)
         }
       }
     } else {
-      keys.push(w.privateKey)
+      if (w.privateKey) {
+        keys.add(w.privateKey)
+      }
     }
   }
 
-  return keys
+  return Array.from(keys)
 }
 
 const processTransaction = async (
@@ -139,13 +147,14 @@ const processTransaction = async (
       return
     }
     case Currency.BCH: {
+      const privateKeys = await getPrivateKeys(wallets, signatures, Currency.BCH)
       if (blockchainSignature.withdrawalId) {
         txData = await signBitcoinCashOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
         await bcashBroadcast(
           await signBitcoinCashKMSTransaction(
             blockchainSignature,
-            wallets.map(w => w.privateKey),
+            privateKeys,
             testnet,
           ),
           blockchainSignature.id,
