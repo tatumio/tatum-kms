@@ -1,4 +1,6 @@
 import {TatumSolanaSDK} from '@tatumio/solana';
+import {TatumXlmSDK} from '@tatumio/xlm';
+import {TatumXrpSDK} from '@tatumio/xrp';
 import {
   adaBroadcast,
   algorandBroadcast,
@@ -177,25 +179,17 @@ const processTransaction = async (
       return
     }
     case Currency.XRP: {
-      if (blockchainSignature.withdrawalId) {
-        txData = await signXrpOffchainKMSTransaction(blockchainSignature, wallets[0].secret)
-      } else {
-        await xrpBroadcast(await signXrpKMSTransaction(blockchainSignature, wallets[0].secret), blockchainSignature.id)
-        return
-      }
+      const apiKey = process.env.TATUM_API_KEY as string;
+      const xrpSdk = TatumXrpSDK({apiKey: apiKey, url: TATUM_URL as any})
+      const txData = await xrpSdk.kms.sign(blockchainSignature, wallets[0].secret)
+      await xrpSdk.blockchain.broadcast({txData, signatureId: blockchainSignature.id})
       break
     }
     case Currency.XLM: {
-      if (blockchainSignature.withdrawalId) {
-        txData = await signXlmOffchainKMSTransaction(blockchainSignature, wallets[0].secret, testnet)
-      } else {
-        await xlmBroadcast(
-          await signXlmKMSTransaction(blockchainSignature, wallets[0].secret, testnet),
-          blockchainSignature.id,
-        )
-        return
-      }
-
+      const apiKey = process.env.TATUM_API_KEY as string;
+      const xlmSdk = TatumXlmSDK({apiKey: apiKey, url: TATUM_URL as any})
+      const txData = await xlmSdk.kms.sign(blockchainSignature, wallets[0].secret, testnet)
+      await xlmSdk.blockchain.broadcast({txData, signatureId: blockchainSignature.id})
       break
     }
     case Currency.ETH: {

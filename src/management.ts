@@ -1,5 +1,7 @@
 import {GetSecretValueCommand, SecretsManagerClient} from '@aws-sdk/client-secrets-manager';
 import {TatumSolanaSDK} from '@tatumio/solana';
+import {TatumXlmSDK} from '@tatumio/xlm';
+import {TatumXrpSDK} from '@tatumio/xrp';
 import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum'
 import {generateWallet as generateKcsWallet} from '@tatumio/tatum-kcs'
 import {AxiosInstance} from 'axios';
@@ -107,6 +109,12 @@ const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: 
   let wallet: any
   if (chain === Currency.SOL) {
     const sdk = TatumSolanaSDK({apiKey: ''})
+    wallet = sdk.wallet.wallet()
+  } else if (chain === Currency.XRP) {
+    const sdk = TatumXrpSDK({apiKey: ''})
+    wallet = sdk.wallet.wallet()
+  } else if (chain === Currency.XLM) {
+    const sdk = TatumXlmSDK({apiKey: ''})
     wallet = sdk.wallet.wallet()
   } else if (chain === Currency.KCS) {
     wallet = await generateKcsWallet(mnemonic, { testnet })
