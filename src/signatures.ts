@@ -1,6 +1,8 @@
 import {TatumSolanaSDK} from '@tatumio/solana';
 import {TatumXlmSDK} from '@tatumio/xlm';
 import {TatumXrpSDK} from '@tatumio/xrp';
+import { TatumCeloSDK } from '@tatumio/celo'
+import { TatumTronSDK } from '@tatumio/tron'
 import {
   adaBroadcast,
   algorandBroadcast,
@@ -66,15 +68,11 @@ import { KMS_CONSTANTS } from './constants'
 import _ from 'lodash'
 import { Wallet, Signature } from './interfaces'
 
-const TATUM_URL = process.env.TATUM_API_URL || 'https://api-eu1.tatum.io';
+const TATUM_URL = process.env.TATUM_API_URL || 'https://api-eu1.tatum.io'
 
-const getPrivateKeys = async (
-  wallets: Wallet[],
-  signatures: Signature[],
-  currency: Currency,
-): Promise<string[]> => {
+const getPrivateKeys = async (wallets: Wallet[], signatures: Signature[], currency: Currency): Promise<string[]> => {
   const keys: string[] = []
-  if (!wallets || (wallets?.length === 0)) {
+  if (!wallets || wallets?.length === 0) {
     return keys
   }
   for (const w of wallets) {
@@ -136,10 +134,29 @@ const processTransaction = async (
       return
     }
     case Currency.SOL: {
-      const apiKey = process.env.TATUM_API_KEY as string;
-      const solSDK = TatumSolanaSDK({apiKey: apiKey, url: TATUM_URL as any})
-      const txData = await solSDK.kms.sign(blockchainSignature as any, wallets.map(w => w.privateKey))
-      await axios.post(`${TATUM_URL}/v3/solana/broadcast`, {txData, signatureId: blockchainSignature.id}, {headers: { 'x-api-key': apiKey }})
+      const apiKey = process.env.TATUM_API_KEY as string
+      const solSDK = TatumSolanaSDK({ apiKey: apiKey, url: TATUM_URL as any })
+      const txData = await solSDK.kms.sign(
+        blockchainSignature as any,
+        wallets.map(w => w.privateKey),
+      )
+      await axios.post(
+        `${TATUM_URL}/v3/solana/broadcast`,
+        { txData, signatureId: blockchainSignature.id },
+        { headers: { 'x-api-key': apiKey } },
+      )
+      return
+    }
+    case Currency.CELO: {
+      const celoSDK = TatumCeloSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const txData = await celoSDK.kms.sign(blockchainSignature, wallets[0].privateKey)
+      await celoSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
+      return
+    }
+    case Currency.TRON: {
+      const tronSDK = TatumTronSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const txData = await tronSDK.kms.sign(blockchainSignature, wallets[0].privateKey)
+      await tronSDK.blockchain.broadcast({ txData })
       return
     }
     case Currency.BCH: {

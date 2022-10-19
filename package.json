@@ -43,6 +43,8 @@
     "@tatumio/solana": "2.0.1-alpha.324",
     "@tatumio/xlm": "2.0.1-alpha.324",
     "@tatumio/xrp": "2.0.1-alpha.324",
+    "@tatumio/celo": "2.0.1-alpha.324",
+    "@tatumio/tron": "2.0.1-alpha.324",
     "crypto-js": "^4.0.0",
     "dotenv": "^10.0.0",
     "lodash": "^4.17.21",
