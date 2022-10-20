@@ -350,6 +350,9 @@ const processTransaction = async (
       const tronSDK = TatumTronSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
       txData = await tronSDK.kms.sign(blockchainSignature as PendingTransaction, tronPrivateKey)
       await tronSDK.blockchain.broadcast({ txData })
+      if (!blockchainSignature.withdrawalId) {
+        return
+      }
       break
     }
     case Currency.BTC: {
