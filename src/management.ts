@@ -1,7 +1,7 @@
-import {GetSecretValueCommand, SecretsManagerClient} from '@aws-sdk/client-secrets-manager';
-import {TatumSolanaSDK} from '@tatumio/solana';
-import {TatumXlmSDK} from '@tatumio/xlm';
-import {TatumXrpSDK} from '@tatumio/xrp';
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { TatumSolanaSDK } from '@tatumio/solana'
+import { TatumXlmSDK } from '@tatumio/xlm'
+import { TatumXrpSDK } from '@tatumio/xrp'
 import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
 import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
 import { TatumCeloSDK } from '@tatumio/celo'
@@ -78,7 +78,7 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
   }
 }
 
-export const exportWallets = (pwd: string, path1: string | undefined, path?: string) => {
+export const exportWallets = (pwd: string, _path1: string | undefined, path?: string) => {
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2))
@@ -115,13 +115,13 @@ export const getManagedWallets = (pwd: string, chain: string, testnet: boolean, 
 const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: string) => {
   let wallet: any
   if (chain === Currency.SOL) {
-    const sdk = TatumSolanaSDK({apiKey: ''})
+    const sdk = TatumSolanaSDK({ apiKey: '' })
     wallet = sdk.wallet.wallet()
   } else if (chain === Currency.XRP) {
-    const sdk = TatumXrpSDK({apiKey: ''})
+    const sdk = TatumXrpSDK({ apiKey: '' })
     wallet = sdk.wallet.wallet()
   } else if (chain === Currency.XLM) {
-    const sdk = TatumXlmSDK({apiKey: ''})
+    const sdk = TatumXlmSDK({ apiKey: '' })
     wallet = sdk.wallet.wallet()
   } else if (chain === Currency.KCS) {
     wallet = await generateKcsWallet(mnemonic, { testnet })
