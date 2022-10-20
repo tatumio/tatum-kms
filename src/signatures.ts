@@ -115,6 +115,10 @@ const processTransaction = async (
   console.log(
     `${new Date().toISOString()} - Processing pending transaction - ${JSON.stringify(blockchainSignature, null, 2)}.`,
   )
+
+  const apiKey = process.env.TATUM_API_KEY as string
+  const url = TATUM_URL as any
+
   switch (blockchainSignature.chain) {
     case Currency.ALGO: {
       const algoSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey
@@ -125,8 +129,7 @@ const processTransaction = async (
       return
     }
     case Currency.SOL: {
-      const apiKey = process.env.TATUM_API_KEY as string
-      const solSDK = TatumSolanaSDK({ apiKey: apiKey, url: TATUM_URL as any })
+      const solSDK = TatumSolanaSDK({ apiKey, url })
       txData = await solSDK.kms.sign(
         blockchainSignature as PendingTransaction,
         wallets.map(w => w.privateKey),
@@ -175,15 +178,13 @@ const processTransaction = async (
       return
     }
     case Currency.XRP: {
-      const apiKey = process.env.TATUM_API_KEY as string
-      const xrpSdk = TatumXrpSDK({ apiKey: apiKey, url: TATUM_URL as any })
+      const xrpSdk = TatumXrpSDK({ apiKey, url })
       txData = await xrpSdk.kms.sign(blockchainSignature as PendingTransaction, wallets[0].secret)
       await xrpSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.XLM: {
-      const apiKey = process.env.TATUM_API_KEY as string
-      const xlmSdk = TatumXlmSDK({ apiKey: apiKey, url: TATUM_URL as any })
+      const xlmSdk = TatumXlmSDK({ apiKey, url })
       txData = await xlmSdk.kms.sign(blockchainSignature as PendingTransaction, wallets[0].secret, testnet)
       await xlmSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
@@ -253,7 +254,7 @@ const processTransaction = async (
               blockchainSignature.index,
             )
           : wallets[0].privateKey
-      const celoSDK = TatumCeloSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const celoSDK = TatumCeloSDK({ apiKey, url })
       txData = await celoSDK.kms.sign(blockchainSignature as PendingTransaction, celoPrivateKey)
       await celoSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
@@ -347,13 +348,14 @@ const processTransaction = async (
               blockchainSignature.index,
             )
           : wallets[0].privateKey
-      const tronSDK = TatumTronSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const tronSDK = TatumTronSDK({ apiKey, url })
       txData = await tronSDK.kms.sign(blockchainSignature as PendingTransaction, tronPrivateKey)
-      await tronSDK.blockchain.broadcast({ txData })
-      if (!blockchainSignature.withdrawalId) {
-        return
-      }
-      break
+      await axios.post(
+        `${TATUM_URL}/v3/tron/broadcast`,
+        { txData, signatureId: blockchainSignature.id },
+        { headers: { 'x-api-key': apiKey } },
+      )
+      return
     }
     case Currency.BTC: {
       const privateKeys = await getPrivateKeys(wallets, signatures, Currency.LTC)
