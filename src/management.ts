@@ -1,19 +1,21 @@
-import {GetSecretValueCommand, SecretsManagerClient} from '@aws-sdk/client-secrets-manager';
-import {TatumSolanaSDK} from '@tatumio/solana';
-import {TatumXlmSDK} from '@tatumio/xlm';
-import {TatumXrpSDK} from '@tatumio/xrp';
-import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum'
-import {generateWallet as generateKcsWallet} from '@tatumio/tatum-kcs'
-import {AxiosInstance} from 'axios';
-import {AES, enc} from 'crypto-js'
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs'
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { TatumSolanaSDK } from '@tatumio/solana'
+import { TatumXlmSDK } from '@tatumio/xlm'
+import { TatumXrpSDK } from '@tatumio/xrp'
+import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
+import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
+import { TatumCeloSDK } from '@tatumio/celo'
+import { TatumTronSDK } from '@tatumio/tron'
+import { AxiosInstance } from 'axios'
+import { AES, enc } from 'crypto-js'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import _ from 'lodash'
-import {homedir} from 'os'
-import {dirname} from 'path'
-import {question} from 'readline-sync'
-import {v4 as uuid} from 'uuid'
-import {Config, ConfigOption} from './config'
-import {PasswordType, SignedMnemonicWalletForChain, StoreWalletValue, WalletsValidationOptions} from './interfaces'
+import { homedir } from 'os'
+import { dirname } from 'path'
+import { question } from 'readline-sync'
+import { v4 as uuid } from 'uuid'
+import { Config, ConfigOption } from './config'
+import { PasswordType, SignedMnemonicWalletForChain, StoreWalletValue, WalletsValidationOptions } from './interfaces'
 
 const config = new Config()
 const ensurePathExists = (path: string) => {
@@ -29,7 +31,7 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
     const secretName = config.getValue(ConfigOption.AZURE_SECRETNAME)
     const secretVersion = config.getValue(ConfigOption.AZURE_SECRETVERSION)
     const pwd = (await axiosInstance.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`))
-        .data?.data[0]?.value
+      .data?.data[0]?.value
     if (!pwd) {
       console.error('Azure Vault secret does not exists.')
       process.exit(-1)
@@ -37,11 +39,16 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
     }
     return pwd
   } else if (pwdType === PasswordType.AWS) {
-    const client = new SecretsManagerClient({ region: config.getValue(ConfigOption.AWS_REGION), credentials: {
+    const client = new SecretsManagerClient({
+      region: config.getValue(ConfigOption.AWS_REGION),
+      credentials: {
         accessKeyId: config.getValue(ConfigOption.AWS_ACCESS_KEY_ID),
         secretAccessKey: config.getValue(ConfigOption.AWS_SECRET_ACCESS_KEY),
-      } })
-    const result = await client.send(new GetSecretValueCommand({ SecretId: config.getValue(ConfigOption.AWS_SECRET_NAME) }))
+      },
+    })
+    const result = await client.send(
+      new GetSecretValueCommand({ SecretId: config.getValue(ConfigOption.AWS_SECRET_NAME) }),
+    )
     if (!result.SecretString) {
       console.error('AWS secret does not exists.')
       process.exit(-1)
@@ -53,12 +60,12 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
     const password = config.getValue(ConfigOption.VGS_PASSWORD)
     const alias = config.getValue(ConfigOption.VGS_ALIAS)
     const pwd = (
-        await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
-          auth: {
-            username,
-            password,
-          },
-        })
+      await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
+        auth: {
+          username,
+          password,
+        },
+      })
     ).data?.data[0]?.value
     if (!pwd) {
       console.error('VGS Vault alias does not exists.')
@@ -71,7 +78,7 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
   }
 }
 
-export const exportWallets = (pwd: string, path1: string | undefined, path?: string) => {
+export const exportWallets = (pwd: string, _path1: string | undefined, path?: string) => {
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2))
@@ -108,16 +115,22 @@ export const getManagedWallets = (pwd: string, chain: string, testnet: boolean, 
 const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: string) => {
   let wallet: any
   if (chain === Currency.SOL) {
-    const sdk = TatumSolanaSDK({apiKey: ''})
+    const sdk = TatumSolanaSDK({ apiKey: '' })
     wallet = sdk.wallet.wallet()
   } else if (chain === Currency.XRP) {
-    const sdk = TatumXrpSDK({apiKey: ''})
+    const sdk = TatumXrpSDK({ apiKey: '' })
     wallet = sdk.wallet.wallet()
   } else if (chain === Currency.XLM) {
-    const sdk = TatumXlmSDK({apiKey: ''})
+    const sdk = TatumXlmSDK({ apiKey: '' })
     wallet = sdk.wallet.wallet()
   } else if (chain === Currency.KCS) {
     wallet = await generateKcsWallet(mnemonic, { testnet })
+  } else if (chain === Currency.CELO) {
+    const sdk = TatumCeloSDK({ apiKey: '' })
+    wallet = sdk.wallet.generateWallet(mnemonic, { testnet })
+  } else if (chain === Currency.TRON) {
+    const sdk = TatumTronSDK({ apiKey: '' })
+    wallet = sdk.wallet.generateWallet(mnemonic)
   } else {
     wallet = await generateWallet(chain, testnet, mnemonic)
   }
