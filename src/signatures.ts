@@ -138,7 +138,7 @@ const processTransaction = async (
     case Currency.SOL: {
       const apiKey = process.env.TATUM_API_KEY as string;
       const solSDK = TatumSolanaSDK({apiKey: apiKey, url: TATUM_URL as any})
-      const txData = await solSDK.kms.sign(blockchainSignature, wallets.map(w => w.privateKey))
+      const txData = await solSDK.kms.sign(blockchainSignature as any, wallets.map(w => w.privateKey))
       await axios.post(`${TATUM_URL}/v3/solana/broadcast`, {txData, signatureId: blockchainSignature.id}, {headers: { 'x-api-key': apiKey }})
       return
     }
@@ -181,16 +181,16 @@ const processTransaction = async (
     case Currency.XRP: {
       const apiKey = process.env.TATUM_API_KEY as string;
       const xrpSdk = TatumXrpSDK({apiKey: apiKey, url: TATUM_URL as any})
-      const txData = await xrpSdk.kms.sign(blockchainSignature, wallets[0].secret)
+      const txData = await xrpSdk.kms.sign(blockchainSignature as any, wallets[0].secret)
       await xrpSdk.blockchain.broadcast({txData, signatureId: blockchainSignature.id})
-      break
+      return
     }
     case Currency.XLM: {
       const apiKey = process.env.TATUM_API_KEY as string;
       const xlmSdk = TatumXlmSDK({apiKey: apiKey, url: TATUM_URL as any})
-      const txData = await xlmSdk.kms.sign(blockchainSignature, wallets[0].secret, testnet)
+      const txData = await xlmSdk.kms.sign(blockchainSignature as any, wallets[0].secret, testnet)
       await xlmSdk.blockchain.broadcast({txData, signatureId: blockchainSignature.id})
-      break
+      return
     }
     case Currency.ETH: {
       const privateKey =
