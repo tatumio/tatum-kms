@@ -2816,10 +2816,10 @@
     ethereumjs-wallet "^1.0.0"
     web3 "^1.7.0"
 
-"@tatumio/tatum@1.37.0":
-  version "1.37.0"
-  resolved "https://registry.yarnpkg.com/@tatumio/tatum/-/tatum-1.37.0.tgz#560933f685fc0f34105376cc0bd7932da92e8f50"
-  integrity sha512-4keZ1efyUEu8HThrfyqge9mjgKVzA9YsehoVYVjGyZH8cSqKkGuEFA+zJyGB4AXo5XproOFtG8OBNGZGdQsLRA==
+"@tatumio/tatum@1.37.1":
+  version "1.37.1"
+  resolved "https://registry.yarnpkg.com/@tatumio/tatum/-/tatum-1.37.1.tgz#a3448639f780e32e6c4fc6ed51697fd69bf87665"
+  integrity sha512-1yrhBab/f14LSG7QBpYOxetqrfPAvL8fIgVhICyJIIs9v21GPr8VX8oR/8tD2XrI3Jo23nPNf35z2hO5sOW8+g==
   dependencies:
     "@binance-chain/javascript-sdk" "^4.1.1"
     "@celo-tools/celo-ethers-wrapper" "0.0.5"
