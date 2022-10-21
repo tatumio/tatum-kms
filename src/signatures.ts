@@ -358,7 +358,7 @@ const processTransaction = async (
       return
     }
     case Currency.BTC: {
-      const privateKeys = await getPrivateKeys(wallets, signatures, Currency.LTC)
+      const privateKeys = await getPrivateKeys(wallets, signatures, Currency.BTC)
       if (blockchainSignature.withdrawalId) {
         txData = await signBitcoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
