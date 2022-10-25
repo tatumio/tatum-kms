@@ -1,4 +1,4 @@
-import { Currency } from '@tatumio/tatum'
+import { Currency } from '@tatumio/api-client'
 
 export enum PasswordType {
   CMD_LINE,

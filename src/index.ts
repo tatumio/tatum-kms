@@ -1,12 +1,14 @@
 #!/usr/bin/env node
-import {Currency, generateWallet} from '@tatumio/tatum'
+import { TatumSDK } from '@tatumio/sdk'
+import { TatumUrl } from '@tatumio/api-client'
+import { Currency } from '@tatumio/tatum'
 import axios from 'axios'
 import dotenv from 'dotenv'
 import http from 'http'
 import https from 'https'
 import meow from 'meow'
-import {Config} from './config'
-import {PasswordType} from './interfaces';
+import { Config } from './config'
+import { PasswordType } from './interfaces'
 import {
   exportWallets,
   generateManagedPrivateKeyBatch,
@@ -20,10 +22,25 @@ import {
   storePrivateKey,
   storeWallet,
 } from './management'
-import {processSignatures} from './signatures'
+import { processSignatures } from './signatures'
 
 dotenv.config()
 const config = new Config()
+
+const getTatumUrl = (url?: string) => {
+  switch (url) {
+    case TatumUrl.EU:
+      return TatumUrl.EU
+    case TatumUrl.US_WEST:
+      return TatumUrl.US_WEST
+    case TatumUrl.LOCALHOST:
+      return TatumUrl.LOCALHOST
+    default:
+      return TatumUrl.EU
+  }
+}
+
+export const getSdk = () => TatumSDK({ apiKey: flags.apiKey as string, url: getTatumUrl(process.env.TATUM_API_URL) })
 
 const axiosInstance = axios.create({
   httpAgent: new http.Agent({ keepAlive: true }),
@@ -112,6 +129,9 @@ const startup = async () => {
   if (command.length === 0) {
     return
   }
+
+  const sdk = getSdk()
+
   switch (command[0]) {
     case 'daemon': {
       const pwd = await getPassword(getPasswordType(), axiosInstance)
@@ -128,16 +148,33 @@ const startup = async () => {
       break
     }
     case 'generatewallet':
-      console.log(JSON.stringify(await generateWallet(command[1] as Currency, flags.testnet), null, 2))
+      console.log(
+        JSON.stringify(
+          await sdk.wallet.generateBlockchainWallet(command[1] as Currency, undefined, { testnet: flags.testnet }),
+          null,
+          2,
+        ),
+      )
       break
     case 'export':
       exportWallets(await getPassword(getPasswordType(), axiosInstance), flags.path)
       break
     case 'generatemanagedwallet':
-      await storeWallet(command[1] as Currency, flags.testnet, await getPassword(getPasswordType(), axiosInstance), flags.path)
+      await storeWallet(
+        command[1] as Currency,
+        flags.testnet,
+        await getPassword(getPasswordType(), axiosInstance),
+        flags.path,
+      )
       break
     case 'storemanagedwallet':
-      await storeWallet(command[1] as Currency, flags.testnet, await getPassword(getPasswordType(), axiosInstance), flags.path, getQuestion('Enter mnemonic to store:'))
+      await storeWallet(
+        command[1] as Currency,
+        flags.testnet,
+        await getPassword(getPasswordType(), axiosInstance),
+        flags.path,
+        getQuestion('Enter mnemonic to store:'),
+      )
       break
     case 'storemanagedprivatekey':
       await storePrivateKey(
@@ -149,7 +186,13 @@ const startup = async () => {
       )
       break
     case 'generatemanagedprivatekeybatch':
-      await generateManagedPrivateKeyBatch(command[1] as Currency, command[2], flags.testnet, await getPassword(getPasswordType(), axiosInstance), flags.path)
+      await generateManagedPrivateKeyBatch(
+        command[1] as Currency,
+        command[2],
+        flags.testnet,
+        await getPassword(getPasswordType(), axiosInstance),
+        flags.path,
+      )
       break
     case 'getmanagedwallet':
       await getWallet(command[1], await getPassword(getPasswordType(), axiosInstance), flags.path)

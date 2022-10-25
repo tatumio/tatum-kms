@@ -1,8 +1,7 @@
-import {TatumSolanaSDK} from '@tatumio/solana';
+import { TatumSolanaSDK } from '@tatumio/solana'
 import {
   adaBroadcast,
   algorandBroadcast,
-  bcashBroadcast,
   bnbBroadcast,
   bscBroadcast,
   btcBroadcast,
@@ -22,8 +21,6 @@ import {
   signAdaKMSTransaction,
   signAdaOffchainKMSTransaction,
   signAlgoKMSTransaction,
-  signBitcoinCashKMSTransaction,
-  signBitcoinCashOffchainKMSTransaction,
   signBitcoinKMSTransaction,
   signBitcoinOffchainKMSTransaction,
   signBnbKMSTransaction,
@@ -63,29 +60,30 @@ import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './m
 import { KMS_CONSTANTS } from './constants'
 import _ from 'lodash'
 import { Wallet, Signature } from './interfaces'
+import { getSdk } from './index'
+import { TatumBchSDK } from '@tatumio/bch'
+import { PendingTransaction } from '@tatumio/api-client'
 
-const TATUM_URL = process.env.TATUM_API_URL || 'https://api-eu1.tatum.io';
+const TATUM_URL = process.env.TATUM_API_URL || 'https://api-eu1.tatum.io'
 
-const getPrivateKeys = async (
-  wallets: Wallet[],
-  signatures: Signature[],
-  currency: Currency,
-): Promise<string[]> => {
-  if (!wallets || (wallets?.length === 0)) {
+const getPrivateKeys = async (wallets: Wallet[], signatures: Signature[], currency: Currency): Promise<string[]> => {
+  if (!wallets || wallets?.length === 0) {
     return []
   }
   const keys: Set<string> = new Set<string>()
   const isMultipleKeysApproach = signatures.length > 0
+  const sdk = getSdk()
   for (const w of wallets) {
     if (isMultipleKeysApproach) {
       for (const s of signatures) {
         if (!_.isNil(w.mnemonic) && !_.isNil(s.index)) {
-          const key = await generatePrivateKeyFromMnemonic(currency, w.testnet, w.mnemonic, s.index)
+          const key = await sdk.wallet.generatePrivateKeyFromMnemonic(currency, w.mnemonic, s.index, {
+            testnet: w.testnet,
+          })
           if (key) {
             keys.add(key)
           }
-        } 
-        else if (w.privateKey) {
+        } else if (w.privateKey) {
           keys.add(w.privateKey)
         }
       }
@@ -132,6 +130,9 @@ const processTransaction = async (
   console.log(
     `${new Date().toISOString()} - Processing pending transaction - ${JSON.stringify(blockchainSignature, null, 2)}.`,
   )
+
+  const apiKey = process.env.TATUM_API_KEY as string
+  const url = TATUM_URL as any
   switch (blockchainSignature.chain) {
     case Currency.ALGO: {
       const algoSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey
@@ -142,25 +143,37 @@ const processTransaction = async (
       return
     }
     case Currency.SOL: {
-      const apiKey = process.env.TATUM_API_KEY as string;
-      const solSDK = TatumSolanaSDK({apiKey: apiKey, url: TATUM_URL as any})
-      const txData = await solSDK.kms.sign(blockchainSignature, wallets.map(w => w.privateKey))
-      await axios.post(`${TATUM_URL}/v3/solana/broadcast`, {txData, signatureId: blockchainSignature.id}, {headers: { 'x-api-key': apiKey }})
+      const apiKey = process.env.TATUM_API_KEY as string
+      const solSDK = TatumSolanaSDK({ apiKey: apiKey, url: TATUM_URL as any })
+      const txData = await solSDK.kms.sign(
+        blockchainSignature,
+        wallets.map(w => w.privateKey),
+      )
+      await axios.post(
+        `${TATUM_URL}/v3/solana/broadcast`,
+        { txData, signatureId: blockchainSignature.id },
+        { headers: { 'x-api-key': apiKey } },
+      )
       return
     }
     case Currency.BCH: {
       const privateKeys = await getPrivateKeys(wallets, signatures, Currency.BCH)
+      const bchSdk = TatumBchSDK({ apiKey, url })
       if (blockchainSignature.withdrawalId) {
-        txData = await signBitcoinCashOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
+        txData = await bchSdk.offchain.signKmsTransaction(
+          blockchainSignature as PendingTransaction,
+          wallets[0].mnemonic,
+          testnet,
+        )
       } else {
-        await bcashBroadcast(
-          await signBitcoinCashKMSTransaction(
-            blockchainSignature,
+        await bchSdk.blockchain.broadcast({
+          txData: await bchSdk.kms.signBitcoinCashKMSTransaction(
+            blockchainSignature as PendingTransaction,
             privateKeys,
             testnet,
           ),
-          blockchainSignature.id,
-        )
+          signatureId: blockchainSignature.id,
+        })
         return
       }
       break
