@@ -1,7 +1,12 @@
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
 import { TatumSolanaSDK } from '@tatumio/solana'
-import { Currency } from '@tatumio/api-client'
+import { TatumXlmSDK } from '@tatumio/xlm'
+import { TatumXrpSDK } from '@tatumio/xrp'
+import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
 import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
+import { TatumCeloSDK } from '@tatumio/celo'
+import { TatumTronSDK } from '@tatumio/tron'
+import { TatumBchSDK } from '@tatumio/bch'
 import { AxiosInstance } from 'axios'
 import { AES, enc } from 'crypto-js'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
@@ -75,7 +80,7 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
   }
 }
 
-export const exportWallets = (pwd: string, path1: string | undefined, path?: string) => {
+export const exportWallets = (pwd: string, _path1: string | undefined, path?: string) => {
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2))
@@ -115,8 +120,23 @@ const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: 
   if (chain === Currency.SOL) {
     const sdk = TatumSolanaSDK({ apiKey: '' })
     wallet = sdk.wallet.wallet()
+  } else if (chain === Currency.XRP) {
+    const sdk = TatumXrpSDK({ apiKey: '' })
+    wallet = sdk.wallet.wallet()
+  } else if (chain === Currency.XLM) {
+    const sdk = TatumXlmSDK({ apiKey: '' })
+    wallet = sdk.wallet.wallet()
   } else if (chain === Currency.KCS) {
     wallet = await generateKcsWallet(mnemonic, { testnet })
+  } else if (chain === Currency.CELO) {
+    const sdk = TatumCeloSDK({ apiKey: '' })
+    wallet = sdk.wallet.generateWallet(mnemonic, { testnet })
+  } else if (chain === Currency.TRON) {
+    const sdk = TatumTronSDK({ apiKey: '' })
+    wallet = sdk.wallet.generateWallet(mnemonic)
+  } else if (chain === Currency.BCH) {
+    const sdk = TatumBchSDK({ apiKey: '' })
+    wallet = sdk.wallet.generateWallet(mnemonic)
   } else {
     wallet = await sdk.wallet.generateBlockchainWallet(chain, mnemonic, { testnet })
   }
