@@ -165,10 +165,11 @@ const processTransaction = async (
           privateKeys,
           testnet,
         )
-        await bchSdk.blockchain.broadcast({
-          txData,
-          signatureId: blockchainSignature.id,
-        })
+        await axios.post(
+          `${TATUM_URL}/v3/bcash/broadcast`,
+          { txData, signatureId: blockchainSignature.id },
+          { headers: { 'x-api-key': apiKey } },
+        )
         return
       }
       break
