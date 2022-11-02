@@ -9,7 +9,7 @@ transactions to sign from Tatum Cloud, signs them locally using stored private k
 Tatum KMS generates and stores the private keys and mnemonic in the local file system's encrypted file.
 The wallet file is encrypted using the AES-GCM-256 cipher.
 
-The most sensitive information in this architecture is the password, which is used to encrypt the file. The password is never passed
+The most sensitive information in this architecture is the password, which is used to encrypt the file. The password is never passed1111111
 as a parameter or obtained from the environment variables. 
 There are three ways of entering a password to the KMS:
 * during the start of the KMS, the password is entered manually and stored in the memory during the daemon's runtime.
