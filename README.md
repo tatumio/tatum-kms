@@ -5,7 +5,7 @@ Key Management System for Tatum-powered applications.
 Tatum KMS is used to store private keys and mnemonics of the blockchain wallets securely. KMS periodically pulls pending
 transactions to sign from Tatum Cloud, signs them locally using stored private keys, and broadcasts them to the blockchain.
 
-<img src="src/images/kms_overview.png" width="50%" height="50%"/>
+<img src="src/img/kms_overview.png" width="50%" height="50%"/>
 
 ### Secure storage
 Tatum KMS generates and stores the private keys and mnemonic in the local file system's encrypted file.
@@ -91,7 +91,7 @@ tatum-kms daemon --chain=BTC,LTC,ETH
 #### 4-eye principle
 To verify whether the transaction to sign with KMS is yours, enable the 4-eye-principle. This principle ensures that pending transactions are controlled in Tatum and the customer system.
 
-<img src="src/images/kms_4eye.png" width="75%" height="75%"/>
+<img src="src/img/kms_4eye.png" width="75%" height="75%"/>
 
 To enable the 4-eye-principle, add the `external-url` parameter and set it to your application server. This server should hold the list of valid transactions to sign. The `external-url` parameter is mandatory on the mainnet to make the production environment more secure.
 
