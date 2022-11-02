@@ -154,7 +154,7 @@ const processTransaction = async (
       const privateKeys = await getPrivateKeys(wallets, signatures, Currency.BCH)
       const bchSdk = TatumBchSDK({ apiKey, url })
       if (blockchainSignature.withdrawalId) {
-        txData = await bchSdk.offchain.signKmsTransaction(
+        txData = await bchSdk.virtualAccount.signKmsTransaction(
           blockchainSignature as PendingTransaction,
           wallets[0].mnemonic,
           testnet,
