@@ -55,7 +55,7 @@ import {
 } from '@tatumio/tatum-kcs'
 import { AxiosInstance } from 'axios'
 import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
-import { KMS_CONSTANTS } from './constants'
+import { KMS_CONSTANTS, MNEMONIC_BASED_CHAINS } from './constants'
 import _ from 'lodash'
 import { Wallet, Signature } from './interfaces'
 
@@ -124,20 +124,7 @@ const processTransaction = async (
   )
 
   if (
-    [
-      Currency.VET,
-      Currency.ETH,
-      Currency.FLOW,
-      Currency.ONE,
-      Currency.CELO,
-      Currency.BSC,
-      Currency.MATIC,
-      Currency.KLAY,
-      Currency.XDC,
-      Currency.KCS,
-      Currency.EGLD,
-      Currency.TRON,
-    ].includes(blockchainSignature.chain) &&
+    MNEMONIC_BASED_CHAINS.includes(blockchainSignature.chain) &&
     wallets[0].mnemonic &&
     blockchainSignature.index === undefined
   ) {
