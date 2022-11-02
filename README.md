@@ -5,6 +5,8 @@ Key Management System for Tatum-powered applications.
 Tatum KMS is used to store private keys and mnemonics of the blockchain wallets securely. KMS periodically pulls pending
 transactions to sign from Tatum Cloud, signs them locally using stored private keys, and broadcasts them to the blockchain.
 
+<img src="src/img/kms_overview.png" width="50%" height="50%"/>
+
 ### Secure storage
 Tatum KMS generates and stores the private keys and mnemonic in the local file system's encrypted file.
 The wallet file is encrypted using the AES-GCM-256 cipher.
@@ -87,10 +89,11 @@ tatum-kms daemon --chain=BTC,LTC,ETH
 ```
 
 #### 4-eye principle
-To verify whether the transaction to sign with KMS is yours, enable the 4-eye-principle.
+To verify whether the transaction to sign with KMS is yours, enable the 4-eye-principle. This principle ensures that pending transactions are controlled in Tatum and the customer system.
 
-To do so, add the `external-url` parameter and set it to your application server. This server should hold the list of valid
-transactions to sign. The `external-url` parameter is mandatory on the mainnet to make the production environment more secure.
+<img src="src/img/kms_4eye.png" width="75%" height="75%"/>
+
+To enable the 4-eye-principle, add the `external-url` parameter and set it to your application server. This server should hold the list of valid transactions to sign. The `external-url` parameter is mandatory on the mainnet to make the production environment more secure.
 
 ```
 tatum-kms daemon --external-url=http://192.168.57.63
@@ -175,10 +178,7 @@ Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicat
     bash:$ tatum-kms generatewallet BTC
     {
       "mnemonic": "urge pulp usage sister evidence arrest palm math please chief egg abuse",
-      "xpriv": "xprvA1srLWNaGEkhdSJg6cLTMAziUpQcefpu2ZnKH2PXGiXEPKTdVPHjLFp4aZSSqSsaLMNrWXoj6TsyyUqh18T1hbiQkC42aWjXB9HnpmmqrYr",
-      "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid",
-      "testnet": false,
-      "chain": "BTC"
+      "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid"
     }
   ``` 
   
@@ -226,7 +226,6 @@ Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicat
     bash:$ tatum-kms getmanagedwallet e3015fc0-2112-4c8a-b8bf-353b86f63ba5
     {
       "mnemonic": "urge pulp usage sister evidence arrest palm math please chief egg abuse",
-      "xpriv": "xprvA1srLWNaGEkhdSJg6cLTMAziUpQcefpu2ZnKH2PXGiXEPKTdVPHjLFp4aZSSqSsaLMNrWXoj6TsyyUqh18T1hbiQkC42aWjXB9HnpmmqrYr",
       "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid",
       "testnet": false,
       "chain": "BTC"
@@ -264,7 +263,6 @@ Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicat
     {
       "e3015fc0-2112-4c8a-b8bf-353b86f63ba5": {
            "mnemonic": "urge pulp usage sister evidence arrest palm math please chief egg abuse",
-           "xpriv": "xprvA1srLWNaGEkhdSJg6cLTMAziUpQcefpu2ZnKH2PXGiXEPKTdVPHjLFp4aZSSqSsaLMNrWXoj6TsyyUqh18T1hbiQkC42aWjXB9HnpmmqrYr",
            "xpub": "xpub6EsCk1uU6cJzqvP9CdsTiJwT2rF748YkPnhv5Qo8q44DG7nn2vbyt48YRsNSUYS44jFCW9gwvD9kLQu9AuqXpTpM1c5hgg9PsuBLdeNncid",
            "testnet": false,
            "chain": "BTC"
@@ -273,7 +271,7 @@ Tatum KMS is shipped alongside a daemon mode with a set of scripts to communicat
   ```     
   
 #### Wallet modes
-Tatum API accepts 3 representations of signatureIdes in its requests:
+Tatum API accepts the following representations of signatureIdes in its requests:
 
 * signatureId represents **mnemonic** type of the wallet. In API calls like /v3/offchain/bitcoin/transfer, signatureId present in the request should represent mnemonic type of wallet. 
    ```
