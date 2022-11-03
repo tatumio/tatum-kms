@@ -55,7 +55,7 @@ import {
 } from '@tatumio/tatum-kcs'
 import { AxiosInstance } from 'axios'
 import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
-import { KMS_CONSTANTS } from './constants'
+import { KMS_CONSTANTS, MNEMONIC_BASED_CHAINS } from './constants'
 import _ from 'lodash'
 import { Wallet, Signature } from './interfaces'
 
@@ -111,10 +111,30 @@ const processTransaction = async (
     wallets.push(...((await getWalletWithMnemonicForChain(blockchainSignature.chain, path, pwd, false)) ?? []))
   }
 
+  if (!wallets.length) {
+    console.error(
+      `${new Date().toISOString()} - Bad signatureId for signing transaction: not found. ID: ${blockchainSignature.id}`,
+    )
+    return
+  }
+
   let txData = ''
   console.log(
     `${new Date().toISOString()} - Processing pending transaction - ${JSON.stringify(blockchainSignature, null, 2)}.`,
   )
+
+  if (
+    MNEMONIC_BASED_CHAINS.includes(blockchainSignature.chain) &&
+    wallets[0].mnemonic &&
+    blockchainSignature.index === undefined
+  ) {
+    console.error(
+      `${new Date().toISOString()} - Bad format for mnemonic signing transaction: "index" not found. ID: ${
+        blockchainSignature.id
+      }`,
+    )
+    return
+  }
 
   const apiKey = process.env.TATUM_API_KEY as string
   const url = TATUM_URL as any
