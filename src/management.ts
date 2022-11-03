@@ -2,7 +2,13 @@ import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-sec
 import { TatumSolanaSDK } from '@tatumio/solana'
 import { TatumXlmSDK } from '@tatumio/xlm'
 import { TatumXrpSDK } from '@tatumio/xrp'
-import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
+import {
+  Currency,
+  generateAddressFromPrivatekey,
+  generateAddressFromXPub,
+  generatePrivateKeyFromMnemonic,
+  generateWallet,
+} from '@tatumio/tatum'
 import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
 import { TatumCeloSDK } from '@tatumio/celo'
 import { TatumTronSDK } from '@tatumio/tron'
@@ -351,15 +357,22 @@ export const getAddress = async (id: string, index: string, path?: string, pwd?:
     console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2))
     return null
   }
-  const pk = {
-    address: wallet[id].address
-      ? wallet[id].address
-      : await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index)),
+  let address
+  if (wallet[id].address) {
+    address = wallet[id].address
+  } else if (wallet[id].xpub && index) {
+    address = await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index))
+  } else if (wallet[id].privateKey) {
+    address = await generateAddressFromPrivatekey(wallet[id].chain, wallet[id].testnet, wallet[id].privateKey)
+  } else {
+    console.error(JSON.stringify({ error: `Wrong wallet format for signatureId '${id}'.` }, null, 2))
+    return null
   }
+
   if (print) {
-    console.log(JSON.stringify(pk, null, 2))
+    console.log(JSON.stringify({ address }, null, 2))
   }
-  return { address: pk.address }
+  return { address }
 }
 
 export const removeWallet = async (id: string, pwd: string, path?: string) => {
