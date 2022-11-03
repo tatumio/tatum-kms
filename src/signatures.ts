@@ -59,7 +59,7 @@ import { KMS_CONSTANTS } from './constants'
 import _ from 'lodash'
 import { Wallet, Signature } from './interfaces'
 
-const TATUM_URL = process.env.TATUM_API_URL || 'https://api-eu1.tatum.io'
+const TATUM_URL = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
 const getPrivateKeys = async (wallets: Wallet[], signatures: Signature[], currency: Currency): Promise<string[]> => {
   const keys: string[] = []
