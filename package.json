@@ -9,8 +9,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --ext .ts",
-    "run-daemon-testnet2": "node --inspect dist/index.js --testnet --api-key=b581a124-c5bf-4db6-8012-450a41e4431b_100 generatemanagedwallet FLOW --chain=FLOW",
-    "run-daemon-testnet": "TATUM_API_URL=http://localhost:3000 node --inspect dist/index.js daemon --testnet --api-key=b581a124-c5bf-4db6-8012-450a41e4431b_100 --chain=FLOW"
+    "run-daemon-testnet": "node dist/index.js daemon --testnet --api-key=YOUR_API_KEY --chain=KLAY"
   },
   "files": [
     "dist/"
