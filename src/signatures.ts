@@ -15,8 +15,6 @@ import {
   dogeBroadcast,
   egldBroadcast,
   ethBroadcast,
-  flowBroadcastTx,
-  flowSignKMSTransaction,
   generatePrivateKeyFromMnemonic,
   klaytnBroadcast,
   ltcBroadcast,
@@ -58,6 +56,7 @@ import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './m
 import { KMS_CONSTANTS, MNEMONIC_BASED_CHAINS } from './constants'
 import _ from 'lodash'
 import { Wallet, Signature } from './interfaces'
+import { TatumFlowSDK } from '@tatumio/flow'
 
 const TATUM_URL = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
@@ -228,21 +227,14 @@ const processTransaction = async (
       break
     }
     case Currency.FLOW: {
+      const flowSdk = TatumFlowSDK({ apiKey, url, testnet })
+
       const secret =
         wallets[0].mnemonic && blockchainSignature.index !== undefined
-          ? await generatePrivateKeyFromMnemonic(
-              Currency.FLOW,
-              wallets[0].testnet,
-              wallets[0].mnemonic,
-              blockchainSignature.index,
-            )
+          ? await flowSdk.wallet.generatePrivateKeyFromMnemonic(wallets[0].mnemonic, blockchainSignature.index)
           : wallets[0].privateKey
-      const u = blockchainSignature.serializedTransaction
-      const r = JSON.parse(u)
-      r.body.privateKey = secret
-      blockchainSignature.serializedTransaction = JSON.stringify(r)
-      await flowBroadcastTx(
-        (await flowSignKMSTransaction(blockchainSignature, [secret], testnet))?.txId,
+      await flowSdk.call.broadcast(
+        (await flowSdk.kms.sign(blockchainSignature as PendingTransaction, [secret]))?.txId,
         blockchainSignature.id,
       )
       return
