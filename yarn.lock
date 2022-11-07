@@ -2634,6 +2634,28 @@
     varuint-bitcoin "^1.0.4"
     wif "^2.0.1"
 
+"@tatumio/bsc@2.0.1-alpha.354":
+  version "2.0.1-alpha.354"
+  resolved "https://registry.yarnpkg.com/@tatumio/bsc/-/bsc-2.0.1-alpha.354.tgz#861e71d2b453a00e2ce5369345274087b7d9bf56"
+  integrity sha512-pkMovJE4YjwJIxycNVpxgp1SqHq1bGlGi1TTrUXl+V3FzgTj1mBWrdIxXX0CzvycqyCn2XfsamjAU/rYuLMrvA==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.354"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-evm-based" "2.0.1-alpha.354"
+    "@tatumio/shared-core" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-evm-based" "2.0.1-alpha.354"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    bip39 "^3.0.2"
+    ethereumjs-wallet "^1.0.2"
+    form-data "^4.0.0"
+    tslib "^2.0.0"
+    web3 "^1.7.4"
+    web3-core "^1.7.4"
+    web3-utils "^1.7.4"
+
 "@tatumio/celo@2.0.1-alpha.354":
   version "2.0.1-alpha.354"
   resolved "https://registry.yarnpkg.com/@tatumio/celo/-/celo-2.0.1-alpha.354.tgz#65190cf4ac48c23ded1af98e5453f9fd9c1600cd"
@@ -2653,6 +2675,28 @@
     ethereumjs-wallet "^1.0.2"
     form-data "^4.0.0"
     lodash "^4.17.21"
+    tslib "^2.0.0"
+    web3 "^1.7.4"
+    web3-core "^1.7.4"
+    web3-utils "^1.7.4"
+
+"@tatumio/eth@2.0.1-alpha.354":
+  version "2.0.1-alpha.354"
+  resolved "https://registry.yarnpkg.com/@tatumio/eth/-/eth-2.0.1-alpha.354.tgz#da55b3edd8aaf5df75a8549616feb474b04ce5f5"
+  integrity sha512-K6QTJRpf0ycw1gqYtNtPJfeszJntwdLOtMDDcvBCFGH+I1qRcw72NmpSFRLoRxCuq6BtNTN7WKU2POjPYjx/xA==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.354"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-evm-based" "2.0.1-alpha.354"
+    "@tatumio/shared-core" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-evm-based" "2.0.1-alpha.354"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    bip39 "^3.0.2"
+    ethereumjs-wallet "^1.0.2"
+    form-data "^4.0.0"
     tslib "^2.0.0"
     web3 "^1.7.4"
     web3-core "^1.7.4"
@@ -2681,6 +2725,97 @@
     lodash "^4.17.21"
     sha3 "^2.1.4"
     tslib "^2.0.0"
+
+"@tatumio/kcs@2.0.1-alpha.354":
+  version "2.0.1-alpha.354"
+  resolved "https://registry.yarnpkg.com/@tatumio/kcs/-/kcs-2.0.1-alpha.354.tgz#a84b05d71cbc3deaa05da491ea27e6ab52f4357b"
+  integrity sha512-YLwwlSvC777TGpa7fhhPRtueAYKR2yEuxSnxdr4iaSpZlW5Y0q0C/kpzE9Tec3TYQen5zsegBl65LsF4KqEqMA==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.354"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-evm-based" "2.0.1-alpha.354"
+    "@tatumio/shared-core" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-evm-based" "2.0.1-alpha.354"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    bip39 "^3.0.2"
+    ethereumjs-wallet "^1.0.2"
+    form-data "^4.0.0"
+    tslib "^2.0.0"
+    web3 "^1.7.4"
+    web3-core "^1.7.4"
+    web3-utils "^1.7.4"
+
+"@tatumio/klaytn@2.0.1-alpha.354":
+  version "2.0.1-alpha.354"
+  resolved "https://registry.yarnpkg.com/@tatumio/klaytn/-/klaytn-2.0.1-alpha.354.tgz#c9b5b324e2eb8f206aff2440d2db56ae25c439c3"
+  integrity sha512-sAXUIv8jiSp+Ss6Tdxr7iNcml0OR1tvnmxc+MWdsYdRRUVlWgBsT9x+5OJJEWUJt+NUH0fFyC6EyKk1F3K3tAg==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.354"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-evm-based" "2.0.1-alpha.354"
+    "@tatumio/shared-core" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-evm-based" "2.0.1-alpha.354"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    bip39 "^3.0.2"
+    caver-js "1.8.2"
+    ethereumjs-wallet "^1.0.2"
+    form-data "^4.0.0"
+    tslib "^2.0.0"
+    web3 "^1.7.4"
+    web3-core "^1.7.4"
+    web3-utils "^1.7.4"
+
+"@tatumio/one@2.0.1-alpha.354":
+  version "2.0.1-alpha.354"
+  resolved "https://registry.yarnpkg.com/@tatumio/one/-/one-2.0.1-alpha.354.tgz#94b4854bcc364c30cf6260b0fd8da57b9dc70de7"
+  integrity sha512-liw33cBpLVTE26nmvM0HmKwsCLSQPRQRSYT6xfJTBz1N60F7+ff9hcMImZ11BizV9kjCp340eQYVgoYCYvkChA==
+  dependencies:
+    "@harmony-js/crypto" "^0.1.56"
+    "@tatumio/api-client" "2.0.1-alpha.354"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-evm-based" "2.0.1-alpha.354"
+    "@tatumio/shared-core" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-evm-based" "2.0.1-alpha.354"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    bip39 "^3.0.2"
+    ethereumjs-wallet "^1.0.2"
+    form-data "^4.0.0"
+    tslib "^2.0.0"
+    web3 "^1.7.4"
+    web3-core "^1.7.4"
+    web3-utils "^1.7.4"
+
+"@tatumio/polygon@2.0.1-alpha.354":
+  version "2.0.1-alpha.354"
+  resolved "https://registry.yarnpkg.com/@tatumio/polygon/-/polygon-2.0.1-alpha.354.tgz#19e0e806dce30547f3021b8b44d9777c3fa37019"
+  integrity sha512-HzEnplr7Xaup2nGJVu9E2UyR9rL2iTiyle7ttaIzZ3+lIYXRhq7eHVHP/oL7ivVjXtTrVYl5B2W5IrelA6tRig==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.354"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-evm-based" "2.0.1-alpha.354"
+    "@tatumio/shared-core" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-evm-based" "2.0.1-alpha.354"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    bip39 "^3.0.2"
+    ethereumjs-wallet "^1.0.2"
+    ethers "^5.5.4"
+    form-data "^4.0.0"
+    tslib "^2.0.0"
+    web3 "^1.7.4"
+    web3-core "^1.7.4"
+    web3-utils "^1.7.4"
 
 "@tatumio/pushdata-bitcoin@1.2.2":
   version "1.2.2"
@@ -2913,6 +3048,27 @@
     ethereumjs-wallet "^1.0.2"
     form-data "^4.0.0"
     tronweb "^4.1.0"
+    tslib "^2.0.0"
+    web3 "^1.7.4"
+    web3-core "^1.7.4"
+    web3-utils "^1.7.4"
+
+"@tatumio/xdc@2.0.1-alpha.354":
+  version "2.0.1-alpha.354"
+  resolved "https://registry.yarnpkg.com/@tatumio/xdc/-/xdc-2.0.1-alpha.354.tgz#ac30ffdf2b8c3cd76fe6116daff7627aa0986fec"
+  integrity sha512-HsFfzaH+GA573MT4GqLi7Aed2jXIUDjizg/HW4shRw9E6Z6KHlSO+cmciVoOExhTd+zwbrMJiaIrMqfBL/PCWQ==
+  dependencies:
+    "@tatumio/api-client" "2.0.1-alpha.354"
+    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.354"
+    "@tatumio/shared-blockchain-evm-based" "2.0.1-alpha.354"
+    "@tatumio/shared-core" "2.0.1-alpha.354"
+    "@tatumio/shared-testing-common" "2.0.1-alpha.354"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    bip39 "^3.0.2"
+    ethereumjs-wallet "^1.0.2"
+    form-data "^4.0.0"
     tslib "^2.0.0"
     web3 "^1.7.4"
     web3-core "^1.7.4"
@@ -4701,6 +4857,39 @@ caver-js@1.8.1:
     websocket "1.0.31"
     xhr2-cookies "1.1.0"
 
+caver-js@1.8.2:
+  version "1.8.2"
+  resolved "https://registry.yarnpkg.com/caver-js/-/caver-js-1.8.2.tgz#b4eb6ddaa516adcefd8b0e6638660755c60e43bd"
+  integrity sha512-xK0vJ3+obTT5+Zmi0flcd9a87tu6u5JHGCT/4BcvtBBGkelSalpN6Ys3MNopakxmwJ47wRiRDduTzCJZkVfjRQ==
+  dependencies:
+    "@babel/runtime" "7.3.1"
+    "@ethersproject/abi" "5.0.7"
+    any-promise "1.3.0"
+    bignumber.js "8.0.2"
+    bn.js "4.11.6"
+    constants-browserify "^1.0.0"
+    crypto-browserify "^3.12.0"
+    elliptic "6.5.4"
+    eth-lib "0.2.8"
+    ethers "5.4.1"
+    ethjs-unit "0.1.6"
+    eventemitter3 "4.0.0"
+    http "0.0.1-security"
+    https "^1.0.0"
+    ipfs-http-client "^49.0.4"
+    lodash "4.17.21"
+    multihashes "4.0.2"
+    number-to-bn "1.7.0"
+    oboe "2.1.3"
+    os "^0.1.2"
+    scrypt-js "3.0.1"
+    stream-browserify "^3.0.0"
+    stream-http "^3.2.0"
+    utf8 "2.1.1"
+    uuid "8.3.2"
+    websocket "1.0.31"
+    xhr2-cookies "1.1.0"
+
 chai@4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/chai/-/chai-4.1.2.tgz#0f64584ba642f0f2ace2806279f4f06ca23ad73c"
@@ -5961,7 +6150,7 @@ ethers@^5.0.8:
     "@ethersproject/web" "5.6.1"
     "@ethersproject/wordlists" "5.6.1"
 
-ethers@^5.4.4:
+ethers@^5.4.4, ethers@^5.5.4:
   version "5.7.2"
   resolved "https://registry.yarnpkg.com/ethers/-/ethers-5.7.2.tgz#3a7deeabbb8c030d4126b24f84e525466145872e"
   integrity sha512-wswUsmWo1aOK8rR7DIKiWSw9DbLWe6x98Jrn8wcTflTVvaXhAMaB5zGAXy0GYQEQp9iO1iSHWVyARQm11zUtyg==
