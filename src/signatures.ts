@@ -4,23 +4,19 @@ import { TatumXlmSDK } from '@tatumio/xlm'
 import { TatumXrpSDK } from '@tatumio/xrp'
 import { TatumCeloSDK } from '@tatumio/celo'
 import { TatumTronSDK } from '@tatumio/tron'
+import { TatumBscSDK } from '@tatumio/bsc'
 import {
   adaBroadcast,
   algorandBroadcast,
   bcashBroadcast,
   bnbBroadcast,
-  bscBroadcast,
   btcBroadcast,
   Currency,
   dogeBroadcast,
   egldBroadcast,
-  ethBroadcast,
   generatePrivateKeyFromMnemonic,
-  klaytnBroadcast,
   ltcBroadcast,
   offchainBroadcast,
-  oneBroadcast,
-  polygonBroadcast,
   signAdaKMSTransaction,
   signAdaOffchainKMSTransaction,
   signAlgoKMSTransaction,
@@ -29,34 +25,27 @@ import {
   signBitcoinKMSTransaction,
   signBitcoinOffchainKMSTransaction,
   signBnbKMSTransaction,
-  signBscKMSTransaction,
   signDogecoinKMSTransaction,
   signDogecoinOffchainKMSTransaction,
   signEgldKMSTransaction,
-  signEthKMSTransaction,
-  signEthOffchainKMSTransaction,
-  signKlayKMSTransaction,
   signLitecoinKMSTransaction,
   signLitecoinOffchainKMSTransaction,
-  signOneKMSTransaction,
-  signPolygonKMSTransaction,
   signVetKMSTransaction,
-  signXdcKMSTransaction,
   TransactionKMS,
   vetBroadcast,
-  xdcBroadcast,
 } from '@tatumio/tatum'
-import {
-  broadcast as kcsBroadcast,
-  generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic,
-  signKMSTransaction as signKcsKMSTransaction,
-} from '@tatumio/tatum-kcs'
 import { AxiosInstance } from 'axios'
 import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
 import { KMS_CONSTANTS, MNEMONIC_BASED_CHAINS } from './constants'
 import _ from 'lodash'
-import { Wallet, Signature } from './interfaces'
+import { Signature, Wallet } from './interfaces'
 import { TatumFlowSDK } from '@tatumio/flow'
+import { TatumPolygonSDK } from '@tatumio/polygon'
+import { TatumKcsSDK } from '@tatumio/kcs'
+import { TatumXdcSDK } from '@tatumio/xdc'
+import { TatumKlaytnSDK } from '@tatumio/klaytn'
+import { TatumEthSDK } from '@tatumio/eth'
+import { TatumOneSDK } from '@tatumio/one'
 
 const TATUM_URL = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
@@ -209,19 +198,17 @@ const processTransaction = async (
       return
     }
     case Currency.ETH: {
-      const privateKey =
+      const ethSDK = TatumEthSDK({ apiKey, url })
+      const ethPrivateKey =
         wallets[0].mnemonic && blockchainSignature.index !== undefined
-          ? await generatePrivateKeyFromMnemonic(
-              Currency.ETH,
-              wallets[0].testnet,
-              wallets[0].mnemonic,
-              blockchainSignature.index,
-            )
+          ? await ethSDK.wallet.generatePrivateKeyFromMnemonic(wallets[0].mnemonic, blockchainSignature.index, {
+              testnet: wallets[0].testnet,
+            })
           : wallets[0].privateKey
-      if (blockchainSignature.withdrawalId) {
-        txData = await signEthOffchainKMSTransaction(blockchainSignature, privateKey, testnet)
-      } else {
-        await ethBroadcast(await signEthKMSTransaction(blockchainSignature, privateKey), blockchainSignature.id)
+
+      txData = await ethSDK.kms.sign(blockchainSignature as PendingTransaction, ethPrivateKey)
+      if (!blockchainSignature.withdrawalId) {
+        await ethSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
         return
       }
       break
@@ -240,18 +227,17 @@ const processTransaction = async (
       return
     }
     case Currency.ONE: {
+      const oneSDK = TatumOneSDK({ apiKey, url })
       const onePrivateKey =
         wallets[0].mnemonic && blockchainSignature.index !== undefined
-          ? await generatePrivateKeyFromMnemonic(
-              Currency.ONE,
-              wallets[0].testnet,
-              wallets[0].mnemonic,
-              blockchainSignature.index,
-            )
+          ? await oneSDK.wallet.generatePrivateKeyFromMnemonic(wallets[0].mnemonic, blockchainSignature.index, {
+              testnet: wallets[0].testnet,
+            })
           : wallets[0].privateKey
-      txData = await signOneKMSTransaction(blockchainSignature, onePrivateKey, testnet)
+
+      txData = await oneSDK.kms.sign(blockchainSignature as PendingTransaction, onePrivateKey)
       if (!blockchainSignature.withdrawalId) {
-        await oneBroadcast(txData, blockchainSignature.id)
+        await oneSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
         return
       }
       break
@@ -272,69 +258,63 @@ const processTransaction = async (
       return
     }
     case Currency.BSC: {
+      const bscSDK = TatumBscSDK({ apiKey, url })
       const bscPrivateKey =
         wallets[0].mnemonic && blockchainSignature.index !== undefined
-          ? await generatePrivateKeyFromMnemonic(
-              Currency.BSC,
-              wallets[0].testnet,
-              wallets[0].mnemonic,
-              blockchainSignature.index,
-            )
+          ? await bscSDK.wallet.generatePrivateKeyFromMnemonic(wallets[0].mnemonic, blockchainSignature.index, {
+              testnet: wallets[0].testnet,
+            })
           : wallets[0].privateKey
-      await bscBroadcast(await signBscKMSTransaction(blockchainSignature, bscPrivateKey), blockchainSignature.id)
+      txData = await bscSDK.kms.sign(blockchainSignature as PendingTransaction, bscPrivateKey)
+      await bscSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.MATIC: {
+      const polygonSDK = TatumPolygonSDK({ apiKey, url })
       const polygonPrivateKey =
         wallets[0].mnemonic && blockchainSignature.index !== undefined
-          ? await generatePrivateKeyFromMnemonic(
-              Currency.MATIC,
-              wallets[0].testnet,
-              wallets[0].mnemonic,
-              blockchainSignature.index,
-            )
+          ? await polygonSDK.wallet.generatePrivateKeyFromMnemonic(wallets[0].mnemonic, blockchainSignature.index, {
+              testnet: wallets[0].testnet,
+            })
           : wallets[0].privateKey
-      await polygonBroadcast(
-        await signPolygonKMSTransaction(blockchainSignature, polygonPrivateKey, testnet),
-        blockchainSignature.id,
-      )
+      txData = await polygonSDK.kms.sign(blockchainSignature as PendingTransaction, polygonPrivateKey)
+      await polygonSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.KLAY: {
-      const klaytnPrivateKey =
+      const klaytnSDK = TatumKlaytnSDK({ apiKey, url })
+      const kcsPrivateKey =
         wallets[0].mnemonic && blockchainSignature.index !== undefined
-          ? await generatePrivateKeyFromMnemonic(
-              Currency.KLAY,
-              wallets[0].testnet,
-              wallets[0].mnemonic,
-              blockchainSignature.index,
-            )
+          ? await klaytnSDK.wallet.generatePrivateKeyFromMnemonic(wallets[0].mnemonic, blockchainSignature.index, {
+              testnet: wallets[0].testnet,
+            })
           : wallets[0].privateKey
-      await klaytnBroadcast(
-        await signKlayKMSTransaction(blockchainSignature, klaytnPrivateKey, testnet),
-        blockchainSignature.id,
-      )
+      txData = await klaytnSDK.kms.sign(blockchainSignature as PendingTransaction, kcsPrivateKey)
+      await klaytnSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.KCS: {
+      const kcsSDK = TatumKcsSDK({ apiKey, url })
       const kcsPrivateKey =
         wallets[0].mnemonic && blockchainSignature.index !== undefined
-          ? await kcsGeneratePrivateKeyFromMnemonic(wallets[0].testnet, wallets[0].mnemonic, blockchainSignature.index)
+          ? await kcsSDK.wallet.generatePrivateKeyFromMnemonic(wallets[0].mnemonic, blockchainSignature.index, {
+              testnet: wallets[0].testnet,
+            })
           : wallets[0].privateKey
-      await kcsBroadcast(await signKcsKMSTransaction(blockchainSignature, kcsPrivateKey), blockchainSignature.id)
+      txData = await kcsSDK.kms.sign(blockchainSignature as PendingTransaction, kcsPrivateKey)
+      await kcsSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.XDC: {
+      const xdcSDK = TatumXdcSDK({ apiKey, url })
       const xdcPrivateKey =
         wallets[0].mnemonic && blockchainSignature.index !== undefined
-          ? await generatePrivateKeyFromMnemonic(
-              Currency.XDC,
-              wallets[0].testnet,
-              wallets[0].mnemonic,
-              blockchainSignature.index,
-            )
+          ? await xdcSDK.wallet.generatePrivateKeyFromMnemonic(wallets[0].mnemonic, blockchainSignature.index, {
+              testnet: wallets[0].testnet,
+            })
           : wallets[0].privateKey
-      await xdcBroadcast(await signXdcKMSTransaction(blockchainSignature, xdcPrivateKey), blockchainSignature.id)
+      txData = await xdcSDK.kms.sign(blockchainSignature as PendingTransaction, xdcPrivateKey)
+      await xdcSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.EGLD: {
