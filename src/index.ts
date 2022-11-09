@@ -21,13 +21,24 @@ import {
   storeWallet,
 } from './management'
 import {processSignatures} from './signatures'
+import HttpAgent from 'agentkeepalive'
 
 dotenv.config()
 const config = new Config()
 
 const axiosInstance = axios.create({
-  httpAgent: new http.Agent({ keepAlive: true }),
-  httpsAgent: new https.Agent({ keepAlive: true }),
+  httpAgent: new HttpAgent({
+    maxSockets: 4,
+    maxFreeSockets: 2,
+    timeout: 60000, // up to 110000, but I would stay with 60s
+    freeSocketTimeout: 30000,
+  }),
+  httpsAgent: new HttpAgent.HttpsAgent({
+    maxSockets: 4,
+    maxFreeSockets: 2,
+    timeout: 60000, // up to 110000, but I would stay with 60s
+    freeSocketTimeout: 30000,
+  }),
 })
 
 const { input: command, flags } = meow(
