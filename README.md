@@ -40,7 +40,7 @@ You can enter the password into KMS using either of the following methods:
 * Enter the password manually at KMS start. The password is stored in the memory only during the daemon runtime.
 * Store the password in [VGS Vault](https://www.verygoodsecurity.com/), [Microsoft Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/), or [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/). The password is obtained during KMS start and is stored in the memory only during the daemon runtime.
 
-In this setup, the private keys and mnemonics never leave your perimeter. If someone gains unauthorized access to the file system, they cannot get the private keys and mnemonics because they are are encrypted.
+In this setup, the private keys and mnemonics never leave your perimeter. If someone gains unauthorized access to the file system, they cannot get the private keys and mnemonics because they are encrypted.
 
 ## Signature IDs vs. Private keys and mnemonics
 
