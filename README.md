@@ -2,7 +2,7 @@
 **Tatum Key Management System (KMS)** is a comprehensive solution for Tatum-powered applications.
 
 KMS securely stores private keys and mnemonics of blockchain wallets. KMS periodically pulls pending
-transactions to sign from Tatum, signs them locally using the stored private keys, and broadcasts them to the blockchain.
+transactions to sign from Tatum, signs them locally using the stored private keys and mnemonics, and broadcasts them to the blockchain.
 
 <img src="src/img/kms_overview.png" width="50%" height="50%"/>
 
@@ -38,7 +38,7 @@ The password that is used to encrypt the wallet storage file is the most sensiti
 
 You can enter the password into KMS using either of the following methods:
 * Enter the password manually at KMS start. The password is stored in the memory only during the daemon runtime.
-* Store the password in [VGS Vault](https://www.verygoodsecurity.com/), [Azure Vault](https://azure.microsoft.com/en-us/services/key-vault/), or [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/). The password is obtained during KMS start and is stored in the memory only during the daemon runtime.
+* Store the password in [VGS Vault](https://www.verygoodsecurity.com/), [Microsoft Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/), or [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/). The password is obtained during KMS start and is stored in the memory only during the daemon runtime.
 
 In this setup, the private keys and mnemonics never leave your perimeter. If someone gains unauthorized access to the file system, they cannot get the private keys and mnemonics because they are are encrypted.
 
@@ -49,7 +49,7 @@ Every wallet that is stored inside KMS has a unique identifier called **signatur
 >**NOTE:** You can have up to 25,000 signature IDs per one blockchain and one Tatum API key. If you exceed this limit,
 you get an error message, and KMS stops signing your transactions until you adjust your data to respect the limit.
 
-The Tatum API accepts the following representations of signature IDs in requests:
+The Tatum API accepts the following representations of the signature ID in requests:
 
 * A signature ID that represents the **private key** type of a wallet
 
@@ -92,13 +92,13 @@ To get KMS up and running on your site on the mainnet, complete the following st
 1. Store the existing mnemonics and private keys in KMS, or generate new mnemonics and private keys using KMS.
     
     For more information, see the [KMS commands](#kms-commands).
-1. Set up a simple service to store the transaction IDs that need to be signed, and implement the [four-eye principle](#implement-the-four-eye-principle).
+1. Implement the [four-eye principle](#implement-the-four-eye-principle) by setting up a service to store the IDs of the transactions that need to be signed.
 
     This is another security level in KMS that verifies that the transactions to sign are yours.
-1. [Run KMS in daemon mode](#run-kms-in-daemon-mode) so it can periodically checks for transactions to sign.
-1. When performing operations that must be signed with the private key (such as transferring funds, minting NFT, and so on), use the KMS schemas to build the body of an API request as specified in the [API Reference](https://apidoc.tatum.io/).
+1. [Run KMS in daemon mode](#run-kms-in-daemon-mode) so it can periodically check for transactions to sign.
+1. When performing operations that must be signed with the private key or mnemonic (such as transferring funds, minting NFT, and so on), use the KMS schemas to build the body of the API requests as specified in the [API Reference](https://apidoc.tatum.io/).
     
-    You will be using the signature ID instead of the private key or a combination of the signature ID and the index instead of the mnemonic.
+    This way, you will be using the signature ID instead of the private key or a combination of the signature ID and the index instead of the mnemonic.
 
 ## Install KMS
 
@@ -130,15 +130,9 @@ npm i -g @tatumio/tatum-kms
     ```
     # required
     TATUM_API_KEY=XXXXX-YOUR-API-KEY
-    # one of the following setups is required: password, AWS, VGS, or Azure
+    # one of the following setups is required: password, VGS, Azure, or AWS
     # password setup
-    TATUM_KMS_PASSWORD=XXXXPASSWORD  
-    # AWS setup
-    TATUM_KMS_AWS_REGION=us-east-1
-    TATUM_KMS_AWS_SECRET_NAME=YOUR_KMS_SECRET_NAME
-    TATUM_KMS_AWS_ACCESS_KEY_ID=AKIAYWGKDBVRGMCASWIE
-    TATUM_KMS_AWS_SECRET_ACCESS_KEY=ZxDq62BZGyGe2CzwnVjL/IH8NnJG5Fu0isN7wev9
-    TATUM_KMS_AWS_SECRET_KEY=pwd
+    TATUM_KMS_PASSWORD=XXXXPASSWORD
     # VGS setup
     TATUM_KMS_VGS_USERNAME=XXXXUSERNAME
     TATUM_KMS_VGS_PASSWORD=XXXXPASSWORDVGS
@@ -147,6 +141,12 @@ npm i -g @tatumio/tatum-kms
     TATUM_KMS_AZURE_SECRETVERSION=XXVERSION
     TATUM_KMS_AZURE_SECRETNAME=XXSECRETNAME
     TATUM_KMS_AZURE_VAULTURL=XXXXVAULTURL
+    # AWS setup
+    TATUM_KMS_AWS_REGION=us-east-1
+    TATUM_KMS_AWS_SECRET_NAME=YOUR_KMS_SECRET_NAME
+    TATUM_KMS_AWS_ACCESS_KEY_ID=AKIAYWGKDBVRGMCASWIE
+    TATUM_KMS_AWS_SECRET_ACCESS_KEY=ZxDq62BZGyGe2CzwnVjL/IH8NnJG5Fu0isN7wev9
+    TATUM_KMS_AWS_SECRET_KEY=pwd
     ```
 1. Map the Docker volume to the local storage (your home folder).
   
@@ -167,54 +167,8 @@ docker run ${COMMON_PARAMS} tatumio/tatum-kms generatemanagedwallet BTC
 ```
 >where `COMMON_PARAMS` can be exported as all the flags necessary for running the container.
 
-## Run KMS in daemon mode
-When KMS runs as a daemon, it periodically checks for any new pending transactions to sign.
-```
-tatum-kms daemon
-```
-or
-```
-docker run -d --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms daemon
-```
-
-After successful startup, the daemon requires the password to the wallet storage file. The file and the data in the file are encrypted, and the password is stored in the memory only during the daemon runtime.
-```
-bash:$ tatum-kms daemon
-Enter password to decrypt wallet store:
-```
-
-Alternatively, you can provide the password via an environment variable:
-```
-TATUM_KMS_PASSWORD=password
-```
-
-### Change the frequency of checking for the pending transactions
-By default, KMS checks for the pending transactions to sign every 5 seconds.
-
-To change the frequency of the check, use the `--period` parameter and set it the required number of seconds:
-```
-tatum-kms daemon --period=15
-```
-
->**NOTE:** Retrieving the pending transactions consumes credits from the monthly credit allowance associated with your API key: 1 credit for every 500 signature IDs per API call. For more information about the credits, see [Plans and Pricing](https://docs.tatum.io/payments/plans-and-pricing).
-
-### Change the path to the wallet storage file
-By default, the [wallet storage file](#secure-storage) is saved in your home folder, under the `.tatumrc` folder (for example, `/home/admin/.tatumrc/wallet.dat`).
-
-To change the path to the wallet storage file, use the `--path` parameter and set it to the new path:
-```
-tatum-kms daemon --path=/path/to/wallet/storage/file/wallet.dat
-```
-### Check for the pending transactions only on some blockchains 
-By default, KMS checks for the pending transaction on [all supported blockchains](#tatum-key-management-system-kms).
-
-To check for the transactions only in some blockchains, use the `--chain` parameter and set it to the list of the blockchains to check separated with a comma (`,`):
-```
-tatum-kms daemon --chain=BTC,LTC,ETH
-```
-
 ## Implement the four-eye principle
-To verify whether the transaction to sign with KMS is indeed yours, implement the **four-eye-principle** (also referred to as "4-eye principle"). This principle ensures that pending transactions are controlled in Tatum and in your system.
+To verify whether a transaction to sign with KMS is indeed yours, implement the **four-eye-principle** (also referred to as "4-eye principle"). This principle ensures that pending transactions are controlled in Tatum and in your system.
 
 Every time a transaction from Tatum is fetched to be signed, it is validated against an external trusted server
 using a simple HTTP GET operation:
@@ -235,6 +189,52 @@ To enable the four-eye-principle:
     tatum-kms daemon --external-url=http://192.168.57.63
     ```
 
+## Run KMS in daemon mode
+```
+tatum-kms daemon
+```
+or
+```
+docker run -d --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms daemon
+```
+When KMS runs as a daemon, it periodically checks for any new pending transactions to sign.
+
+After successful startup, the daemon requires the password to the wallet storage file. The file and the data in the file are encrypted, and the password is stored in the memory only during the daemon runtime.
+```
+bash:$ tatum-kms daemon
+Enter password to decrypt wallet store:
+```
+
+Alternatively, you can provide the password via an environment variable:
+```
+TATUM_KMS_PASSWORD=password
+```
+
+### Change the frequency of checking for the pending transactions
+Checking for the pending transactions consumes credits from the monthly credit allowance associated with your API key: 1 credit for every 500 signature IDs per API call. For more information about the credits, see [Plans and Pricing](https://docs.tatum.io/payments/plans-and-pricing).
+
+By default, KMS checks for the pending transactions to sign every 5 seconds.
+
+To change the frequency of the check, use the `--period` parameter and set it the required number of seconds:
+```
+tatum-kms daemon --period=15
+```
+
+### Change the path to the wallet storage file
+By default, the [wallet storage file](#secure-storage) is saved under the `.tatumrc` folder in your home directory  (for example, `/home/admin/.tatumrc/wallet.dat`).
+
+To change the path to the wallet storage file, use the `--path` parameter and set it to the new path:
+```
+tatum-kms daemon --path=/path/to/wallet/storage/file/wallet.dat
+```
+### Check for the pending transactions only on some blockchains 
+By default, KMS checks for the pending transaction on [all supported blockchains](#tatum-key-management-system-kms).
+
+To check for the transactions only on some blockchains, use the `--chain` parameter and set it to the list of the blockchains to check separated with a comma (`,`):
+```
+tatum-kms daemon --chain=BTC,LTC,ETH
+```
+
 ## KMS commands
 To see all available KMS commands, refer to the KMS help:
 ```
@@ -243,7 +243,7 @@ tatum-kms --help
 
 When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following commands to communicate with the daemon and modify it:
 
-* `generatewallet chain` generates a wallet for the specified blockchain (`chain`) and echos it to the output.
+* `generatewallet chain` generates a wallet on the specified blockchain (`chain`) and echos it to the output.
     
     This command does **not** add the generated wallet to the wallets managed by KMS.
     ```
@@ -254,7 +254,7 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
     }
   ```
 
-* `generatemanagedwallet chain` generates a wallet for the specified blockchain (`chain`) and adds it to the managed wallets.
+* `generatemanagedwallet chain` generates a wallet on the specified blockchain (`chain`) and adds it to the managed wallets.
     
     This command echos the signature ID of the wallet to be used in requests to the Tatum API and the extended public key of the wallet to pair with [virtual accounts](https://apidoc.tatum.io/tag/Account).
 
@@ -266,7 +266,8 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
     }
   ```
 
-* `storemanagedwallet chain` stores a mnemonic-based wallet for the specified blockchain (`chain`) and adds it to the managed wallets.
+* `storemanagedwallet chain` stores a mnemonic-based wallet on the specified blockchain (`chain`) and adds it to the managed wallets.
+    
     This command echos the signature ID of the wallet to be used in requests to the Tatum API and the extended public key of the wallet to pair with with [virtual accounts](https://apidoc.tatum.io/tag/Account).
     
     ```
@@ -277,9 +278,9 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
     }
   ```
 
-* `storemanagedprivatekey chain` stores the private key of the specified blockchain wallet and adds it to the managed wallets.
+* `storemanagedprivatekey chain` stores the private key of the wallet on the specified blockchain (`chain`) and adds it to the managed wallets.
     
-    This call echos the signature ID of the wallet to be used in requests to the Tatum API.
+    This command echos the signature ID of the wallet to be used in requests to the Tatum API.
 
     ```
     bash:$ tatum-kms storemanagedprivatekey BTC
@@ -288,7 +289,9 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
     }
   ```
 
-* `generatemanagedprivatekeybatch chain count` generates and stores the specified number of private keys (`count`) for the specified blockchain (`chain`). This operation is useful when you want to pre-generate a large amount of managed private keys for later use.
+* `generatemanagedprivatekeybatch chain count` generates and stores the specified number of private keys (`count`) on the specified blockchain (`chain`).
+    
+    This command is useful when you want to pre-generate a large amount of managed private keys for later use.
 
     ```
     bash:$ tatum-kms generatemanagedprivatekeybatch BTC 100
@@ -350,14 +353,9 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
  error:: TypeError: Cannot read property 'mnemonic' of undefined
  ```
 
-**Reason:**
+**Possible reasons:**
 
-You are using a wrong signature ID:
+* You used a mnemonic-based signature ID but the operation requires a signature ID based on the private key.
+* You correctly used the mnemonic-based signature ID but you did not specify the index of the private key.
 
-* You are using a mnemonic-based signature ID in an operation where the private key is expected.
-    
-    A signature ID based on the private key holds that private key. This signature ID does not work for mnemonic-based operations such as transferring funds on Bitcoin, Bitcoin Cash, Dogecoin, or Litecoin, where Tatum manages Unspent Transaction Outputs (UTXO).
-
-* You did not specify the index of the private key to use for the mnemonic-based signature ID.
-
-    A signature ID based on a mnemonic holds that mnemonic. You must pass the index of the private key (0-2^31-1) in the API request to specify which private key KMS should generate from that mnemonic.
+    KMS generates the private key from the mnemonic that the signature ID holds. To generate the correct private key from the mnemonic, KMS needs to know the [index of the private key](#signature-ids-vs-private-keys-and-mnemonics) to generate (0-2^31-1).
