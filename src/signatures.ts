@@ -529,7 +529,6 @@ export const processSignatures = async (
 
 
 function isMnemonicBased(mnemonic: any, index?: number): index is number {
-  if (!mnemonic) return false
-  if (typeof index !== 'number') throw new Error('index is needed for mnemonic based wallet')
-  return true
+  if (mnemonic && typeof index !== 'number') throw new Error('index is needed for mnemonic based wallet')
+  return !!mnemonic
 }
