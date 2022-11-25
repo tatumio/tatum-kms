@@ -166,7 +166,7 @@ const processTransaction = async (
     }
     case Currency.VET: {
       const pk =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.BNB,
               wallets[0].testnet,
@@ -191,7 +191,7 @@ const processTransaction = async (
     }
     case Currency.ETH: {
       const privateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.ETH,
               wallets[0].testnet,
@@ -209,7 +209,7 @@ const processTransaction = async (
     }
     case Currency.FLOW: {
       const secret =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.FLOW,
               wallets[0].testnet,
@@ -229,7 +229,7 @@ const processTransaction = async (
     }
     case Currency.ONE: {
       const onePrivateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.ONE,
               wallets[0].testnet,
@@ -246,7 +246,7 @@ const processTransaction = async (
     }
     case Currency.CELO: {
       const celoPrivateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.CELO,
               wallets[0].testnet,
@@ -261,7 +261,7 @@ const processTransaction = async (
     }
     case Currency.BSC: {
       const bscPrivateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.BSC,
               wallets[0].testnet,
@@ -274,7 +274,7 @@ const processTransaction = async (
     }
     case Currency.MATIC: {
       const polygonPrivateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.MATIC,
               wallets[0].testnet,
@@ -290,7 +290,7 @@ const processTransaction = async (
     }
     case Currency.KLAY: {
       const klaytnPrivateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.KLAY,
               wallets[0].testnet,
@@ -306,7 +306,7 @@ const processTransaction = async (
     }
     case Currency.KCS: {
       const kcsPrivateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await kcsGeneratePrivateKeyFromMnemonic(wallets[0].testnet, wallets[0].mnemonic, blockchainSignature.index)
           : wallets[0].privateKey
       await kcsBroadcast(await signKcsKMSTransaction(blockchainSignature, kcsPrivateKey), blockchainSignature.id)
@@ -314,7 +314,7 @@ const processTransaction = async (
     }
     case Currency.XDC: {
       const xdcPrivateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.XDC,
               wallets[0].testnet,
@@ -327,7 +327,7 @@ const processTransaction = async (
     }
     case Currency.EGLD: {
       const egldPrivateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.EGLD,
               wallets[0].testnet,
@@ -340,7 +340,7 @@ const processTransaction = async (
     }
     case Currency.TRON: {
       const tronPrivateKey =
-        wallets[0].mnemonic && blockchainSignature.index !== undefined
+        isMnemonicBased(wallets[0].mnemonic,blockchainSignature.index)
           ? await generatePrivateKeyFromMnemonic(
               Currency.TRON,
               wallets[0].testnet,
@@ -525,4 +525,11 @@ export const processSignatures = async (
     }
     running = false
   }, period * 1000)
+}
+
+
+function isMnemonicBased(mnemonic: any, index?: number): index is number {
+  if (!mnemonic) return false
+  if (typeof index !== 'number') console.error('index is needed for mnemonic based wallet')
+  return true
 }
