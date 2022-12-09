@@ -40,7 +40,7 @@
     "@aws-sdk/client-secrets-manager": "^3.168.0",
     "@tatumio/celo": "2.0.1-alpha.326",
     "@tatumio/solana": "2.0.1-alpha.326",
-    "@tatumio/tatum": "1.37.0",
+    "@tatumio/tatum": "1.37.22",
     "@tatumio/tatum-kcs": "2.0.0-alpha.108",
     "@tatumio/tron": "2.0.1-alpha.326",
     "@tatumio/xlm": "2.0.1-alpha.326",
