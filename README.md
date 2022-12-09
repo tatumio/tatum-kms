@@ -1,6 +1,10 @@
 # Tatum Key Management System (KMS)
 **Tatum Key Management System (KMS)** is a comprehensive solution for Tatum-powered applications.
 
+> **Warning**
+>
+> Important notice about using KMS with ETH and CELO: Please upgrade to version 6.2.3 or newer (all previous versions depend on https://ethgasstation.info which will stop working from 12.12.2022)
+
 KMS securely stores private keys and mnemonics of blockchain wallets. KMS periodically pulls pending
 transactions to sign from Tatum, signs them locally using the stored private keys and mnemonics, and broadcasts them to the blockchain.
 
