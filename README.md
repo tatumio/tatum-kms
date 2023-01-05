@@ -119,7 +119,7 @@ We recommend that you run KMS from the [Docker image](https://hub.docker.com/rep
 npm i -g @tatumio/tatum-kms
 ```
 
->**IMPORTANT!** NodeJS >=14 and npm@6 are required. KMS does **not** work on npm@7.
+>**IMPORTANT!** NodeJS >=16 and npm@8 are required. KMS does **not** work on npm@7.
 
 ### Install KMS via Docker
 1. Pull the `tatum-kms` image:
