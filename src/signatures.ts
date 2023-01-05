@@ -3,6 +3,7 @@ import { TatumSolanaSDK } from '@tatumio/solana'
 import { TatumXlmSDK } from '@tatumio/xlm'
 import { TatumXrpSDK } from '@tatumio/xrp'
 import { TatumCeloSDK } from '@tatumio/celo'
+import { TatumKcsSDK } from '@tatumio/kcs'
 import { TatumTronSDK } from '@tatumio/tron'
 import {
   adaBroadcast,
@@ -48,18 +49,13 @@ import {
   vetBroadcast,
   xdcBroadcast,
 } from '@tatumio/tatum'
-import {
-  broadcast as kcsBroadcast,
-  generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic,
-  signKMSTransaction as signKcsKMSTransaction,
-} from '@tatumio/tatum-kcs'
 import { AxiosInstance } from 'axios'
 import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
 import { KMS_CONSTANTS } from './constants'
 import _ from 'lodash'
-import { Signature, Wallet } from './interfaces'
+import { Wallet, Signature } from './interfaces'
 
-const TATUM_URL = process.env.TATUM_API_URL || 'https://api.tatum.io'
+const DEF_TATUM_URL = () => process.env.TATUM_API_URL || 'https://api.tatum.io'
 
 const getPrivateKeys = async (wallets: Wallet[], signatures: Signature[], currency: Currency): Promise<string[]> => {
   const keys: string[] = []
@@ -136,6 +132,7 @@ const processTransaction = async (
     `${new Date().toISOString()} - Processing pending transaction - ${JSON.stringify(blockchainSignature, null, 2)}.`,
   )
 
+  const TATUM_URL = DEF_TATUM_URL()
   const apiKey = process.env.TATUM_API_KEY as string
   const url = TATUM_URL as any
 
@@ -342,12 +339,15 @@ const processTransaction = async (
     }
     case Currency.KCS: {
       const wallet = wallets[0]
+      const kcsSDK = TatumKcsSDK({ apiKey, url })
       const kcsPrivateKey =
         wallet.mnemonic && !_.isNil(blockchainSignature.index)
-          ? await kcsGeneratePrivateKeyFromMnemonic(wallet.testnet, wallet.mnemonic, blockchainSignature.index)
+          ? await kcsSDK.wallet.generatePrivateKeyFromMnemonic(wallet.mnemonic, blockchainSignature.index, {
+            testnet: wallet.testnet,
+          })
           : wallet.privateKey
       validatePrivateKeyWasFound(wallet, blockchainSignature, kcsPrivateKey)
-      await kcsBroadcast(await signKcsKMSTransaction(blockchainSignature, kcsPrivateKey), blockchainSignature.id)
+      await kcsSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.XDC: {
@@ -475,8 +475,10 @@ const getPendingTransactions = async (
     return []
   }
 
+  const TATUM_URL = DEF_TATUM_URL()
+
   console.log(
-    `${new Date().toISOString()} - Getting pending transaction from ${chain} for ${
+    `${new Date().toISOString()} - Getting pending transaction from ${chain} at ${TATUM_URL} for ${
       signatureIds.length > KMS_CONSTANTS.OUTPUT_WALLETS ? signatureIds.length + ' ' : ''
     }wallets${signatureIds.length > KMS_CONSTANTS.OUTPUT_WALLETS ? '' : ' ' + signatureIds.join(',')}.`,
   )
@@ -559,6 +561,7 @@ export const processSignatures = async (
     }
     if (data.length > 0) {
       try {
+        const TATUM_URL = DEF_TATUM_URL()
         const url = `${TATUM_URL}/v3/tatum/kms/batch`
         await axios.post(url, { errors: data }, { headers: { 'x-api-key': process.env.TATUM_API_KEY as string } })
         console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`)
