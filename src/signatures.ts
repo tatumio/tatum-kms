@@ -407,6 +407,7 @@ const processTransaction = async (
         txData = await signBitcoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
         await btcBroadcast(await signBitcoinKMSTransaction(blockchainSignature, privateKeys), blockchainSignature.id)
+        return
       }
 
       break
