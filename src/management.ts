@@ -3,7 +3,7 @@ import { TatumSolanaSDK } from '@tatumio/solana'
 import { TatumXlmSDK } from '@tatumio/xlm'
 import { TatumXrpSDK } from '@tatumio/xrp'
 import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
-import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
+import { TatumKcsSDK } from '@tatumio/kcs'
 import { TatumCeloSDK } from '@tatumio/celo'
 import { TatumTronSDK } from '@tatumio/tron'
 import { AxiosInstance } from 'axios'
@@ -124,7 +124,8 @@ const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: 
     const sdk = TatumXlmSDK({ apiKey: '' })
     wallet = sdk.wallet.wallet()
   } else if (chain === Currency.KCS) {
-    wallet = await generateKcsWallet(mnemonic, { testnet })
+    const sdk = TatumKcsSDK({ apiKey: '' })
+    wallet = sdk.wallet.generateWallet(mnemonic, { testnet })
   } else if (chain === Currency.CELO) {
     const sdk = TatumCeloSDK({ apiKey: '' })
     wallet = sdk.wallet.generateWallet(mnemonic, { testnet })
