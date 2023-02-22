@@ -38,7 +38,7 @@
   },
   "homepage": "https://github.com/tatumio/tatum-kms#readme",
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.168.0",
+    "@aws-sdk/client-secrets-manager": "^3.276.0",
     "@tatumio/celo": "2.0.1-alpha.326",
     "@tatumio/solana": "2.0.1-alpha.326",
     "@tatumio/tatum": "1.37.22",
