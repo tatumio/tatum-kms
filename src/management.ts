@@ -78,7 +78,7 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
   }
 }
 
-export const exportWallets = (pwd: string, _path1: string | undefined, path?: string) => {
+export const exportWallets = (pwd: string, path?: string) => {
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2))
