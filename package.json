@@ -1,6 +1,6 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "6.2.4",
+  "version": "6.3.0",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "engines": {
@@ -9,7 +9,7 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint . --ext .ts",
-    "run-daemon-testnet": "node dist/index.js daemon --testnet --api-key=YOUR_API_KEY --chain=KLAY",
+    "run-daemon-testnet": "node dist/index.js daemon --testnet --api-key=YOUR_API_KEY --chain=ADA",
     "start": "yarn build && node dist/index.js"
   },
   "files": [
@@ -46,6 +46,7 @@
     "@tatumio/tron": "2.0.1-alpha.326",
     "@tatumio/xlm": "2.0.1-alpha.326",
     "@tatumio/xrp": "2.0.1-alpha.326",
+    "@tatumio/cardano": "2.2.4",
     "agentkeepalive": "^4.2.1",
     "crypto-js": "^4.0.0",
     "dotenv": "^10.0.0",
