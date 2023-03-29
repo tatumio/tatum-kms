@@ -1,11 +1,8 @@
-import { PendingTransaction } from '@tatumio/api-client'
-import { TatumSolanaSDK } from '@tatumio/solana'
-import { TatumXlmSDK } from '@tatumio/xlm'
-import { TatumXrpSDK } from '@tatumio/xrp'
-import { TatumCeloSDK } from '@tatumio/celo'
-import { TatumTronSDK } from '@tatumio/tron'
+import {PendingTransaction} from '@tatumio/api-client'
+import {TatumCardanoSDK} from '@tatumio/cardano'
+import {TatumCeloSDK} from '@tatumio/celo'
+import {TatumSolanaSDK} from '@tatumio/solana'
 import {
-  adaBroadcast,
   algorandBroadcast,
   bcashBroadcast,
   bnbBroadcast,
@@ -23,8 +20,6 @@ import {
   offchainBroadcast,
   oneBroadcast,
   polygonBroadcast,
-  signAdaKMSTransaction,
-  signAdaOffchainKMSTransaction,
   signAlgoKMSTransaction,
   signBitcoinCashKMSTransaction,
   signBitcoinCashOffchainKMSTransaction,
@@ -48,18 +43,17 @@ import {
   vetBroadcast,
   xdcBroadcast,
 } from '@tatumio/tatum'
-import {
-  broadcast as kcsBroadcast,
-  generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic,
-  signKMSTransaction as signKcsKMSTransaction,
-} from '@tatumio/tatum-kcs'
-import { AxiosInstance } from 'axios'
-import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
-import { KMS_CONSTANTS } from './constants'
+import {broadcast as kcsBroadcast, generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, signKMSTransaction as signKcsKMSTransaction,} from '@tatumio/tatum-kcs'
+import {TatumTronSDK} from '@tatumio/tron'
+import {TatumXlmSDK} from '@tatumio/xlm'
+import {TatumXrpSDK} from '@tatumio/xrp'
+import {AxiosInstance} from 'axios'
 import _ from 'lodash'
-import { Signature, Wallet } from './interfaces'
+import {KMS_CONSTANTS} from './constants'
+import {Signature, Wallet} from './interfaces'
+import {getManagedWallets, getWallet, getWalletWithMnemonicForChain} from './management'
 
-const TATUM_URL = process.env.TATUM_API_URL || 'https://api.tatum.io'
+const TATUM_URL: string = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
 const getPrivateKeys = async (wallets: Wallet[], signatures: Signature[], currency: Currency): Promise<string[]> => {
   const keys: string[] = []
@@ -137,7 +131,6 @@ const processTransaction = async (
   )
 
   const apiKey = process.env.TATUM_API_KEY as string
-  const url = TATUM_URL as any
 
   switch (blockchainSignature.chain) {
     case Currency.ALGO: {
@@ -149,7 +142,7 @@ const processTransaction = async (
       return
     }
     case Currency.SOL: {
-      const solSDK = TatumSolanaSDK({ apiKey, url })
+      const solSDK = TatumSolanaSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
       txData = await solSDK.kms.sign(
         blockchainSignature as PendingTransaction,
         wallets.map(w => w.privateKey),
@@ -200,13 +193,13 @@ const processTransaction = async (
       return
     }
     case Currency.XRP: {
-      const xrpSdk = TatumXrpSDK({ apiKey, url })
+      const xrpSdk = TatumXrpSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
       txData = await xrpSdk.kms.sign(blockchainSignature as PendingTransaction, wallets[0].secret)
       await xrpSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.XLM: {
-      const xlmSdk = TatumXlmSDK({ apiKey, url })
+      const xlmSdk = TatumXlmSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
       txData = await xlmSdk.kms.sign(blockchainSignature as PendingTransaction, wallets[0].secret, testnet)
       await xlmSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
@@ -284,7 +277,7 @@ const processTransaction = async (
             )
           : wallet.privateKey
       validatePrivateKeyWasFound(wallet, blockchainSignature, celoPrivateKey)
-      const celoSDK = TatumCeloSDK({ apiKey, url })
+      const celoSDK = TatumCeloSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
       txData = await celoSDK.kms.sign(blockchainSignature as PendingTransaction, celoPrivateKey)
       await celoSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
@@ -392,7 +385,7 @@ const processTransaction = async (
             )
           : wallet.privateKey
       validatePrivateKeyWasFound(wallet, blockchainSignature, tronPrivateKey)
-      const tronSDK = TatumTronSDK({ apiKey, url })
+      const tronSDK = TatumTronSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
       txData = await tronSDK.kms.sign(blockchainSignature as PendingTransaction, tronPrivateKey)
       await axios.post(
         `${TATUM_URL}/v3/tron/broadcast`,
@@ -442,16 +435,24 @@ const processTransaction = async (
       break
     }
     case Currency.ADA: {
+      const cardanoSDK = TatumCardanoSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
       if (blockchainSignature.withdrawalId) {
-        txData = await signAdaOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
+        const privateKeys = []
+        const w: {[walletId: string] : {mnemonic: string}} = {}
+        for (const signature of (blockchainSignature.signatures || [])) {
+          if (signature.id in w) {
+            privateKeys.push(await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index))
+          } else {
+            w[signature.id] = await getWallet(signature.id, pwd, path, false)
+            privateKeys.push(await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index))
+          }
+        }
+        txData = await cardanoSDK.kms.sign(blockchainSignature as PendingTransaction, privateKeys, { testnet })
       } else {
-        await adaBroadcast(
-          await signAdaKMSTransaction(
-            blockchainSignature,
-            wallets.map(w => w.privateKey),
-          ),
-          blockchainSignature.id,
-        )
+        await cardanoSDK.blockchain.broadcast({
+          txData: await cardanoSDK.kms.sign(blockchainSignature as PendingTransaction, wallets.map(w => w.privateKey), { testnet }),
+          signatureId: blockchainSignature.id,
+        })
         return
       }
     }
