@@ -43,7 +43,7 @@
     "@tatumio/solana": "2.0.1-alpha.326",
     "@tatumio/tatum": "1.37.22",
     "@tatumio/tatum-kcs": "2.0.0-alpha.108",
-    "@tatumio/tron": "2.0.1-alpha.326",
+    "@tatumio/tron": "2.2.9",
     "@tatumio/xlm": "2.0.1-alpha.326",
     "@tatumio/xrp": "2.0.1-alpha.326",
     "@tatumio/cardano": "2.2.4",
