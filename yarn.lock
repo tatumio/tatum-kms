@@ -2859,6 +2859,15 @@
     form-data "^4.0.0"
     tslib "^2.0.0"
 
+"@tatumio/api-client@2.2.9":
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/@tatumio/api-client/-/api-client-2.2.9.tgz#3cb5407db29c7c8272e94b973271dadffa4119e6"
+  integrity sha512-aWRFOEAusqtLXIL9gpWYtYVGpyvDel+e8AWykP9vQG0J7tI55ogpnEEhB7P+8NZ1msIK7f6h0ZQjUB3KowQvJQ==
+  dependencies:
+    axios "^0.26.0"
+    form-data "^4.0.0"
+    tslib "^2.0.0"
+
 "@tatumio/bitcoincash-ops@2.0.0":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@tatumio/bitcoincash-ops/-/bitcoincash-ops-2.0.0.tgz#37b577267fe795cef1ad0bb38967e914345fd129"
@@ -2961,6 +2970,20 @@
     lodash "^4.17.21"
     tslib "^2.0.0"
 
+"@tatumio/shared-abstract-sdk@2.2.9":
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-abstract-sdk/-/shared-abstract-sdk-2.2.9.tgz#0d2745a50d2e646e8f3fee71482b11bf397e7c84"
+  integrity sha512-s1evhee5NflntewfpxxrHwaD5+ztBneVA0P76M6kCpFdnoRx2VIht+WcRS9n0W+ZnrRjhYJQVojChuCcKJkyCg==
+  dependencies:
+    "@tatumio/api-client" "2.2.9"
+    "@tatumio/shared-core" "2.2.9"
+    "@tatumio/shared-testing-common" "2.2.9"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    form-data "^4.0.0"
+    lodash "^4.17.21"
+    tslib "^2.0.0"
+
 "@tatumio/shared-blockchain-abstract@2.0.1-alpha.326":
   version "2.0.1-alpha.326"
   resolved "https://registry.yarnpkg.com/@tatumio/shared-blockchain-abstract/-/shared-blockchain-abstract-2.0.1-alpha.326.tgz#b4c6d71f6cfd4b9fff419e4d2c9cfec584b619ec"
@@ -2984,6 +3007,21 @@
     "@tatumio/shared-abstract-sdk" "2.2.4"
     "@tatumio/shared-core" "2.2.4"
     "@tatumio/shared-testing-common" "2.2.4"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    form-data "^4.0.0"
+    lodash "^4.17.21"
+    tslib "^2.0.0"
+
+"@tatumio/shared-blockchain-abstract@2.2.9":
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-blockchain-abstract/-/shared-blockchain-abstract-2.2.9.tgz#bc8247c260101100a69ec4f774c5255d32efcc23"
+  integrity sha512-pxhSRU83YsuhRkqhgTMR3CNBF5lKRxJkoxvQm5dBHkpVgCFAeENNIIJQoRQpAH9xu0SM8FEOZbTh2terDjTnYw==
+  dependencies:
+    "@tatumio/api-client" "2.2.9"
+    "@tatumio/shared-abstract-sdk" "2.2.9"
+    "@tatumio/shared-core" "2.2.9"
+    "@tatumio/shared-testing-common" "2.2.9"
     axios "^0.26.0"
     bignumber.js "^9.0.2"
     form-data "^4.0.0"
@@ -3030,6 +3068,16 @@
     form-data "^4.0.0"
     tslib "^2.0.0"
 
+"@tatumio/shared-core@2.2.9":
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-core/-/shared-core-2.2.9.tgz#8de997770a0d4a10612bda25ef4ca4a1f7fde462"
+  integrity sha512-KScXbuHl0cM1SLZqPLG+o5Xy19r//WMYqglo1bPGQOBsLUYMw0VXQjQm47ASgpRxzfNV5PNQjMV27SKIkWa9gg==
+  dependencies:
+    "@tatumio/api-client" "2.2.9"
+    axios "^0.26.0"
+    form-data "^4.0.0"
+    tslib "^2.0.0"
+
 "@tatumio/shared-testing-common@2.0.1-alpha.326":
   version "2.0.1-alpha.326"
   resolved "https://registry.yarnpkg.com/@tatumio/shared-testing-common/-/shared-testing-common-2.0.1-alpha.326.tgz#08d4628515ae7268e1b8d488a0bb9c88638fb989"
@@ -3046,6 +3094,16 @@
   integrity sha512-l13blQ/M7+vtMftDedylBOxiLNFTsCSV0706SuM8tysO2dp8gFndjdE9lMGKBtnHQl3Dplp+a1UleTP8LAmNlQ==
   dependencies:
     "@tatumio/api-client" "2.2.4"
+    axios "^0.26.0"
+    form-data "^4.0.0"
+    tslib "^2.0.0"
+
+"@tatumio/shared-testing-common@2.2.9":
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-testing-common/-/shared-testing-common-2.2.9.tgz#ede178af8e1a097ba96dee7d7852680302599489"
+  integrity sha512-Tt/Ofve2XmMhi7eOLh405pBzlD3b3ja5nKCkHLHNvbxVMBom6zpVktCOZ/DS+/7m5SaCvQSLJ+vRovgue21CTg==
+  dependencies:
+    "@tatumio/api-client" "2.2.9"
     axios "^0.26.0"
     form-data "^4.0.0"
     tslib "^2.0.0"
@@ -3084,6 +3142,22 @@
     axios "^0.26.0"
     bignumber.js "^9.0.2"
     form-data "^4.0.0"
+    tslib "^2.0.0"
+
+"@tatumio/shared-testing-xrp-based@2.2.9":
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/@tatumio/shared-testing-xrp-based/-/shared-testing-xrp-based-2.2.9.tgz#00cdfcb554739f0fca012731b6978d84a02b48a8"
+  integrity sha512-Bz0guX2ZlVJ+Gs3RMZfy92wPx+1TUwEAU+XAPLipCh1N8IFPr1ZGwCRuQy4YGj/zZDEqfGxfnK1NzD42s43QvA==
+  dependencies:
+    "@tatumio/api-client" "2.2.9"
+    "@tatumio/shared-abstract-sdk" "2.2.9"
+    "@tatumio/shared-blockchain-abstract" "2.2.9"
+    "@tatumio/shared-core" "2.2.9"
+    "@tatumio/shared-testing-common" "2.2.9"
+    axios "^0.26.0"
+    bignumber.js "^9.0.2"
+    form-data "^4.0.0"
+    lodash "^4.17.21"
     tslib "^2.0.0"
 
 "@tatumio/solana@2.0.1-alpha.326":
@@ -3213,20 +3287,21 @@
     web3-core "^1.7.4"
     web3-utils "^1.7.4"
 
-"@tatumio/xlm@2.0.1-alpha.326":
-  version "2.0.1-alpha.326"
-  resolved "https://registry.yarnpkg.com/@tatumio/xlm/-/xlm-2.0.1-alpha.326.tgz#26560febc2ebf37c8dbf7da708833491b40467ef"
-  integrity sha512-5SYki7a9p896SURDOqy9Suy2d9Fi7gSxP/8UIGduIZZZ141G3Ydznyk1212SNELfCzWVDw8MMrOx9yCZFaYGPg==
+"@tatumio/xlm@2.2.9":
+  version "2.2.9"
+  resolved "https://registry.yarnpkg.com/@tatumio/xlm/-/xlm-2.2.9.tgz#f4cc4f36aca8782445606192c2c71f51d278dd56"
+  integrity sha512-oG0CYslUItLmmv38AhAIt2Gnj0pcJ8jr9fQ7UzZpOxdNG4COEFIAoHP09hqiqGihiUn2nj+SEB37spXVEcbukA==
   dependencies:
-    "@tatumio/api-client" "2.0.1-alpha.326"
-    "@tatumio/shared-abstract-sdk" "2.0.1-alpha.326"
-    "@tatumio/shared-blockchain-abstract" "2.0.1-alpha.326"
-    "@tatumio/shared-core" "2.0.1-alpha.326"
-    "@tatumio/shared-testing-common" "2.0.1-alpha.326"
-    "@tatumio/shared-testing-xrp-based" "2.0.1-alpha.326"
+    "@tatumio/api-client" "2.2.9"
+    "@tatumio/shared-abstract-sdk" "2.2.9"
+    "@tatumio/shared-blockchain-abstract" "2.2.9"
+    "@tatumio/shared-core" "2.2.9"
+    "@tatumio/shared-testing-common" "2.2.9"
+    "@tatumio/shared-testing-xrp-based" "2.2.9"
     axios "^0.26.0"
     bignumber.js "^9.0.2"
     form-data "^4.0.0"
+    lodash "^4.17.21"
     stellar-sdk "^9.1.0"
     tslib "^2.0.0"
 
