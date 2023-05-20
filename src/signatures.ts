@@ -194,13 +194,15 @@ const processTransaction = async (
     }
     case Currency.XRP: {
       const xrpSdk = TatumXrpSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
-      txData = await xrpSdk.kms.sign(blockchainSignature as PendingTransaction, wallets[0].secret)
+      const xrpSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey;
+      txData = await xrpSdk.kms.sign(blockchainSignature, xrpSecret);
       await xrpSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.XLM: {
       const xlmSdk = TatumXlmSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
-      txData = await xlmSdk.kms.sign(blockchainSignature as PendingTransaction, wallets[0].secret, testnet)
+      const xlmSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey;
+      txData = await xlmSdk.kms.sign(blockchainSignature, xlmSecret, testnet);
       await xlmSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
