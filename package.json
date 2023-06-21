@@ -51,7 +51,7 @@
     "crypto-js": "^4.0.0",
     "dotenv": "^10.0.0",
     "lodash": "^4.17.21",
-    "meow": "^7.0.1",
+    "meow": "^8.0.0",
     "readline-sync": "^1.4.10",
     "reflect-metadata": "^0.1.13",
     "uuid": "^8.3.2"
