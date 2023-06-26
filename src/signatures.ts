@@ -54,30 +54,20 @@ import { TatumXrpSDK } from '@tatumio/xrp'
 import { AxiosInstance } from 'axios'
 import _ from 'lodash'
 import { KMS_CONSTANTS } from './constants'
-import { Signature, Wallet } from './interfaces'
-import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
+import { Wallet } from './interfaces'
+import { getManagedWallets, getWallet, getWalletForSignature } from './management'
 
 const TATUM_URL: string = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
-const getPrivateKeys = async (wallets: Wallet[], signatures: Signature[], currency: Currency): Promise<string[]> => {
-  const keys: string[] = []
-  if (!wallets || wallets?.length === 0) {
-    return keys
-  }
-  for (const w of wallets) {
-    if (signatures.length > 0) {
-      for (const s of signatures) {
-        if (!_.isNil(w.mnemonic) && !_.isNil(s.index)) {
-          const key = await generatePrivateKeyFromMnemonic(currency, w.testnet, w.mnemonic, s.index)
-          if (key) keys.push(key)
-        }
-      }
-    } else {
-      keys.push(w.privateKey)
-    }
+const getPrivateKeys = async (wallets: Wallet[]): Promise<string[]> => {
+  const keys: string[] = wallets.filter(wallet => wallet.privateKey).map(wallet => wallet.privateKey)
+  if (keys?.length === 0) {
+    throw new Error(
+      `Wallets with requested private keys were not found. Most likely mnemonic-based wallet was used without index parameter (see docs: https://apidoc.tatum.io/)`,
+    )
   }
 
-  return keys
+  return [...new Set(keys)]
 }
 
 function validatePrivateKeyWasFound(wallet: any, blockchainSignature: TransactionKMS, privateKey: string | undefined) {
@@ -120,13 +110,18 @@ const processTransaction = async (
       return
     }
   }
+
   const wallets = []
   for (const hash of blockchainSignature.hashes) {
     wallets.push(await getWallet(hash, pwd, path, false))
   }
+
   const signatures = blockchainSignature.signatures ?? []
-  if (signatures.length > 0) {
-    wallets.push(...((await getWalletWithMnemonicForChain(blockchainSignature.chain, path, pwd, false)) ?? []))
+  for (const signature of signatures) {
+    const wallet = await getWalletForSignature(signature, pwd, path, false)
+    if (wallet) {
+      wallets.push(wallet)
+    }
   }
 
   let txData = ''
@@ -401,10 +396,10 @@ const processTransaction = async (
       return
     }
     case Currency.BTC: {
-      const privateKeys = await getPrivateKeys(wallets, signatures, Currency.BTC)
       if (blockchainSignature.withdrawalId) {
         txData = await signBitcoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
+        const privateKeys = await getPrivateKeys(wallets)
         await btcBroadcast(await signBitcoinKMSTransaction(blockchainSignature, privateKeys), blockchainSignature.id)
         return
       }
@@ -412,10 +407,10 @@ const processTransaction = async (
       break
     }
     case Currency.LTC: {
-      const privateKeys = await getPrivateKeys(wallets, signatures, Currency.LTC)
       if (blockchainSignature.withdrawalId) {
         txData = await signLitecoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
+        const privateKeys = await getPrivateKeys(wallets)
         await ltcBroadcast(
           await signLitecoinKMSTransaction(blockchainSignature, privateKeys, testnet),
           blockchainSignature.id,
@@ -428,12 +423,9 @@ const processTransaction = async (
       if (blockchainSignature.withdrawalId) {
         txData = await signDogecoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
+        const privateKeys = await getPrivateKeys(wallets)
         await dogeBroadcast(
-          await signDogecoinKMSTransaction(
-            blockchainSignature,
-            wallets.map(w => w.privateKey),
-            testnet,
-          ),
+          await signDogecoinKMSTransaction(blockchainSignature, privateKeys, testnet),
           blockchainSignature.id,
         )
         return
