@@ -1,22 +1,22 @@
-import {GetSecretValueCommand, SecretsManagerClient} from '@aws-sdk/client-secrets-manager'
-import {TatumCardanoSDK} from '@tatumio/cardano'
-import {TatumCeloSDK} from '@tatumio/celo'
-import {TatumSolanaSDK} from '@tatumio/solana'
-import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum'
-import {generateWallet as generateKcsWallet} from '@tatumio/tatum-kcs'
-import {TatumTronSDK} from '@tatumio/tron'
-import {TatumXlmSDK} from '@tatumio/xlm'
-import {TatumXrpSDK} from '@tatumio/xrp'
-import {AxiosInstance} from 'axios'
-import {AES, enc} from 'crypto-js'
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs'
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { TatumCardanoSDK } from '@tatumio/cardano'
+import { TatumCeloSDK } from '@tatumio/celo'
+import { TatumSolanaSDK } from '@tatumio/solana'
+import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
+import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
+import { TatumTronSDK } from '@tatumio/tron'
+import { TatumXlmSDK } from '@tatumio/xlm'
+import { TatumXrpSDK } from '@tatumio/xrp'
+import { AxiosInstance } from 'axios'
+import { AES, enc } from 'crypto-js'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import _ from 'lodash'
-import {homedir} from 'os'
-import {dirname} from 'path'
-import {question} from 'readline-sync'
-import {v4 as uuid} from 'uuid'
-import {Config, ConfigOption} from './config'
-import {PasswordType, SignedMnemonicWalletForChain, StoreWalletValue, WalletsValidationOptions} from './interfaces'
+import { homedir } from 'os'
+import { dirname } from 'path'
+import { question } from 'readline-sync'
+import { v4 as uuid } from 'uuid'
+import { Config, ConfigOption } from './config'
+import { PasswordType, SignedMnemonicWalletForChain, StoreWalletValue, WalletsValidationOptions } from './interfaces'
 
 const cardanoSDK = TatumCardanoSDK({ apiKey: process.env.TATUM_API_KEY as string })
 
@@ -229,15 +229,13 @@ export const generateManagedPrivateKeyBatch = async (
     if (wallet.address) {
       address = wallet.address
     } else {
-        if (chain === Currency.ADA) {
-            address = await cardanoSDK.wallet.generateAddressFromXPub(wallet.xpub, 1, { testnet })
-        } else {
-            address = await generateAddressFromXPub(chain, testnet, wallet.xpub, 1)
-        }
+      if (chain === Currency.ADA) {
+        address = await cardanoSDK.wallet.generateAddressFromXPub(wallet.xpub, 1, { testnet })
+      } else {
+        address = await generateAddressFromXPub(chain, testnet, wallet.xpub, 1)
+      }
     }
-    const privateKey = wallet.secret
-      ? wallet.secret
-      : await generatePrivateKey(wallet.mnemonic, chain, 1, testnet)
+    const privateKey = wallet.secret ? wallet.secret : await generatePrivateKey(wallet.mnemonic, chain, 1, testnet)
     const { signatureId } = await storePrivateKey(chain, testnet, privateKey as string, pwd, path, false)
     console.log(`{ signatureId: ${signatureId}, address: ${address} }`)
   }
@@ -343,7 +341,7 @@ export const getPrivateKey = async (id: string, index: string, path?: string, pa
   const pk = {
     privateKey: wallet[id].secret
       ? wallet[id].secret
-      : await generatePrivateKey(wallet[id].mnemonic, wallet[id].chain, parseInt(index), wallet[id].testnet)
+      : await generatePrivateKey(wallet[id].mnemonic, wallet[id].chain, parseInt(index), wallet[id].testnet),
   }
   if (print) {
     console.log(JSON.stringify(pk, null, 2))
@@ -369,21 +367,23 @@ export const getAddress = async (id: string, index: string, path?: string, pwd?:
     return null
   }
   let pk: { address: any }
-    if (wallet[id].address) {
-        pk = {
-            address: wallet[id].address,
-        }
-    } else {
-        if (wallet[id].chain === Currency.ADA) {
-            pk = {
-                address: await cardanoSDK.wallet.generateAddressFromXPub(wallet[id].xpub, parseInt(index), {testnet: wallet[id].testnet}),
-            }
-        } else {
-            pk = {
-                address: await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index)),
-            }
-        }
+  if (wallet[id].address) {
+    pk = {
+      address: wallet[id].address,
     }
+  } else {
+    if (wallet[id].chain === Currency.ADA) {
+      pk = {
+        address: await cardanoSDK.wallet.generateAddressFromXPub(wallet[id].xpub, parseInt(index), {
+          testnet: wallet[id].testnet,
+        }),
+      }
+    } else {
+      pk = {
+        address: await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index)),
+      }
+    }
+  }
   if (print) {
     console.log(JSON.stringify(pk, null, 2))
   }

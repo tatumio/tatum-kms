@@ -1,7 +1,7 @@
-import {PendingTransaction} from '@tatumio/api-client'
-import {TatumCardanoSDK} from '@tatumio/cardano'
-import {TatumCeloSDK} from '@tatumio/celo'
-import {TatumSolanaSDK} from '@tatumio/solana'
+import { PendingTransaction } from '@tatumio/api-client'
+import { TatumCardanoSDK } from '@tatumio/cardano'
+import { TatumCeloSDK } from '@tatumio/celo'
+import { TatumSolanaSDK } from '@tatumio/solana'
 import {
   algorandBroadcast,
   bcashBroadcast,
@@ -43,15 +43,19 @@ import {
   vetBroadcast,
   xdcBroadcast,
 } from '@tatumio/tatum'
-import {broadcast as kcsBroadcast, generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, signKMSTransaction as signKcsKMSTransaction,} from '@tatumio/tatum-kcs'
-import {TatumTronSDK} from '@tatumio/tron'
-import {TatumXlmSDK} from '@tatumio/xlm'
-import {TatumXrpSDK} from '@tatumio/xrp'
-import {AxiosInstance} from 'axios'
+import {
+  broadcast as kcsBroadcast,
+  generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic,
+  signKMSTransaction as signKcsKMSTransaction,
+} from '@tatumio/tatum-kcs'
+import { TatumTronSDK } from '@tatumio/tron'
+import { TatumXlmSDK } from '@tatumio/xlm'
+import { TatumXrpSDK } from '@tatumio/xrp'
+import { AxiosInstance } from 'axios'
 import _ from 'lodash'
-import {KMS_CONSTANTS} from './constants'
-import {Signature, Wallet} from './interfaces'
-import {getManagedWallets, getWallet, getWalletWithMnemonicForChain} from './management'
+import { KMS_CONSTANTS } from './constants'
+import { Signature, Wallet } from './interfaces'
+import { getManagedWallets, getWallet, getWalletWithMnemonicForChain } from './management'
 
 const TATUM_URL: string = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
@@ -194,15 +198,15 @@ const processTransaction = async (
     }
     case Currency.XRP: {
       const xrpSdk = TatumXrpSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
-      const xrpSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey;
-      txData = await xrpSdk.kms.sign(blockchainSignature as any, xrpSecret);
+      const xrpSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey
+      txData = await xrpSdk.kms.sign(blockchainSignature as any, xrpSecret)
       await xrpSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.XLM: {
       const xlmSdk = TatumXlmSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
-      const xlmSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey;
-      txData = await xlmSdk.kms.sign(blockchainSignature as any, xlmSecret, testnet);
+      const xlmSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey
+      txData = await xlmSdk.kms.sign(blockchainSignature as any, xlmSecret, testnet)
       await xlmSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
@@ -440,19 +444,27 @@ const processTransaction = async (
       const cardanoSDK = TatumCardanoSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
       if (blockchainSignature.withdrawalId) {
         const privateKeys = []
-        const w: {[walletId: string] : {mnemonic: string}} = {}
-        for (const signature of (blockchainSignature.signatures || [])) {
+        const w: { [walletId: string]: { mnemonic: string } } = {}
+        for (const signature of blockchainSignature.signatures || []) {
           if (signature.id in w) {
-            privateKeys.push(await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index))
+            privateKeys.push(
+              await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index),
+            )
           } else {
             w[signature.id] = await getWallet(signature.id, pwd, path, false)
-            privateKeys.push(await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index))
+            privateKeys.push(
+              await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index),
+            )
           }
         }
         txData = await cardanoSDK.kms.sign(blockchainSignature as PendingTransaction, privateKeys, { testnet })
       } else {
         await cardanoSDK.blockchain.broadcast({
-          txData: await cardanoSDK.kms.sign(blockchainSignature as PendingTransaction, wallets.map(w => w.privateKey), { testnet }),
+          txData: await cardanoSDK.kms.sign(
+            blockchainSignature as PendingTransaction,
+            wallets.map(w => w.privateKey),
+            { testnet },
+          ),
           signatureId: blockchainSignature.id,
         })
         return
