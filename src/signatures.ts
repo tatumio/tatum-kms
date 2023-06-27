@@ -56,6 +56,7 @@ import _ from 'lodash'
 import { KMS_CONSTANTS } from './constants'
 import { Wallet } from './interfaces'
 import { getManagedWallets, getWallet, getWalletForSignature } from './management'
+import semver from 'semver'
 
 const TATUM_URL: string = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
@@ -471,6 +472,43 @@ const processTransaction = async (
   })
 }
 
+const versionUpdateState = {
+  running: false,
+  level: 'WARN',
+  message: '',
+  latestVersion: '',
+  currentVersion: '',
+  logFunction: console.log,
+}
+
+const processVersionUpdateHeader = (versionUpdateHeader: string) => {
+  if (!versionUpdateHeader || versionUpdateState.running) return
+  versionUpdateState.running = true
+
+  const parts = versionUpdateHeader.split(';')
+  versionUpdateState.latestVersion = parts[0]?.toLowerCase()?.trim()
+  versionUpdateState.level = parts[1]?.toUpperCase()?.trim()
+  versionUpdateState.logFunction = versionUpdateState.level === 'ERROR' ? console.error : console.log
+  versionUpdateState.message = parts[2]?.trim()
+  versionUpdateState.currentVersion = process.env.npm_package_version ?? ''
+
+  setInterval(async () => {
+    if (
+      versionUpdateState.latestVersion &&
+      versionUpdateState.currentVersion &&
+      versionUpdateState.level &&
+      versionUpdateState.message &&
+      semver.gt(versionUpdateState.latestVersion, versionUpdateState.currentVersion)
+    ) {
+      versionUpdateState.logFunction(
+        `${new Date().toISOString()} - ${versionUpdateState.level}: ${versionUpdateState.message}. Current version: ${
+          versionUpdateState.currentVersion
+        }`,
+      )
+    }
+  }, 30000)
+}
+
 const getPendingTransactions = async (
   axios: AxiosInstance,
   chain: Currency,
@@ -490,11 +528,13 @@ const getPendingTransactions = async (
   )
   try {
     const url = `${TATUM_URL}/v3/kms/pending/${chain}`
-    const { data } = await axios.post(
+    const response = await axios.post(
       url,
       { signatureIds },
       { headers: { 'x-api-key': process.env.TATUM_API_KEY as string } },
     )
+    const { data } = response
+    processVersionUpdateHeader(response.headers['x-ttm-kms-version'])
     return data as TransactionKMS[]
   } catch (e) {
     console.error(
