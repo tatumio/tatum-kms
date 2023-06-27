@@ -18,13 +18,6 @@ export interface Wallet {
   privateKey: string
 }
 
-export interface SignedMnemonicWalletForChain {
-  [key: string]: {
-    chain?: string | undefined
-    mnemonic?: string | undefined
-  }
-}
-
 export interface WalletsValidationOptions {
   chain?: Currency
   id?: string

@@ -1,6 +1,6 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "6.3.1",
+  "version": "6.4.0",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "engines": {
@@ -39,6 +39,7 @@
   "homepage": "https://github.com/tatumio/tatum-kms#readme",
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.168.0",
+    "@tatumio/cardano": "2.2.4",
     "@tatumio/celo": "2.0.1-alpha.326",
     "@tatumio/solana": "2.0.1-alpha.326",
     "@tatumio/tatum": "1.37.22",
@@ -46,7 +47,6 @@
     "@tatumio/tron": "2.0.1-alpha.326",
     "@tatumio/xlm": "2.0.1-alpha.326",
     "@tatumio/xrp": "2.0.1-alpha.326",
-    "@tatumio/cardano": "2.2.4",
     "agentkeepalive": "^4.2.1",
     "crypto-js": "^4.0.0",
     "dotenv": "^10.0.0",
@@ -54,10 +54,12 @@
     "meow": "^7.0.1",
     "readline-sync": "^1.4.10",
     "reflect-metadata": "^0.1.13",
+    "semver": "^7.5.3",
     "uuid": "^8.3.2"
   },
   "devDependencies": {
     "@types/readline-sync": "^1.4.4",
+    "@types/semver": "^7.5.0",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
     "eslint": "^8.19.0",

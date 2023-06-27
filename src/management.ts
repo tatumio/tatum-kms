@@ -1,22 +1,22 @@
-import {GetSecretValueCommand, SecretsManagerClient} from '@aws-sdk/client-secrets-manager'
-import {TatumCardanoSDK} from '@tatumio/cardano'
-import {TatumCeloSDK} from '@tatumio/celo'
-import {TatumSolanaSDK} from '@tatumio/solana'
-import {Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet} from '@tatumio/tatum'
-import {generateWallet as generateKcsWallet} from '@tatumio/tatum-kcs'
-import {TatumTronSDK} from '@tatumio/tron'
-import {TatumXlmSDK} from '@tatumio/xlm'
-import {TatumXrpSDK} from '@tatumio/xrp'
-import {AxiosInstance} from 'axios'
-import {AES, enc} from 'crypto-js'
-import {existsSync, mkdirSync, readFileSync, writeFileSync} from 'fs'
+import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { TatumCardanoSDK } from '@tatumio/cardano'
+import { TatumCeloSDK } from '@tatumio/celo'
+import { TatumSolanaSDK } from '@tatumio/solana'
+import { Currency, generateAddressFromXPub, generatePrivateKeyFromMnemonic, generateWallet } from '@tatumio/tatum'
+import { generateWallet as generateKcsWallet } from '@tatumio/tatum-kcs'
+import { TatumTronSDK } from '@tatumio/tron'
+import { TatumXlmSDK } from '@tatumio/xlm'
+import { TatumXrpSDK } from '@tatumio/xrp'
+import { AxiosInstance } from 'axios'
+import { AES, enc } from 'crypto-js'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import _ from 'lodash'
-import {homedir} from 'os'
-import {dirname} from 'path'
-import {question} from 'readline-sync'
-import {v4 as uuid} from 'uuid'
-import {Config, ConfigOption} from './config'
-import {PasswordType, SignedMnemonicWalletForChain, StoreWalletValue, WalletsValidationOptions} from './interfaces'
+import { homedir } from 'os'
+import { dirname } from 'path'
+import { question } from 'readline-sync'
+import { v4 as uuid } from 'uuid'
+import { Config, ConfigOption } from './config'
+import { PasswordType, Signature, StoreWalletValue, WalletsValidationOptions } from './interfaces'
 
 const cardanoSDK = TatumCardanoSDK({ apiKey: process.env.TATUM_API_KEY as string })
 
@@ -229,15 +229,13 @@ export const generateManagedPrivateKeyBatch = async (
     if (wallet.address) {
       address = wallet.address
     } else {
-        if (chain === Currency.ADA) {
-            address = await cardanoSDK.wallet.generateAddressFromXPub(wallet.xpub, 1, { testnet })
-        } else {
-            address = await generateAddressFromXPub(chain, testnet, wallet.xpub, 1)
-        }
+      if (chain === Currency.ADA) {
+        address = await cardanoSDK.wallet.generateAddressFromXPub(wallet.xpub, 1, { testnet })
+      } else {
+        address = await generateAddressFromXPub(chain, testnet, wallet.xpub, 1)
+      }
     }
-    const privateKey = wallet.secret
-      ? wallet.secret
-      : await generatePrivateKey(wallet.mnemonic, chain, 1, testnet)
+    const privateKey = wallet.secret ? wallet.secret : await generatePrivateKey(wallet.mnemonic, chain, 1, testnet)
     const { signatureId } = await storePrivateKey(chain, testnet, privateKey as string, pwd, path, false)
     console.log(`{ signatureId: ${signatureId}, address: ${address} }`)
   }
@@ -262,12 +260,6 @@ export const getWalletFromPath = (errorMessage: string, path?: string, pwd?: str
   return JSON.parse(AES.decrypt(data, password).toString(enc.Utf8))
 }
 
-export const findWalletWithMnemonic = (walletData: Partial<SignedMnemonicWalletForChain>, chain: Currency) => {
-  return Object.keys(walletData)
-    .filter(k => walletData[k]?.chain === chain && !_.isNil(walletData[k]?.mnemonic))
-    .reduce((wallets, k) => ({ ...wallets, [k]: walletData[k] }), {})
-}
-
 // TODO: validate all properties from wallet and create a type or interface to replace any bellow
 export const isWalletsValid = (wallets: any, options: WalletsValidationOptions) => {
   if (Object.keys(wallets).length === 0) {
@@ -282,25 +274,19 @@ export const isWalletsValid = (wallets: any, options: WalletsValidationOptions) 
   return true
 }
 
-export const getWalletWithMnemonicForChain = async (chain: Currency, path?: string, pwd?: string, print = true) => {
-  try {
-    const data = getWalletFromPath(
-      JSON.stringify({ error: `No such wallet for chain '${chain}'.` }, null, 2),
-      path || homedir() + '/.tatumrc/wallet.dat',
-      pwd,
-    )
-    const wallets = findWalletWithMnemonic(data, chain)
-    if (!wallets && !isWalletsValid(wallets, { chain })) {
-      return
+export const getWalletForSignature = async (signature: Signature, pwd: string, path?: string, print = true) => {
+  const wallet = await getWallet(signature.id, pwd, path, print)
+  if (wallet.mnemonic) {
+    if (_.isNil(signature.index)) {
+      console.error(`Wrong usage of mnemonic-based signature id. No index provided for ${signature.id}.`)
+      return undefined
     }
-    if (print) {
-      console.log(JSON.stringify(wallets, null, 2))
-    }
-    return Object.values(wallets)
-  } catch (e) {
-    console.error(JSON.stringify({ error: `Wrong password.` }, null, 2))
-    return
+    const privateKey = await generatePrivateKey(wallet.mnemonic, wallet.chain, signature.index, wallet.testnet)
+    return { ...wallet, privateKey, privateKeyIndex: signature.index }
+  } else if (wallet.privateKey) {
+    return wallet
   }
+  return undefined
 }
 
 export const getWallet = async (id: string, pwd: string, path?: string, print = true) => {
@@ -343,7 +329,7 @@ export const getPrivateKey = async (id: string, index: string, path?: string, pa
   const pk = {
     privateKey: wallet[id].secret
       ? wallet[id].secret
-      : await generatePrivateKey(wallet[id].mnemonic, wallet[id].chain, parseInt(index), wallet[id].testnet)
+      : await generatePrivateKey(wallet[id].mnemonic, wallet[id].chain, parseInt(index), wallet[id].testnet),
   }
   if (print) {
     console.log(JSON.stringify(pk, null, 2))
@@ -369,21 +355,23 @@ export const getAddress = async (id: string, index: string, path?: string, pwd?:
     return null
   }
   let pk: { address: any }
-    if (wallet[id].address) {
-        pk = {
-            address: wallet[id].address,
-        }
-    } else {
-        if (wallet[id].chain === Currency.ADA) {
-            pk = {
-                address: await cardanoSDK.wallet.generateAddressFromXPub(wallet[id].xpub, parseInt(index), {testnet: wallet[id].testnet}),
-            }
-        } else {
-            pk = {
-                address: await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index)),
-            }
-        }
+  if (wallet[id].address) {
+    pk = {
+      address: wallet[id].address,
     }
+  } else {
+    if (wallet[id].chain === Currency.ADA) {
+      pk = {
+        address: await cardanoSDK.wallet.generateAddressFromXPub(wallet[id].xpub, parseInt(index), {
+          testnet: wallet[id].testnet,
+        }),
+      }
+    } else {
+      pk = {
+        address: await generateAddressFromXPub(wallet[id].chain, wallet[id].testnet, wallet[id].xpub, parseInt(index)),
+      }
+    }
+  }
   if (print) {
     console.log(JSON.stringify(pk, null, 2))
   }

@@ -1,4 +1,5 @@
 import { question } from 'readline-sync'
+
 export enum ConfigOption {
   KMS_PASSWORD = 1,
   VGS_ALIAS,

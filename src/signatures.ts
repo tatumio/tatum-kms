@@ -1,7 +1,7 @@
-import {PendingTransaction} from '@tatumio/api-client'
-import {TatumCardanoSDK} from '@tatumio/cardano'
-import {TatumCeloSDK} from '@tatumio/celo'
-import {TatumSolanaSDK} from '@tatumio/solana'
+import { PendingTransaction } from '@tatumio/api-client'
+import { TatumCardanoSDK } from '@tatumio/cardano'
+import { TatumCeloSDK } from '@tatumio/celo'
+import { TatumSolanaSDK } from '@tatumio/solana'
 import {
   algorandBroadcast,
   bcashBroadcast,
@@ -43,37 +43,32 @@ import {
   vetBroadcast,
   xdcBroadcast,
 } from '@tatumio/tatum'
-import {broadcast as kcsBroadcast, generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic, signKMSTransaction as signKcsKMSTransaction,} from '@tatumio/tatum-kcs'
-import {TatumTronSDK} from '@tatumio/tron'
-import {TatumXlmSDK} from '@tatumio/xlm'
-import {TatumXrpSDK} from '@tatumio/xrp'
-import {AxiosInstance} from 'axios'
+import {
+  broadcast as kcsBroadcast,
+  generatePrivateKeyFromMnemonic as kcsGeneratePrivateKeyFromMnemonic,
+  signKMSTransaction as signKcsKMSTransaction,
+} from '@tatumio/tatum-kcs'
+import { TatumTronSDK } from '@tatumio/tron'
+import { TatumXlmSDK } from '@tatumio/xlm'
+import { TatumXrpSDK } from '@tatumio/xrp'
+import { AxiosInstance } from 'axios'
 import _ from 'lodash'
-import {KMS_CONSTANTS} from './constants'
-import {Signature, Wallet} from './interfaces'
-import {getManagedWallets, getWallet, getWalletWithMnemonicForChain} from './management'
+import { KMS_CONSTANTS } from './constants'
+import { Wallet } from './interfaces'
+import { getManagedWallets, getWallet, getWalletForSignature } from './management'
+import semver from 'semver'
 
 const TATUM_URL: string = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
-const getPrivateKeys = async (wallets: Wallet[], signatures: Signature[], currency: Currency): Promise<string[]> => {
-  const keys: string[] = []
-  if (!wallets || wallets?.length === 0) {
-    return keys
-  }
-  for (const w of wallets) {
-    if (signatures.length > 0) {
-      for (const s of signatures) {
-        if (!_.isNil(w.mnemonic) && !_.isNil(s.index)) {
-          const key = await generatePrivateKeyFromMnemonic(currency, w.testnet, w.mnemonic, s.index)
-          if (key) keys.push(key)
-        }
-      }
-    } else {
-      keys.push(w.privateKey)
-    }
+const getPrivateKeys = async (wallets: Wallet[]): Promise<string[]> => {
+  const keys: string[] = wallets.filter(wallet => wallet.privateKey).map(wallet => wallet.privateKey)
+  if (keys?.length === 0) {
+    throw new Error(
+      `Wallets with requested private keys were not found. Most likely mnemonic-based wallet was used without index parameter (see docs: https://apidoc.tatum.io/)`,
+    )
   }
 
-  return keys
+  return [...new Set(keys)]
 }
 
 function validatePrivateKeyWasFound(wallet: any, blockchainSignature: TransactionKMS, privateKey: string | undefined) {
@@ -116,13 +111,18 @@ const processTransaction = async (
       return
     }
   }
+
   const wallets = []
   for (const hash of blockchainSignature.hashes) {
     wallets.push(await getWallet(hash, pwd, path, false))
   }
+
   const signatures = blockchainSignature.signatures ?? []
-  if (signatures.length > 0) {
-    wallets.push(...((await getWalletWithMnemonicForChain(blockchainSignature.chain, path, pwd, false)) ?? []))
+  for (const signature of signatures) {
+    const wallet = await getWalletForSignature(signature, pwd, path, false)
+    if (wallet) {
+      wallets.push(wallet)
+    }
   }
 
   let txData = ''
@@ -194,15 +194,15 @@ const processTransaction = async (
     }
     case Currency.XRP: {
       const xrpSdk = TatumXrpSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
-      const xrpSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey;
-      txData = await xrpSdk.kms.sign(blockchainSignature as any, xrpSecret);
+      const xrpSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey
+      txData = await xrpSdk.kms.sign(blockchainSignature as any, xrpSecret)
       await xrpSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.XLM: {
       const xlmSdk = TatumXlmSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
-      const xlmSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey;
-      txData = await xlmSdk.kms.sign(blockchainSignature as any, xlmSecret, testnet);
+      const xlmSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey
+      txData = await xlmSdk.kms.sign(blockchainSignature as any, xlmSecret, testnet)
       await xlmSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
@@ -397,10 +397,10 @@ const processTransaction = async (
       return
     }
     case Currency.BTC: {
-      const privateKeys = await getPrivateKeys(wallets, signatures, Currency.BTC)
       if (blockchainSignature.withdrawalId) {
         txData = await signBitcoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
+        const privateKeys = await getPrivateKeys(wallets)
         await btcBroadcast(await signBitcoinKMSTransaction(blockchainSignature, privateKeys), blockchainSignature.id)
         return
       }
@@ -408,10 +408,10 @@ const processTransaction = async (
       break
     }
     case Currency.LTC: {
-      const privateKeys = await getPrivateKeys(wallets, signatures, Currency.LTC)
       if (blockchainSignature.withdrawalId) {
         txData = await signLitecoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
+        const privateKeys = await getPrivateKeys(wallets)
         await ltcBroadcast(
           await signLitecoinKMSTransaction(blockchainSignature, privateKeys, testnet),
           blockchainSignature.id,
@@ -424,12 +424,9 @@ const processTransaction = async (
       if (blockchainSignature.withdrawalId) {
         txData = await signDogecoinOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
+        const privateKeys = await getPrivateKeys(wallets)
         await dogeBroadcast(
-          await signDogecoinKMSTransaction(
-            blockchainSignature,
-            wallets.map(w => w.privateKey),
-            testnet,
-          ),
+          await signDogecoinKMSTransaction(blockchainSignature, privateKeys, testnet),
           blockchainSignature.id,
         )
         return
@@ -440,19 +437,27 @@ const processTransaction = async (
       const cardanoSDK = TatumCardanoSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
       if (blockchainSignature.withdrawalId) {
         const privateKeys = []
-        const w: {[walletId: string] : {mnemonic: string}} = {}
-        for (const signature of (blockchainSignature.signatures || [])) {
+        const w: { [walletId: string]: { mnemonic: string } } = {}
+        for (const signature of blockchainSignature.signatures || []) {
           if (signature.id in w) {
-            privateKeys.push(await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index))
+            privateKeys.push(
+              await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index),
+            )
           } else {
             w[signature.id] = await getWallet(signature.id, pwd, path, false)
-            privateKeys.push(await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index))
+            privateKeys.push(
+              await cardanoSDK.wallet.generatePrivateKeyFromMnemonic(w[signature.id].mnemonic, signature.index),
+            )
           }
         }
         txData = await cardanoSDK.kms.sign(blockchainSignature as PendingTransaction, privateKeys, { testnet })
       } else {
         await cardanoSDK.blockchain.broadcast({
-          txData: await cardanoSDK.kms.sign(blockchainSignature as PendingTransaction, wallets.map(w => w.privateKey), { testnet }),
+          txData: await cardanoSDK.kms.sign(
+            blockchainSignature as PendingTransaction,
+            wallets.map(w => w.privateKey),
+            { testnet },
+          ),
           signatureId: blockchainSignature.id,
         })
         return
@@ -465,6 +470,55 @@ const processTransaction = async (
     withdrawalId: blockchainSignature.withdrawalId,
     txData,
   })
+}
+
+const versionUpdateState = {
+  lastCheck: Date.now(),
+  running: false,
+  level: 'WARN',
+  message: '',
+  latestVersion: '',
+  currentVersion: '',
+  logFunction: console.log,
+}
+
+/**
+ * Check for latest version from core api. If there is a new version, log it to console.
+ * Check - once per 1 min
+ * Log about update - once per 30 sec
+ * @param versionUpdateHeader
+ */
+const processVersionUpdateHeader = (versionUpdateHeader: string) => {
+  if (!versionUpdateHeader || versionUpdateState.running || versionUpdateState.lastCheck + 60 * 1000 > Date.now()) {
+    return
+  }
+
+  versionUpdateState.lastCheck = Date.now()
+
+  const parts = versionUpdateHeader.split(';')
+  versionUpdateState.latestVersion = parts[0]?.toLowerCase()?.trim()
+  versionUpdateState.level = parts[1]?.toUpperCase()?.trim()
+  versionUpdateState.logFunction = versionUpdateState.level === 'ERROR' ? console.error : console.log
+  versionUpdateState.message = parts[2]?.trim()
+  versionUpdateState.currentVersion = process.env.npm_package_version ?? ''
+
+  if (
+    !versionUpdateState.running &&
+    versionUpdateState.latestVersion &&
+    versionUpdateState.currentVersion &&
+    versionUpdateState.level &&
+    versionUpdateState.message &&
+    semver.gt(versionUpdateState.latestVersion, versionUpdateState.currentVersion)
+  ) {
+    versionUpdateState.running = true
+    setInterval(async () => {
+      versionUpdateState.logFunction(
+        `${new Date().toISOString()} - ${versionUpdateState.level}: ${versionUpdateState.message}. Current version: ${
+          versionUpdateState.currentVersion
+        }. Latest version: ${versionUpdateState.latestVersion}`,
+      )
+    }, 30000)
+  }
 }
 
 const getPendingTransactions = async (
@@ -486,11 +540,18 @@ const getPendingTransactions = async (
   )
   try {
     const url = `${TATUM_URL}/v3/kms/pending/${chain}`
-    const { data } = await axios.post(
+    const response = await axios.post(
       url,
       { signatureIds },
-      { headers: { 'x-api-key': process.env.TATUM_API_KEY as string } },
+      {
+        headers: {
+          'x-api-key': process.env.TATUM_API_KEY as string,
+          'x-ttm-kms-client-version': process.env.npm_package_version ?? '',
+        },
+      },
     )
+    const { data } = response
+    processVersionUpdateHeader(response.headers['x-ttm-kms-latest-version'])
     return data as TransactionKMS[]
   } catch (e) {
     console.error(
