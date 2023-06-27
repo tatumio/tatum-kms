@@ -473,6 +473,7 @@ const processTransaction = async (
 }
 
 const versionUpdateState = {
+  lastCheck: Date.now(),
   running: false,
   level: 'WARN',
   message: '',
@@ -481,9 +482,18 @@ const versionUpdateState = {
   logFunction: console.log,
 }
 
+/**
+ * Check for latest version from core api. If there is a new version, log it to console.
+ * Check - once per 1 min
+ * Log about update - once per 30 sec
+ * @param versionUpdateHeader
+ */
 const processVersionUpdateHeader = (versionUpdateHeader: string) => {
-  if (!versionUpdateHeader || versionUpdateState.running) return
-  versionUpdateState.running = true
+  if (!versionUpdateHeader || versionUpdateState.running || versionUpdateState.lastCheck + 60 * 1000 > Date.now()) {
+    return
+  }
+
+  versionUpdateState.lastCheck = Date.now()
 
   const parts = versionUpdateHeader.split(';')
   versionUpdateState.latestVersion = parts[0]?.toLowerCase()?.trim()
@@ -492,21 +502,23 @@ const processVersionUpdateHeader = (versionUpdateHeader: string) => {
   versionUpdateState.message = parts[2]?.trim()
   versionUpdateState.currentVersion = process.env.npm_package_version ?? ''
 
-  setInterval(async () => {
-    if (
-      versionUpdateState.latestVersion &&
-      versionUpdateState.currentVersion &&
-      versionUpdateState.level &&
-      versionUpdateState.message &&
-      semver.gt(versionUpdateState.latestVersion, versionUpdateState.currentVersion)
-    ) {
+  if (
+    !versionUpdateState.running &&
+    versionUpdateState.latestVersion &&
+    versionUpdateState.currentVersion &&
+    versionUpdateState.level &&
+    versionUpdateState.message &&
+    semver.gt(versionUpdateState.latestVersion, versionUpdateState.currentVersion)
+  ) {
+    versionUpdateState.running = true
+    setInterval(async () => {
       versionUpdateState.logFunction(
         `${new Date().toISOString()} - ${versionUpdateState.level}: ${versionUpdateState.message}. Current version: ${
           versionUpdateState.currentVersion
-        }`,
+        }. Latest version: ${versionUpdateState.latestVersion}`,
       )
-    }
-  }, 30000)
+    }, 30000)
+  }
 }
 
 const getPendingTransactions = async (
@@ -531,10 +543,15 @@ const getPendingTransactions = async (
     const response = await axios.post(
       url,
       { signatureIds },
-      { headers: { 'x-api-key': process.env.TATUM_API_KEY as string } },
+      {
+        headers: {
+          'x-api-key': process.env.TATUM_API_KEY as string,
+          'x-ttm-kms-client-version': process.env.npm_package_version ?? '',
+        },
+      },
     )
     const { data } = response
-    processVersionUpdateHeader(response.headers['x-ttm-kms-version'])
+    processVersionUpdateHeader(response.headers['x-ttm-kms-latest-version'])
     return data as TransactionKMS[]
   } catch (e) {
     console.error(
