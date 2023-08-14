@@ -17,65 +17,73 @@ export enum ConfigOption {
 }
 
 export class Config {
-  private _configOptions = {
+  private static _configOptions = {
     [ConfigOption.KMS_PASSWORD]: {
       environmentKey: 'TATUM_KMS_PASSWORD',
-      question: 'Enter password to access wallet store:',
+      question: 'Enter password to access wallet store (or set env var TATUM_KMS_PASSWORD):',
     },
     [ConfigOption.VGS_ALIAS]: {
       environmentKey: 'TATUM_KMS_VGS_ALIAS',
-      question: 'Enter alias to obtain from VGS Vault API:',
+      question: 'Enter alias to obtain from VGS Vault API (or set env var TATUM_KMS_VGS_ALIAS):',
     },
     [ConfigOption.TATUM_API_KEY]: {
-      environmentKey: 'TATUM_KMS_TATUM_API_KEY',
-      question: 'Enter alias to obtain from VGS Vault API:',
+      environmentKey: 'TATUM_API_KEY',
+      question: 'Enter Tatum Api Key (or set env var TATUM_API_KEY):',
     },
     [ConfigOption.VGS_USERNAME]: {
       environmentKey: 'TATUM_KMS_VGS_USERNAME',
-      question: 'Enter username to VGS Vault API:',
+      question: 'Enter username to VGS Vault API (or set env var TATUM_KMS_VGS_USERNAME):',
     },
     [ConfigOption.VGS_PASSWORD]: {
       environmentKey: 'TATUM_KMS_VGS_PASSWORD',
-      question: 'Enter password to VGS Vault API:',
+      question: 'Enter password to VGS Vault API (or set env var TATUM_KMS_VGS_PASSWORD):',
     },
     [ConfigOption.AZURE_SECRETVERSION]: {
-      environmentKey: 'TATUM_KMS_VGS_ALIAS',
-      question: 'Enter Secret version to obtain secret from Azure Vault API:',
+      environmentKey: 'TATUM_KMS_AZURE_SECRETVERSION',
+      question:
+        'Enter Secret version to obtain secret from Azure Vault API (or set env var TATUM_KMS_AZURE_SECRETVERSION):',
     },
     [ConfigOption.AZURE_SECRETNAME]: {
       environmentKey: 'TATUM_KMS_AZURE_SECRETNAME',
-      question: 'Enter Secret name to obtain from Azure Vault API:',
+      question: 'Enter Secret name to obtain from Azure Vault API (or set env var TATUM_KMS_AZURE_SECRETNAME):',
     },
     [ConfigOption.AZURE_VAULTURL]: {
       environmentKey: 'TATUM_KMS_AZURE_VAULTURL',
-      question: 'Enter Vault Base URL to obtain secret from Azure Vault API:',
+      question: 'Enter Vault Base URL to obtain secret from Azure Vault API (or set env var TATUM_KMS_AZURE_VAULTURL):',
     },
     [ConfigOption.AWS_REGION]: {
       environmentKey: 'TATUM_KMS_AWS_REGION',
-      question: 'Enter AWS Region to obtain secret from AWS Secrets Manager:',
+      question: 'Enter AWS Region to obtain secret from AWS Secrets Manager (or set env var TATUM_KMS_AWS_REGION):',
     },
     [ConfigOption.AWS_ACCESS_KEY_ID]: {
       environmentKey: 'TATUM_KMS_AWS_ACCESS_KEY_ID',
-      question: 'Enter AWS Access key ID to obtain secret from AWS Secrets Manager:',
+      question:
+        'Enter AWS Access key ID to obtain secret from AWS Secrets Manager (or set env var TATUM_KMS_AWS_ACCESS_KEY_ID):',
     },
     [ConfigOption.AWS_SECRET_ACCESS_KEY]: {
       environmentKey: 'TATUM_KMS_AWS_SECRET_ACCESS_KEY',
-      question: 'Enter AWS Secret access key to obtain secret from AWS Secrets Manager:',
+      question:
+        'Enter AWS Secret access key to obtain secret from AWS Secrets Manager (or set env var TATUM_KMS_AWS_SECRET_ACCESS_KEY):',
     },
     [ConfigOption.AWS_SECRET_NAME]: {
       environmentKey: 'TATUM_KMS_AWS_SECRET_NAME',
-      question: 'Enter AWS Secret name to obtain secret from AWS Secrets Manager:',
+      question:
+        'Enter AWS Secret name to obtain secret from AWS Secrets Manager (or set env var TATUM_KMS_AWS_SECRET_NAME):',
     },
     [ConfigOption.AWS_SECRET_KEY]: {
       environmentKey: 'TATUM_KMS_AWS_SECRET_KEY',
-      question: 'Enter AWS Secret key from you stored secret to obtain password from AWS Secrets Manager:',
+      question:
+        'Enter AWS Secret key from you stored secret to obtain password from AWS Secrets Manager (or set env var TATUM_KMS_AWS_SECRET_KEYa):',
     },
   }
 
-  public getValue(what: ConfigOption): string {
+  public static getValue(what: ConfigOption): string {
     const config = this._configOptions[what]
     if (process.env[config.environmentKey]) {
       return process.env[config.environmentKey] as string
+    }
+    if (what === ConfigOption.TATUM_API_KEY) {
+      throw new Error('Required TATUM_API_KEY is not set. Please set it as env variable or pass it as argument.')
     }
     return question(config.question, {
       hideEchoBack: true,

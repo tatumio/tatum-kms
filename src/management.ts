@@ -18,9 +18,6 @@ import { v4 as uuid } from 'uuid'
 import { Config, ConfigOption } from './config'
 import { PasswordType, Signature, StoreWalletValue, WalletsValidationOptions } from './interfaces'
 
-const cardanoSDK = TatumCardanoSDK({ apiKey: process.env.TATUM_API_KEY as string })
-
-const config = new Config()
 const ensurePathExists = (path: string) => {
   const dir = dirname(path)
   if (!existsSync(dir)) {
@@ -30,6 +27,7 @@ const ensurePathExists = (path: string) => {
 
 const generatePrivateKey = async (mnemonic: string, currency: Currency, index: number, testnet: boolean) => {
   if (currency === Currency.ADA) {
+    const cardanoSDK = TatumCardanoSDK({ apiKey: Config.getValue(ConfigOption.TATUM_API_KEY) })
     return cardanoSDK.wallet.generatePrivateKeyFromMnemonic(mnemonic, index)
   } else {
     return generatePrivateKeyFromMnemonic(currency, testnet, mnemonic, index)
@@ -38,9 +36,9 @@ const generatePrivateKey = async (mnemonic: string, currency: Currency, index: n
 
 export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosInstance) => {
   if (pwdType === PasswordType.AZURE) {
-    const vaultUrl = config.getValue(ConfigOption.AZURE_VAULTURL)
-    const secretName = config.getValue(ConfigOption.AZURE_SECRETNAME)
-    const secretVersion = config.getValue(ConfigOption.AZURE_SECRETVERSION)
+    const vaultUrl = Config.getValue(ConfigOption.AZURE_VAULTURL)
+    const secretName = Config.getValue(ConfigOption.AZURE_SECRETNAME)
+    const secretVersion = Config.getValue(ConfigOption.AZURE_SECRETVERSION)
     const pwd = (await axiosInstance.get(`https://${vaultUrl}/secrets/${secretName}/${secretVersion}?api-version=7.1`))
       .data?.data[0]?.value
     if (!pwd) {
@@ -51,25 +49,25 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
     return pwd
   } else if (pwdType === PasswordType.AWS) {
     const client = new SecretsManagerClient({
-      region: config.getValue(ConfigOption.AWS_REGION),
+      region: Config.getValue(ConfigOption.AWS_REGION),
       credentials: {
-        accessKeyId: config.getValue(ConfigOption.AWS_ACCESS_KEY_ID),
-        secretAccessKey: config.getValue(ConfigOption.AWS_SECRET_ACCESS_KEY),
+        accessKeyId: Config.getValue(ConfigOption.AWS_ACCESS_KEY_ID),
+        secretAccessKey: Config.getValue(ConfigOption.AWS_SECRET_ACCESS_KEY),
       },
     })
     const result = await client.send(
-      new GetSecretValueCommand({ SecretId: config.getValue(ConfigOption.AWS_SECRET_NAME) }),
+      new GetSecretValueCommand({ SecretId: Config.getValue(ConfigOption.AWS_SECRET_NAME) }),
     )
     if (!result.SecretString) {
       console.error('AWS secret does not exists.')
       process.exit(-1)
       return
     }
-    return JSON.parse(result.SecretString)[config.getValue(ConfigOption.AWS_SECRET_KEY)]
+    return JSON.parse(result.SecretString)[Config.getValue(ConfigOption.AWS_SECRET_KEY)]
   } else if (pwdType === PasswordType.VGS) {
-    const username = config.getValue(ConfigOption.VGS_USERNAME)
-    const password = config.getValue(ConfigOption.VGS_PASSWORD)
-    const alias = config.getValue(ConfigOption.VGS_ALIAS)
+    const username = Config.getValue(ConfigOption.VGS_USERNAME)
+    const password = Config.getValue(ConfigOption.VGS_PASSWORD)
+    const alias = Config.getValue(ConfigOption.VGS_ALIAS)
     const pwd = (
       await axiosInstance.get(`https://api.live.verygoodvault.com/aliases/${alias}`, {
         auth: {
@@ -85,7 +83,7 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
     }
     return pwd
   } else {
-    return config.getValue(ConfigOption.KMS_PASSWORD)
+    return Config.getValue(ConfigOption.KMS_PASSWORD)
   }
 }
 
@@ -140,6 +138,7 @@ const generatePureWallet = async (chain: Currency, testnet: boolean, mnemonic?: 
     const sdk = TatumCeloSDK({ apiKey: '' })
     wallet = sdk.wallet.generateWallet(mnemonic, { testnet })
   } else if (chain === Currency.ADA) {
+    const cardanoSDK = TatumCardanoSDK({ apiKey: Config.getValue(ConfigOption.TATUM_API_KEY) })
     wallet = await cardanoSDK.wallet.generateWallet(mnemonic)
   } else if (chain === Currency.TRON) {
     const sdk = TatumTronSDK({ apiKey: '' })
@@ -221,7 +220,7 @@ export const generateManagedPrivateKeyBatch = async (
   pwd: string,
   path?: string,
 ) => {
-  config.getValue(ConfigOption.KMS_PASSWORD)
+  Config.getValue(ConfigOption.KMS_PASSWORD)
   const cnt = Number(count)
   for (let i = 0; i < cnt; i++) {
     const wallet = await generatePureWallet(chain, testnet)
@@ -230,6 +229,7 @@ export const generateManagedPrivateKeyBatch = async (
       address = wallet.address
     } else {
       if (chain === Currency.ADA) {
+        const cardanoSDK = TatumCardanoSDK({ apiKey: Config.getValue(ConfigOption.TATUM_API_KEY) })
         address = await cardanoSDK.wallet.generateAddressFromXPub(wallet.xpub, 1, { testnet })
       } else {
         address = await generateAddressFromXPub(chain, testnet, wallet.xpub, 1)
@@ -246,7 +246,7 @@ export const getWalletFromPath = (errorMessage: string, path?: string, pwd?: str
     console.error('No path or password entered')
     return
   }
-  const password = pwd ?? config.getValue(ConfigOption.KMS_PASSWORD)
+  const password = pwd ?? Config.getValue(ConfigOption.KMS_PASSWORD)
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(errorMessage)
@@ -310,7 +310,7 @@ export const getWallet = async (id: string, pwd: string, path?: string, print = 
 }
 
 export const getPrivateKey = async (id: string, index: string, path?: string, password?: string, print = true) => {
-  const pwd = password ?? config.getValue(ConfigOption.KMS_PASSWORD)
+  const pwd = password ?? Config.getValue(ConfigOption.KMS_PASSWORD)
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2))
@@ -338,7 +338,7 @@ export const getPrivateKey = async (id: string, index: string, path?: string, pa
 }
 
 export const getAddress = async (id: string, index: string, path?: string, pwd?: string, print = true) => {
-  const password = pwd ?? config.getValue(ConfigOption.KMS_PASSWORD)
+  const password = pwd ?? Config.getValue(ConfigOption.KMS_PASSWORD)
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(JSON.stringify({ error: `No such wallet for signatureId '${id}'.` }, null, 2))
@@ -361,6 +361,7 @@ export const getAddress = async (id: string, index: string, path?: string, pwd?:
     }
   } else {
     if (wallet[id].chain === Currency.ADA) {
+      const cardanoSDK = TatumCardanoSDK({ apiKey: Config.getValue(ConfigOption.TATUM_API_KEY) })
       pk = {
         address: await cardanoSDK.wallet.generateAddressFromXPub(wallet[id].xpub, parseInt(index), {
           testnet: wallet[id].testnet,
@@ -394,11 +395,64 @@ export const removeWallet = async (id: string, pwd: string, path?: string) => {
   writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(wallet), pwd).toString())
 }
 
-export const getTatumKey = (apiKey: string) => {
+function parseWalletStoreName(pwdType: PasswordType): string {
+  if (pwdType === PasswordType.CMD_LINE) {
+    return 'LOCAL'
+  } else if (pwdType === PasswordType.VGS) {
+    return 'VGS'
+  } else if (pwdType === PasswordType.AZURE) {
+    return 'AZURE'
+  } else if (pwdType === PasswordType.AWS) {
+    return 'AWS'
+  }
+  return 'N/A'
+}
+
+function hidePassword(password: string | undefined, showSymbols = 6): string {
+  if (!password) {
+    return ''
+  }
+  if (password.length <= showSymbols) {
+    return '*'.repeat(password.length)
+  }
+  return password.slice(0, showSymbols) + '*'.repeat(password.length - showSymbols)
+}
+
+function secretValue(secretValue: string | undefined): string {
+  if (!secretValue) {
+    return 'N/A'
+  }
+  return hidePassword(secretValue)
+}
+
+export const checkConfig = (pwdType: PasswordType, envFile?: string, path?: string) => {
+  const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
+  console.log(`Version                          : ${process.env.npm_package_version ?? 'N/A'}`)
+  console.log(`Wallet file path                 : ${pathToWallet}`)
+  console.log(`Wallet exists                    : ${existsSync(pathToWallet)}`)
+  console.log(`Wallet store type                : ${parseWalletStoreName(pwdType)}`)
+  console.log(`Environment vars file            : ${envFile ?? 'N/A'}`)
+  console.log(`TATUM_API_KEY                    : ${secretValue(process.env.TATUM_API_KEY)}`)
+  console.log(`TATUM_KMS_PASSWORD               : ${secretValue(process.env.TATUM_KMS_PASSWORD)}`)
+  console.log(`TATUM_KMS_VGS_ALIAS              : ${secretValue(process.env.TATUM_KMS_VGS_ALIAS)}`)
+  console.log(`TATUM_KMS_VGS_USERNAME           : ${secretValue(process.env.TATUM_KMS_VGS_USERNAME)}`)
+  console.log(`TATUM_KMS_VGS_PASSWORD           : ${secretValue(process.env.TATUM_KMS_VGS_PASSWORD)}`)
+  console.log(`TATUM_KMS_AZURE_SECRETVERSION    : ${secretValue(process.env.TATUM_KMS_AZURE_SECRETVERSION)}`)
+  console.log(`TATUM_KMS_AZURE_SECRETNAME       : ${secretValue(process.env.TATUM_KMS_AZURE_SECRETNAME)}`)
+  console.log(`TATUM_KMS_AZURE_VAULTURL         : ${secretValue(process.env.TATUM_KMS_AZURE_VAULTURL)}`)
+  console.log(`TATUM_KMS_AWS_REGION             : ${process.env.TATUM_KMS_AWS_REGION ?? 'N/A'}`)
+  console.log(`TATUM_KMS_AWS_ACCESS_KEY_ID      : ${secretValue(process.env.TATUM_KMS_AWS_ACCESS_KEY_ID)}`)
+  console.log(`TATUM_KMS_AWS_SECRET_ACCESS_KEY  : ${secretValue(process.env.TATUM_KMS_AWS_SECRET_ACCESS_KEY)}`)
+  console.log(`TATUM_KMS_AWS_SECRET_NAME        : ${secretValue(process.env.TATUM_KMS_AWS_SECRET_NAME)}`)
+  console.log(`TATUM_KMS_AWS_SECRET_KEY         : ${secretValue(process.env.TATUM_KMS_AWS_SECRET_KEY)}`)
+}
+
+export const setTatumKey = (apiKey: string) => {
   if (apiKey) {
     process.env.TATUM_API_KEY = apiKey
   }
 }
+
 export const getQuestion = (q: string, e?: string) => {
   if (e) {
     return e
