@@ -114,10 +114,53 @@ You can run KMS on the following operating systems:
 
 We recommend that you run KMS from the [Docker image](https://hub.docker.com/repository/docker/tatumio/tatum-kms) regardless of the operating system used.
 
+### Environment variables
+Create file `.env` file with the  following parameters and replace the placeholders with your values:  
+```
+# required
+TATUM_API_KEY=XXXXX-YOUR-API-KEY
+# one of the following setups is required: password, VGS, Azure, or AWS
+# password setup
+TATUM_KMS_PASSWORD=XXXXPASSWORD
+# VGS setup
+TATUM_KMS_VGS_USERNAME=XXXXUSERNAME
+TATUM_KMS_VGS_PASSWORD=XXXXPASSWORDVGS
+TATUM_KMS_VGS_ALIAS=XXXVSGALIAS
+# Azure setup
+TATUM_KMS_AZURE_SECRETVERSION=XXVERSION
+TATUM_KMS_AZURE_SECRETNAME=XXSECRETNAME
+TATUM_KMS_AZURE_VAULTURL=XXXXVAULTURL
+# AWS setup
+TATUM_KMS_AWS_REGION=us-east-1
+TATUM_KMS_AWS_SECRET_NAME=YOUR_KMS_SECRET_NAME
+TATUM_KMS_AWS_ACCESS_KEY_ID=AKIAYWGKDBVRGMCASWIE
+TATUM_KMS_AWS_SECRET_ACCESS_KEY=ZxDq62BZGyGe2CzwnVjL/IH8NnJG5Fu0isN7wev9
+TATUM_KMS_AWS_SECRET_KEY=pwd
+```
+
 ### Install KMS from npm
-```
-npm i -g @tatumio/tatum-kms
-```
+1. Install KMS globally:
+   ```
+   npm i -g @tatumio/tatum-kms
+   ```
+   or
+   ```
+   yarn global add @tatumio/tatum-kms
+   ```
+1. Use ```.env``` file to configure Tatum KMS   
+   1. via ```--env-file=/path/to/.env``` 
+      ```
+       tatum-kms --env-file=/path/to/.env getaddress 11111111-1111-1111-1111-111111111111 0
+      ```  
+   1. via environment variables directly
+      ```
+      TATUM_API_KEY=XXXXX-YOUR-API-KEY tatum-kms --help
+      ```
+   1. via predefined environment vars on global level
+      ```
+      export TATUM_API_KEY=XXXXX-YOUR-API-KEY  
+      tatum-kms --help
+      ```
 
 >**IMPORTANT!** NodeJS >=14 and npm@6 are required. KMS does **not** work on npm@7.
 
@@ -130,28 +173,7 @@ npm i -g @tatumio/tatum-kms
     ```
     cd $HOME
     ```
-1. In the home directory, create a `.env` file with the following parameters and replace the placeholders with your values:
-    ```
-    # required
-    TATUM_API_KEY=XXXXX-YOUR-API-KEY
-    # one of the following setups is required: password, VGS, Azure, or AWS
-    # password setup
-    TATUM_KMS_PASSWORD=XXXXPASSWORD
-    # VGS setup
-    TATUM_KMS_VGS_USERNAME=XXXXUSERNAME
-    TATUM_KMS_VGS_PASSWORD=XXXXPASSWORDVGS
-    TATUM_KMS_VGS_ALIAS=XXXVSGALIAS
-    # Azure setup
-    TATUM_KMS_AZURE_SECRETVERSION=XXVERSION
-    TATUM_KMS_AZURE_SECRETNAME=XXSECRETNAME
-    TATUM_KMS_AZURE_VAULTURL=XXXXVAULTURL
-    # AWS setup
-    TATUM_KMS_AWS_REGION=us-east-1
-    TATUM_KMS_AWS_SECRET_NAME=YOUR_KMS_SECRET_NAME
-    TATUM_KMS_AWS_ACCESS_KEY_ID=AKIAYWGKDBVRGMCASWIE
-    TATUM_KMS_AWS_SECRET_ACCESS_KEY=ZxDq62BZGyGe2CzwnVjL/IH8NnJG5Fu0isN7wev9
-    TATUM_KMS_AWS_SECRET_KEY=pwd
-    ```
+1. Use pre-created ```.env``` file to configure Tatum KMS via ```--env-file .env```:
 1. Map the Docker volume to the local storage (your home folder).
   
     For more details, refer to the [Docker user documentation](https://docs.docker.com/storage/volumes/).
@@ -349,7 +371,19 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
         "chain": "BTC"
       }
     }   
-    ```     
+    ```  
+* `checkconfig` shows environment variables for Tatum KMS (for debugging).
+
+    ```
+    bash:$ tatum-kms checkconfig
+    Version                          : 6.4.0
+    Wallet file path                 : ~/.tatumrc/wallet.dat
+    Wallet exists                    : true
+    Wallet store type                : LOCAL
+    Env file                         : .env
+    TATUM_API_KEY                    : d2eb5c******************************
+    ...
+    ```    
 
 ## Common issues
 **Error message:**

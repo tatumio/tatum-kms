@@ -2,29 +2,29 @@
 import { Currency, generateWallet } from '@tatumio/tatum'
 import axios from 'axios'
 import dotenv from 'dotenv'
-import http from 'http'
-import https from 'https'
 import meow from 'meow'
-import { Config } from './config'
 import { PasswordType } from './interfaces'
 import {
+  checkConfig,
   exportWallets,
   generateManagedPrivateKeyBatch,
   getAddress,
   getPassword,
   getPrivateKey,
   getQuestion,
-  getTatumKey,
   getWallet,
   removeWallet,
+  setTatumKey,
   storePrivateKey,
   storeWallet,
 } from './management'
 import { processSignatures } from './signatures'
 import HttpAgent from 'agentkeepalive'
+import { existsSync } from 'fs'
+import * as process from 'process'
+import { homedir } from 'os'
 
 dotenv.config()
-const config = new Config()
 
 const axiosInstance = axios.create({
   httpAgent: new HttpAgent({
@@ -41,7 +41,7 @@ const axiosInstance = axios.create({
   }),
 })
 
-const { input: command, flags } = meow(
+const { input: command, flags, help } = meow(
   `
     Usage
         $ tatum-kms command
@@ -65,8 +65,9 @@ const { input: command, flags } = meow(
         --path                            Custom path to wallet store file.
         --period                          Period in seconds to check for new transactions to sign, defaults to 5 seconds. Daemon mode only.
         --chain                           Blockchains to check, separated by comma. Daemon mode only.
-	    --aws                             Using AWS Secrets Manager (https://aws.amazon.com/secrets-manager/) as a secure storage of the password which unlocks the wallet file.
-	    --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
+        --env-file                        Path to .env file to set vars.
+	      --aws                             Using AWS Secrets Manager (https://aws.amazon.com/secrets-manager/) as a secure storage of the password which unlocks the wallet file.
+	      --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
         --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
         --externalUrl                     Pass in external url to check valid transaction. This parameter is mandatory for mainnet (if testnet is false).  Daemon mode only.
 `,
@@ -102,6 +103,9 @@ const { input: command, flags } = meow(
         type: 'string',
         isRequired: (f, input) => input[0] === 'daemon' && !f.testnet,
       },
+      'env-file': {
+        type: 'string',
+      },
     },
   },
 )
@@ -120,13 +124,20 @@ const getPasswordType = (): PasswordType => {
 }
 
 const startup = async () => {
+  const envFilePath = (flags.envFile as string) ?? homedir() + '/.tatumrc/.env'
+  if (existsSync(envFilePath)) {
+    dotenv.config({ path: envFilePath })
+  }
+
+  setTatumKey(flags.apiKey as string)
+
   if (command.length === 0) {
+    console.log(help)
     return
   }
   switch (command[0]) {
     case 'daemon': {
       const pwd = await getPassword(getPasswordType(), axiosInstance)
-      getTatumKey(flags.apiKey as string)
       await processSignatures(
         pwd,
         flags.testnet,
@@ -190,6 +201,9 @@ const startup = async () => {
       break
     case 'removewallet':
       await removeWallet(command[1], await getPassword(getPasswordType(), axiosInstance), flags.path)
+      break
+    case 'checkconfig':
+      checkConfig(getPasswordType(), envFilePath, flags.path)
       break
     default:
       console.error('Unsupported command. Use tatum-kms --help for details.')

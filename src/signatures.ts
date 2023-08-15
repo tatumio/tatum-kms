@@ -57,6 +57,7 @@ import { KMS_CONSTANTS } from './constants'
 import { Wallet } from './interfaces'
 import { getManagedWallets, getWallet, getWalletForSignature } from './management'
 import semver from 'semver'
+import { Config, ConfigOption } from './config'
 
 const TATUM_URL: string = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
@@ -130,7 +131,7 @@ const processTransaction = async (
     `${new Date().toISOString()} - Processing pending transaction - ${JSON.stringify(blockchainSignature, null, 2)}.`,
   )
 
-  const apiKey = process.env.TATUM_API_KEY as string
+  const apiKey = Config.getValue(ConfigOption.TATUM_API_KEY)
 
   switch (blockchainSignature.chain) {
     case Currency.ALGO: {
@@ -142,7 +143,7 @@ const processTransaction = async (
       return
     }
     case Currency.SOL: {
-      const solSDK = TatumSolanaSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const solSDK = TatumSolanaSDK({ apiKey, url: TATUM_URL as any })
       txData = await solSDK.kms.sign(
         blockchainSignature as PendingTransaction,
         wallets.map(w => w.privateKey),
@@ -193,14 +194,14 @@ const processTransaction = async (
       return
     }
     case Currency.XRP: {
-      const xrpSdk = TatumXrpSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const xrpSdk = TatumXrpSDK({ apiKey, url: TATUM_URL as any })
       const xrpSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey
       txData = await xrpSdk.kms.sign(blockchainSignature as any, xrpSecret)
       await xrpSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
     }
     case Currency.XLM: {
-      const xlmSdk = TatumXlmSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const xlmSdk = TatumXlmSDK({ apiKey, url: TATUM_URL as any })
       const xlmSecret = wallets[0].secret ? wallets[0].secret : wallets[0].privateKey
       txData = await xlmSdk.kms.sign(blockchainSignature as any, xlmSecret, testnet)
       await xlmSdk.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
@@ -279,7 +280,7 @@ const processTransaction = async (
             )
           : wallet.privateKey
       validatePrivateKeyWasFound(wallet, blockchainSignature, celoPrivateKey)
-      const celoSDK = TatumCeloSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const celoSDK = TatumCeloSDK({ apiKey, url: TATUM_URL as any })
       txData = await celoSDK.kms.sign(blockchainSignature as PendingTransaction, celoPrivateKey)
       await celoSDK.blockchain.broadcast({ txData, signatureId: blockchainSignature.id })
       return
@@ -387,7 +388,7 @@ const processTransaction = async (
             )
           : wallet.privateKey
       validatePrivateKeyWasFound(wallet, blockchainSignature, tronPrivateKey)
-      const tronSDK = TatumTronSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const tronSDK = TatumTronSDK({ apiKey, url: TATUM_URL as any })
       txData = await tronSDK.kms.sign(blockchainSignature as PendingTransaction, tronPrivateKey)
       await axios.post(
         `${TATUM_URL}/v3/tron/broadcast`,
@@ -434,7 +435,7 @@ const processTransaction = async (
       break
     }
     case Currency.ADA: {
-      const cardanoSDK = TatumCardanoSDK({ apiKey: process.env.TATUM_API_KEY as string, url: TATUM_URL as any })
+      const cardanoSDK = TatumCardanoSDK({ apiKey, url: TATUM_URL as any })
       if (blockchainSignature.withdrawalId) {
         const privateKeys = []
         const w: { [walletId: string]: { mnemonic: string } } = {}
@@ -545,7 +546,7 @@ const getPendingTransactions = async (
       { signatureIds },
       {
         headers: {
-          'x-api-key': process.env.TATUM_API_KEY as string,
+          'x-api-key': Config.getValue(ConfigOption.TATUM_API_KEY),
           'x-ttm-kms-client-version': process.env.npm_package_version ?? '',
         },
       },
@@ -625,7 +626,11 @@ export const processSignatures = async (
     if (data.length > 0) {
       try {
         const url = `${TATUM_URL}/v3/tatum/kms/batch`
-        await axios.post(url, { errors: data }, { headers: { 'x-api-key': process.env.TATUM_API_KEY as string } })
+        await axios.post(
+          url,
+          { errors: data },
+          { headers: { 'x-api-key': Config.getValue(ConfigOption.TATUM_API_KEY) } },
+        )
         console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`)
       } catch (e) {
         console.error(
