@@ -28,3 +28,5 @@ export interface StoreWalletValue {
   address?: string
   xpub?: string
 }
+
+export type ExternalUrlMethod = 'GET' | 'POST';
