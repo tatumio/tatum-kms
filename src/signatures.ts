@@ -99,13 +99,13 @@ const processTransaction = async (
   axios: AxiosInstance,
   path?: string,
   externalUrl?: string,
-  externalUrlMethod?: ExternalUrlMethod
+  externalUrlMethod?: ExternalUrlMethod,
 ) => {
   if (externalUrl) {
     console.log(`${new Date().toISOString()} - External url '${externalUrl}' is present, checking against it.`)
     try {
       if (externalUrlMethod === 'POST') {
-        await axios.post(`${externalUrl}/${blockchainSignature.id}`, blockchainSignature);
+        await axios.post(`${externalUrl}/${blockchainSignature.id}`, blockchainSignature)
       } else {
         await axios.get(`${externalUrl}/${blockchainSignature.id}`)
       }
@@ -164,12 +164,9 @@ const processTransaction = async (
       if (blockchainSignature.withdrawalId) {
         txData = await signBitcoinCashOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
+        const privateKeys = await getPrivateKeys(wallets)
         await bcashBroadcast(
-          await signBitcoinCashKMSTransaction(
-            blockchainSignature,
-            wallets.map(w => w.privateKey),
-            testnet,
-          ),
+          await signBitcoinCashKMSTransaction(blockchainSignature, privateKeys, testnet),
           blockchainSignature.id,
         )
         return
@@ -607,9 +604,9 @@ export const processSignatures = async (
 
   if (runOnce) {
     await processPendingTransactions(supportedChains, pwd, testnet, path, axios, externalUrl, externalUrlMethod)
-    return;
+    return
   }
-  
+
   setInterval(async () => {
     if (running) {
       return
@@ -617,55 +614,51 @@ export const processSignatures = async (
     running = true
 
     await processPendingTransactions(supportedChains, pwd, testnet, path, axios, externalUrl, externalUrlMethod)
-    
+
     running = false
   }, period * 1000)
 }
 
 async function processPendingTransactions(
-  supportedChains: Currency[], 
-  pwd: string, 
-  testnet: boolean, 
-  path: string | undefined, 
-  axios: AxiosInstance, 
-  externalUrl: string | undefined, 
-  externalUrlMethod: ExternalUrlMethod | undefined
+  supportedChains: Currency[],
+  pwd: string,
+  testnet: boolean,
+  path: string | undefined,
+  axios: AxiosInstance,
+  externalUrl: string | undefined,
+  externalUrlMethod: ExternalUrlMethod | undefined,
 ) {
   const transactions = []
+  try {
+    for (const supportedChain of supportedChains) {
+      const wallets = getManagedWallets(pwd, supportedChain, testnet, path)
+      transactions.push(...(await getPendingTransactions(axios, supportedChain, wallets)))
+    }
+  } catch (e) {
+    console.error(e)
+  }
+  const data = []
+  for (const transaction of transactions) {
     try {
-      for (const supportedChain of supportedChains) {
-        const wallets = getManagedWallets(pwd, supportedChain, testnet, path)
-        transactions.push(...(await getPendingTransactions(axios, supportedChain, wallets)))
-      }
+      await processTransaction(transaction, testnet, pwd, axios, path, externalUrl, externalUrlMethod)
+      console.log(`${new Date().toISOString()} - Tx was processed: ${transaction.id}`)
     } catch (e) {
-      console.error(e)
+      const msg = (<any>e).response ? JSON.stringify((<any>e).response.data, null, 2) : `${e}`
+      data.push({ signatureId: transaction.id, error: msg })
+      console.error(`${new Date().toISOString()} - Could not process transaction id ${transaction.id}, error: ${msg}`)
     }
-    const data = []
-    for (const transaction of transactions) {
-      try {
-        await processTransaction(transaction, testnet, pwd, axios, path, externalUrl, externalUrlMethod)
-        console.log(`${new Date().toISOString()} - Tx was processed: ${transaction.id}`)
-      } catch (e) {
-        const msg = (<any>e).response ? JSON.stringify((<any>e).response.data, null, 2) : `${e}`
-        data.push({ signatureId: transaction.id, error: msg })
-        console.error(`${new Date().toISOString()} - Could not process transaction id ${transaction.id}, error: ${msg}`)
-      }
+  }
+  if (data.length > 0) {
+    try {
+      const url = `${TATUM_URL}/v3/tatum/kms/batch`
+      await axios.post(url, { errors: data }, { headers: { 'x-api-key': Config.getValue(ConfigOption.TATUM_API_KEY) } })
+      console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`)
+    } catch (e) {
+      console.error(
+        `${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${(<any>e).config.data}`,
+      )
     }
-    if (data.length > 0) {
-      try {
-        const url = `${TATUM_URL}/v3/tatum/kms/batch`
-        await axios.post(
-          url,
-          { errors: data },
-          { headers: { 'x-api-key': Config.getValue(ConfigOption.TATUM_API_KEY) } },
-        )
-        console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`)
-      } catch (e) {
-        console.error(
-          `${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${(<any>e).config.data}`,
-        )
-      }
-    }
+  }
 }
 
 function isValidNumber(value: number | undefined): boolean {
