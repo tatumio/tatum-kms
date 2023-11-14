@@ -11,7 +11,6 @@
     "build": "tsc",
     "lint": "eslint . --ext .ts",
     "run-daemon-testnet": "node dist/index.js daemon --testnet --api-key=YOUR_API_KEY --chain=ADA",
-    "test": "node dist/index.js generatemanagedwallet XRP --env-file /Users/piotrsmreczynski/.env",
     "start": "yarn build && node dist/index.js"
   },
   "files": [
