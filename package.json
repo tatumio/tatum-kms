@@ -1,10 +1,11 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "6.4.3",
+  "version": "7.0.0",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
+  "types": "./dist/index.d.ts",
   "engines": {
-    "node": ">=14.x"
+    "node": ">=18.x"
   },
   "scripts": {
     "build": "tsc",
@@ -38,32 +39,32 @@
   },
   "homepage": "https://github.com/tatumio/tatum-kms#readme",
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.168.0",
-    "@tatumio/cardano": "2.2.4",
-    "@tatumio/celo": "2.0.1-alpha.326",
-    "@tatumio/solana": "2.0.1-alpha.326",
-    "@tatumio/tatum": "1.37.22",
-    "@tatumio/tatum-kcs": "2.0.0-alpha.108",
-    "@tatumio/tron": "2.0.1-alpha.326",
-    "@tatumio/xlm": "2.0.1-alpha.326",
-    "@tatumio/xrp": "2.0.1-alpha.326",
-    "agentkeepalive": "^4.2.1",
-    "crypto-js": "^4.0.0",
-    "dotenv": "^10.0.0",
+    "@aws-sdk/client-secrets-manager": "^3.445.0",
+    "@tatumio/cardano": "^2.2.39",
+    "@tatumio/celo": "^2.2.39",
+    "@tatumio/solana": "^2.2.39",
+    "@tatumio/tatum": "^1.37.39",
+    "@tatumio/tatum-kcs": "^2.0.0-alpha.113",
+    "@tatumio/tron": "^2.2.39",
+    "@tatumio/xlm": "^2.2.39",
+    "@tatumio/xrp": "^2.2.39",
+    "agentkeepalive": "^4.5.0",
+    "crypto-js": "^4.2.0",
+    "dotenv": "^16.3.1",
     "lodash": "^4.17.21",
     "meow": "^7.0.1",
     "readline-sync": "^1.4.10",
     "reflect-metadata": "^0.1.13",
-    "semver": "^7.5.3",
-    "uuid": "^8.3.2"
+    "semver": "^7.5.4",
+    "uuid": "^9.0.1"
   },
   "devDependencies": {
-    "@types/readline-sync": "^1.4.4",
-    "@types/semver": "^7.5.0",
-    "@typescript-eslint/eslint-plugin": "^5.30.5",
-    "@typescript-eslint/parser": "^5.30.5",
-    "eslint": "^8.19.0",
-    "rimraf": "^3.0.2",
-    "typescript": "4.7.4"
+    "@types/readline-sync": "^1.4.7",
+    "@types/semver": "^7.5.5",
+    "@typescript-eslint/eslint-plugin": "^6.10.0",
+    "@typescript-eslint/parser": "^6.10.0",
+    "eslint": "^8.53.0",
+    "rimraf": "^5.0.5",
+    "typescript": "^5.2.2"
   }
 }
