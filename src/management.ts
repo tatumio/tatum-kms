@@ -237,7 +237,7 @@ export const generateManagedPrivateKeyBatch = async (
     }
     const privateKey = wallet.secret ? wallet.secret : await generatePrivateKey(wallet.mnemonic, chain, 1, testnet)
     const { signatureId } = await storePrivateKey(chain, testnet, privateKey as string, pwd, path, false)
-    console.log(`{ signatureId: ${signatureId}, address: ${address} }`)
+    console.log(JSON.stringify({ signatureId, address }))
   }
 }
 
