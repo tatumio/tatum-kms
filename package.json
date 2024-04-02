@@ -1,6 +1,6 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "7.0.1",
+  "version": "7.0.2",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
@@ -42,7 +42,7 @@
     "@aws-sdk/client-secrets-manager": "^3.445.0",
     "@tatumio/cardano": "^2.2.39",
     "@tatumio/celo": "^2.2.39",
-    "@tatumio/solana": "^2.2.39",
+    "@tatumio/solana": "^2.2.67",
     "@tatumio/tatum": "^1.37.39",
     "@tatumio/tatum-kcs": "^2.0.0-alpha.113",
     "@tatumio/tron": "^2.2.39",
