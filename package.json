@@ -43,7 +43,7 @@
     "@tatumio/cardano": "^2.2.39",
     "@tatumio/celo": "^2.2.39",
     "@tatumio/solana": "^2.2.67",
-    "@tatumio/tatum": "^1.37.39",
+    "@tatumio/tatum": "^3.0.0",
     "@tatumio/tatum-kcs": "^2.0.0-alpha.113",
     "@tatumio/tron": "^2.2.39",
     "@tatumio/xlm": "^2.2.39",
