@@ -14,7 +14,7 @@ export enum ConfigOption {
   AWS_SECRET_KEY,
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
-  TATUM_KMS_DEBUG_MODE = 0,
+  TATUM_KMS_DEBUG_MODE,
 }
 
 export class Config {

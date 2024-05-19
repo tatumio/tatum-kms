@@ -226,7 +226,7 @@ const processTransaction = async (
       } else {
         const signKMSTransaction = await signEthKMSTransaction(blockchainSignature, privateKey);
         const debugMode = Config.getValue(ConfigOption.TATUM_KMS_DEBUG_MODE) || 0;
-        if (debugMode) {
+        if (debugMode === 'true' || debugMode === '1') {
           console.log('signEthKMSTransaction data', signKMSTransaction, blockchainSignature.id)
         }
         await ethBroadcast(signKMSTransaction, blockchainSignature.id)
