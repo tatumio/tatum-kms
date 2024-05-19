@@ -54,7 +54,7 @@ import { TatumXrpSDK } from '@tatumio/xrp'
 import { AxiosInstance } from 'axios'
 import _ from 'lodash'
 import { KMS_CONSTANTS } from './constants'
-import { Wallet } from './interfaces'
+import { ExternalUrlMethod, Wallet } from './interfaces'
 import { getManagedWallets, getWallet, getWalletForSignature } from './management'
 import semver from 'semver'
 import { Config, ConfigOption } from './config'
@@ -99,11 +99,16 @@ const processTransaction = async (
   axios: AxiosInstance,
   path?: string,
   externalUrl?: string,
+  externalUrlMethod?: ExternalUrlMethod,
 ) => {
   if (externalUrl) {
     console.log(`${new Date().toISOString()} - External url '${externalUrl}' is present, checking against it.`)
     try {
-      await axios.get(`${externalUrl}/${blockchainSignature.id}`)
+      if (externalUrlMethod === 'POST') {
+        await axios.post(`${externalUrl}/${blockchainSignature.id}`, blockchainSignature)
+      } else {
+        await axios.get(`${externalUrl}/${blockchainSignature.id}`)
+      }
     } catch (e) {
       console.error(e)
       console.error(
@@ -159,12 +164,9 @@ const processTransaction = async (
       if (blockchainSignature.withdrawalId) {
         txData = await signBitcoinCashOffchainKMSTransaction(blockchainSignature, wallets[0].mnemonic, testnet)
       } else {
+        const privateKeys = await getPrivateKeys(wallets)
         await bcashBroadcast(
-          await signBitcoinCashKMSTransaction(
-            blockchainSignature,
-            wallets.map(w => w.privateKey),
-            testnet,
-          ),
+          await signBitcoinCashKMSTransaction(blockchainSignature, privateKeys, testnet),
           blockchainSignature.id,
         )
         return
@@ -570,7 +572,9 @@ export const processSignatures = async (
   path?: string,
   chains?: Currency[],
   externalUrl?: string,
+  externalUrlMethod?: ExternalUrlMethod,
   period = 5,
+  runOnce?: boolean,
 ) => {
   let running = false
   const supportedChains = chains || [
@@ -597,49 +601,64 @@ export const processSignatures = async (
     Currency.ALGO,
     Currency.KCS,
   ]
+
+  if (runOnce) {
+    await processPendingTransactions(supportedChains, pwd, testnet, path, axios, externalUrl, externalUrlMethod)
+    return
+  }
+
   setInterval(async () => {
     if (running) {
       return
     }
     running = true
 
-    const transactions = []
-    try {
-      for (const supportedChain of supportedChains) {
-        const wallets = getManagedWallets(pwd, supportedChain, testnet, path)
-        transactions.push(...(await getPendingTransactions(axios, supportedChain, wallets)))
-      }
-    } catch (e) {
-      console.error(e)
-    }
-    const data = []
-    for (const transaction of transactions) {
-      try {
-        await processTransaction(transaction, testnet, pwd, axios, path, externalUrl)
-        console.log(`${new Date().toISOString()} - Tx was processed: ${transaction.id}`)
-      } catch (e) {
-        const msg = (<any>e).response ? JSON.stringify((<any>e).response.data, null, 2) : `${e}`
-        data.push({ signatureId: transaction.id, error: msg })
-        console.error(`${new Date().toISOString()} - Could not process transaction id ${transaction.id}, error: ${msg}`)
-      }
-    }
-    if (data.length > 0) {
-      try {
-        const url = `${TATUM_URL}/v3/tatum/kms/batch`
-        await axios.post(
-          url,
-          { errors: data },
-          { headers: { 'x-api-key': Config.getValue(ConfigOption.TATUM_API_KEY) } },
-        )
-        console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`)
-      } catch (e) {
-        console.error(
-          `${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${(<any>e).config.data}`,
-        )
-      }
-    }
+    await processPendingTransactions(supportedChains, pwd, testnet, path, axios, externalUrl, externalUrlMethod)
+
     running = false
   }, period * 1000)
+}
+
+async function processPendingTransactions(
+  supportedChains: Currency[],
+  pwd: string,
+  testnet: boolean,
+  path: string | undefined,
+  axios: AxiosInstance,
+  externalUrl: string | undefined,
+  externalUrlMethod: ExternalUrlMethod | undefined,
+) {
+  const transactions = []
+  try {
+    for (const supportedChain of supportedChains) {
+      const wallets = getManagedWallets(pwd, supportedChain, testnet, path)
+      transactions.push(...(await getPendingTransactions(axios, supportedChain, wallets)))
+    }
+  } catch (e) {
+    console.error(e)
+  }
+  const data = []
+  for (const transaction of transactions) {
+    try {
+      await processTransaction(transaction, testnet, pwd, axios, path, externalUrl, externalUrlMethod)
+      console.log(`${new Date().toISOString()} - Tx was processed: ${transaction.id}`)
+    } catch (e) {
+      const msg = (<any>e).response ? JSON.stringify((<any>e).response.data, null, 2) : `${e}`
+      data.push({ signatureId: transaction.id, error: msg })
+      console.error(`${new Date().toISOString()} - Could not process transaction id ${transaction.id}, error: ${msg}`)
+    }
+  }
+  if (data.length > 0) {
+    try {
+      const url = `${TATUM_URL}/v3/tatum/kms/batch`
+      await axios.post(url, { errors: data }, { headers: { 'x-api-key': Config.getValue(ConfigOption.TATUM_API_KEY) } })
+      console.log(`${new Date().toISOString()} - Send batch call to url '${url}'.`)
+    } catch (e) {
+      console.error(
+        `${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${(<any>e).config.data}`,
+      )
+    }
+  }
 }
 
 function isValidNumber(value: number | undefined): boolean {

@@ -87,7 +87,7 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
   }
 }
 
-export const exportWallets = (pwd: string, _path1: string | undefined, path?: string) => {
+export const exportWallets = (pwd: string, path?: string) => {
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
   if (!existsSync(pathToWallet)) {
     console.error(JSON.stringify({ error: `No such wallet file.` }, null, 2))
@@ -237,7 +237,7 @@ export const generateManagedPrivateKeyBatch = async (
     }
     const privateKey = wallet.secret ? wallet.secret : await generatePrivateKey(wallet.mnemonic, chain, 1, testnet)
     const { signatureId } = await storePrivateKey(chain, testnet, privateKey as string, pwd, path, false)
-    console.log(`{ signatureId: ${signatureId}, address: ${address} }`)
+    console.log(JSON.stringify({ signatureId, address }))
   }
 }
 
