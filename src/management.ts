@@ -445,7 +445,7 @@ export const checkConfig = (pwdType: PasswordType, envFile?: string, path?: stri
   console.log(`TATUM_KMS_AWS_SECRET_ACCESS_KEY  : ${secretValue(process.env.TATUM_KMS_AWS_SECRET_ACCESS_KEY)}`)
   console.log(`TATUM_KMS_AWS_SECRET_NAME        : ${secretValue(process.env.TATUM_KMS_AWS_SECRET_NAME)}`)
   console.log(`TATUM_KMS_AWS_SECRET_KEY         : ${secretValue(process.env.TATUM_KMS_AWS_SECRET_KEY)}`)
-  console.log(`DEBUG MODE                       : ${process.env.TATUM_KMS_DEBUG_MODE ?? 'N/A'}`)    
+  console.log(`TATUM_KMS_DEBUG_MODE             : ${process.env.TATUM_KMS_DEBUG_MODE ?? 'N/A'}`)    
 }
 
 export const setTatumKey = (apiKey: string) => {
