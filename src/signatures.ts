@@ -225,7 +225,8 @@ const processTransaction = async (
         txData = await signEthOffchainKMSTransaction(blockchainSignature, privateKey, testnet)
       } else {
         const signKMSTransaction = await signEthKMSTransaction(blockchainSignature, privateKey);
-        Config.getValue(ConfigOption.DEBUG_MODE) && console.log('signEthKMSTransaction data', signKMSTransaction, blockchainSignature.id)
+        Config.getValue(ConfigOption.TATUM_KMS_DEBUG_MODE) &&
+          console.log('signEthKMSTransaction data', signKMSTransaction, blockchainSignature.id)
         await ethBroadcast(signKMSTransaction, blockchainSignature.id)
         return
       }

@@ -14,7 +14,7 @@ export enum ConfigOption {
   AWS_SECRET_KEY,
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
-  DEBUG_MODE = 0,
+  TATUM_KMS_DEBUG_MODE = 0,
 }
 
 export class Config {
@@ -76,7 +76,7 @@ export class Config {
       question:
         'Enter AWS Secret key from you stored secret to obtain password from AWS Secrets Manager (or set env var TATUM_KMS_AWS_SECRET_KEYa):',
     },
-    [ConfigOption.DEBUG_MODE]: {
+    [ConfigOption.TATUM_KMS_DEBUG_MODE]: {
       environmentKey: 'TATUM_KMS_DEBUG_MODE',
       question: 'Enter debug mode (true/false) (or set env var TATUM_KMS_DEBUG_MODE):',
     },
