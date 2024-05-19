@@ -225,7 +225,7 @@ const processTransaction = async (
         txData = await signEthOffchainKMSTransaction(blockchainSignature, privateKey, testnet)
       } else {
         const signKMSTransaction = await signEthKMSTransaction(blockchainSignature, privateKey);
-        console.log('signEthKMSTransaction data', signKMSTransaction, blockchainSignature.id)
+        Config.getValue(ConfigOption.DEBUG_MODE) && console.log('signEthKMSTransaction data', signKMSTransaction, blockchainSignature.id)
         await ethBroadcast(signKMSTransaction, blockchainSignature.id)
         return
       }
