@@ -224,7 +224,9 @@ const processTransaction = async (
       if (blockchainSignature.withdrawalId) {
         txData = await signEthOffchainKMSTransaction(blockchainSignature, privateKey, testnet)
       } else {
-        await ethBroadcast(await signEthKMSTransaction(blockchainSignature, privateKey), blockchainSignature.id)
+        const signKMSTransaction = await signEthKMSTransaction(blockchainSignature, privateKey);
+        console.log('signEthKMSTransaction data', signKMSTransaction, blockchainSignature.id)
+        await ethBroadcast(signKMSTransaction, blockchainSignature.id)
         return
       }
       break
