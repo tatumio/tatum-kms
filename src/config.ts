@@ -87,6 +87,9 @@ export class Config {
     if (process.env[config.environmentKey]) {
       return process.env[config.environmentKey] as string
     }
+    if (what === ConfigOption.TATUM_KMS_DEBUG_MODE && !process.env[config.environmentKey]) {
+      return 'false'
+    }
     if (what === ConfigOption.TATUM_API_KEY) {
       throw new Error('Required TATUM_API_KEY is not set. Please set it as env variable or pass it as argument.')
     }
