@@ -224,7 +224,12 @@ const processTransaction = async (
       if (blockchainSignature.withdrawalId) {
         txData = await signEthOffchainKMSTransaction(blockchainSignature, privateKey, testnet)
       } else {
-        await ethBroadcast(await signEthKMSTransaction(blockchainSignature, privateKey), blockchainSignature.id)
+        const signKMSTransaction = await signEthKMSTransaction(blockchainSignature, privateKey);
+        const debugMode = Config.getValue(ConfigOption.TATUM_KMS_DEBUG_MODE) || 0;
+        if (debugMode === 'true' || debugMode === '1') {
+          console.log('signEthKMSTransaction data', signKMSTransaction, blockchainSignature.id)
+        }
+        await ethBroadcast(signKMSTransaction, blockchainSignature.id)
         return
       }
       break

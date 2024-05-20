@@ -14,6 +14,7 @@ export enum ConfigOption {
   AWS_SECRET_KEY,
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
+  TATUM_KMS_DEBUG_MODE,
 }
 
 export class Config {
@@ -75,12 +76,19 @@ export class Config {
       question:
         'Enter AWS Secret key from you stored secret to obtain password from AWS Secrets Manager (or set env var TATUM_KMS_AWS_SECRET_KEYa):',
     },
+    [ConfigOption.TATUM_KMS_DEBUG_MODE]: {
+      environmentKey: 'TATUM_KMS_DEBUG_MODE',
+      question: 'Enter debug mode (true/false) (or set env var TATUM_KMS_DEBUG_MODE):',
+    },
   }
 
   public static getValue(what: ConfigOption): string {
     const config = this._configOptions[what]
     if (process.env[config.environmentKey]) {
       return process.env[config.environmentKey] as string
+    }
+    if (what === ConfigOption.TATUM_KMS_DEBUG_MODE && !process.env[config.environmentKey]) {
+      return 'false'
     }
     if (what === ConfigOption.TATUM_API_KEY) {
       throw new Error('Required TATUM_API_KEY is not set. Please set it as env variable or pass it as argument.')

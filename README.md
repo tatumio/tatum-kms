@@ -136,6 +136,8 @@ TATUM_KMS_AWS_SECRET_NAME=YOUR_KMS_SECRET_NAME
 TATUM_KMS_AWS_ACCESS_KEY_ID=AKIAYWGKDBVRGMCASWIE
 TATUM_KMS_AWS_SECRET_ACCESS_KEY=ZxDq62BZGyGe2CzwnVjL/IH8NnJG5Fu0isN7wev9
 TATUM_KMS_AWS_SECRET_KEY=pwd
+# Debug mode. if true/1, it will expose data from signEthKMSTransaction() method to the console
+TATUM_KMS_DEBUG_MODE=true/false/1/0
 ```
 
 ### Install KMS from npm
