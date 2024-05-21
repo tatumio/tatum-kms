@@ -33,7 +33,7 @@ KMS supports the following blockchains:
 * XinFin (XDC)
 * XRP (XRP)
 
-For more information about KMS, see our [user documentation](https://docs.tatum.io/private-key-management/tatum-key-management-system-kms).
+For more information about KMS, see our [user documentation](https://docs.tatum.io/docs/tatum-key-management-system-kms).
 
 ## Secure storage
 KMS generates and stores the private keys and mnemonic in an encrypted file, `wallet.dat`, in the local file system. This wallet storage file is encrypted using the AES-GCM-256 cipher.
@@ -57,7 +57,7 @@ The Tatum API accepts the following representations of the signature ID in reque
 
 * A signature ID that represents the **private key** type of a wallet
 
-    In API calls like [/v3/bitcoin/transaction](https://apidoc.tatum.io/tag/Bitcoin/#operation/BtcTransferBlockchain), `signatureId` in the request represents the private key type of the wallet.
+    In API calls like [/v3/bitcoin/transaction](https://docs.tatum.io/reference/btcgeneratewallet#operation/BtcTransferBlockchain), `signatureId` in the request represents the private key type of the wallet.
     ```
     bash:$ tatum-kms storemanagedprivatekey BTC
     {
@@ -66,7 +66,7 @@ The Tatum API accepts the following representations of the signature ID in reque
   ```
 * A signature ID that represents the **mnemonic** type of a wallet
     
-    In API calls like [/v3/offchain/bitcoin/transfer](https://apidoc.tatum.io/tag/Blockchain-operations/#operation/BtcTransfer), `signatureId` in the request represents the mnemonic type of the wallet.
+    In API calls like [/v3/offchain/bitcoin/transfer](https://docs.tatum.io/reference/btctransfer#operation/BtcTransfer), `signatureId` in the request represents the mnemonic type of the wallet.
 
    ```
     bash:$ tatum-kms generatemanagedwallet BTC
@@ -77,7 +77,7 @@ The Tatum API accepts the following representations of the signature ID in reque
   ```
 * A signature ID that represents the **mnemonic**/**index** type of a wallet
 
-    In API calls like [/v3/offchain/ethereum/transfer](https://apidoc.tatum.io/tag/Blockchain-operations#operation/EthTransfer), the index of the specified private key generated from the mnemonic must be used together with `signatureId`.
+    In API calls like [/v3/offchain/ethereum/transfer](https://docs.tatum.io/reference/btctransfer#operation/EthTransfer), the index of the specified private key generated from the mnemonic must be used together with `signatureId`.
    ```
     bash:$ tatum-kms generatemanagedwallet BTC
     {
@@ -100,7 +100,7 @@ To get KMS up and running on your site on the mainnet, complete the following st
 
     This is another security level in KMS that verifies that the transactions to sign are yours.
 1. [Run KMS in daemon mode](#run-kms-in-daemon-mode) so it can periodically check for transactions to sign.
-1. When performing operations that must be signed with the private key or mnemonic (such as transferring funds, minting NFT, and so on), use the KMS schemas to build the body of the API requests as specified in the [API Reference](https://apidoc.tatum.io/).
+1. When performing operations that must be signed with the private key or mnemonic (such as transferring funds, minting NFT, and so on), use the KMS schemas to build the body of the API requests as specified in the [API Reference](https://docs.tatum.io/reference/welcome-to-the-tatum-api-reference).
     
     This way, you will be using the signature ID instead of the private key or a combination of the signature ID and the index instead of the mnemonic.
 
@@ -239,7 +239,7 @@ TATUM_KMS_PASSWORD=password
 ```
 
 ### Change the frequency of checking for the pending transactions
-Checking for the pending transactions consumes credits from the monthly credit allowance associated with your API key: 1 credit for every 500 signature IDs per API call. For more information about the credits, see [Plans and Pricing](https://docs.tatum.io/payments/plans-and-pricing).
+Checking for the pending transactions consumes credits from the monthly credit allowance associated with your API key: 1 credit for every 500 signature IDs per API call. For more information about the credits, see [Plans and Limits](https://docs.tatum.io/docs/plans-limits).
 
 By default, KMS checks for the pending transactions to sign every 5 seconds.
 
@@ -284,7 +284,7 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
 
 * `generatemanagedwallet chain` generates a wallet on the specified blockchain (`chain`) and adds it to the managed wallets.
     
-    This command echos the signature ID of the wallet to be used in requests to the Tatum API and the extended public key of the wallet to pair with [virtual accounts](https://apidoc.tatum.io/tag/Account).
+    This command echos the signature ID of the wallet to be used in requests to the Tatum API and the extended public key of the wallet to pair with [virtual accounts](https://docs.tatum.io/docs/virtual-accounts).
 
     ```
     bash:$ tatum-kms generatemanagedwallet BTC
@@ -296,7 +296,7 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
 
 * `storemanagedwallet chain` stores a mnemonic-based wallet on the specified blockchain (`chain`) and adds it to the managed wallets.
     
-    This command echos the signature ID of the wallet to be used in requests to the Tatum API and the extended public key of the wallet to pair with with [virtual accounts](https://apidoc.tatum.io/tag/Account).
+    This command echos the signature ID of the wallet to be used in requests to the Tatum API and the extended public key of the wallet to pair with with [virtual accounts](https://docs.tatum.io/docs/virtual-accounts).
     
     ```
     bash:$ tatum-kms storemanagedwallet BTC
