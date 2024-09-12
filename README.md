@@ -211,10 +211,10 @@ If the response is `2xx`, KMS signs the transaction. Otherwise, the transaction 
 
 To enable the four-eye-principle:
 1. Set up an application server that will hold the list of valid transactions to sign.
-1. Add the `external-url` parameter to KMS and set it to your application server:
+1. Add the `externalUrl` parameter to KMS and set it to your application server:
 
     ```
-    tatum-kms daemon --external-url=http://192.168.57.63
+    tatum-kms daemon --externalUrl=http://192.168.57.63
     ```
 
 ## Run KMS in daemon mode
