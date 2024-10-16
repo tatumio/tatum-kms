@@ -1,4 +1,4 @@
-FROM node:18-alpine3.16 AS builder
+FROM node:20.18.0-alpine3.20 AS builder
 
 # Create app directory
 

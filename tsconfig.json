@@ -1,13 +1,14 @@
 {
   "compilerOptions": {
-    "target": "es2020",
-    "module": "commonjs",
+    "target": "es2021",
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "outDir": "./dist",
     "strict": true,
     "skipLibCheck": true,
     "baseUrl": "./",
     "lib": [
-      "ES2020",
+      "ESNext",
       "dom"
     ],
     "typeRoots": [

@@ -26,23 +26,26 @@ import { homedir } from 'os'
 
 dotenv.config()
 
-const axiosInstance = axios.create({
-  httpAgent: new HttpAgent({
-    maxSockets: 4,
-    maxFreeSockets: 2,
-    timeout: 60000, // up to 110000, but I would stay with 60s
-    freeSocketTimeout: 30000,
-  }),
-  httpsAgent: new HttpAgent.HttpsAgent({
-    maxSockets: 4,
-    maxFreeSockets: 2,
-    timeout: 60000, // up to 110000, but I would stay with 60s
-    freeSocketTimeout: 30000,
-  }),
+const httpAgent = new HttpAgent({
+  maxSockets: 4,
+  maxFreeSockets: 2,
+  timeout: 60000, // up to 110000, but I would stay with 60s
+  freeSocketTimeout: 30000,
 })
 
-const { input: command, flags, help } = meow(
-  `
+const httpsAgent = new HttpAgent.HttpsAgent({
+  maxSockets: 4,
+  maxFreeSockets: 2,
+  timeout: 60000, // up to 110000, but I would stay with 60s
+  freeSocketTimeout: 30000,
+})
+
+axios.defaults.httpAgent = httpAgent
+axios.defaults.httpsAgent = httpsAgent
+
+const axiosInstance = axios.create()
+
+const optionsConst = `
     Usage
         $ tatum-kms command
 
@@ -60,67 +63,70 @@ const { input: command, flags, help } = meow(
         export                          			Export all managed wallets.
 
     Options
-        --api-key                         Tatum API Key to communicate with Tatum API. Daemon mode only.
+        --apiKey                          Tatum API Key to communicate with Tatum API. Daemon mode only.
         --testnet                         Indicates testnet version of blockchain. Mainnet by default.
         --path                            Custom path to wallet store file.
         --period                          Period in seconds to check for new transactions to sign, defaults to 5 seconds. Daemon mode only.
         --chain                           Blockchains to check, separated by comma. Daemon mode only.
-        --env-file                        Path to .env file to set vars.
-	      --aws                             Using AWS Secrets Manager (https://aws.amazon.com/secrets-manager/) as a secure storage of the password which unlocks the wallet file.
-	      --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
+        --envFile                         Path to .env file to set vars.
+        --aws                             Using AWS Secrets Manager (https://aws.amazon.com/secrets-manager/) as a secure storage of the password which unlocks the wallet file.
+        --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
         --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
         --externalUrl                     Pass in external url to check valid transaction. This parameter is mandatory for mainnet (if testnet is false).  Daemon mode only.
         --externalUrlMethod               Determine what http method to use when calling the url passed in the --externalUrl option. Accepts GET or POST. Defaults to GET method. Daemon mode only. 
         --runOnce                         Run the daemon command one time. Check for a new transactions to sign once, and then exit the process. Daemon mode only.
-`,
-  {
-    flags: {
-      path: {
-        type: 'string',
-      },
-      chain: {
-        type: 'string',
-      },
-      'api-key': {
-        type: 'string',
-      },
-      testnet: {
-        type: 'boolean',
-        isRequired: true,
-      },
-      vgs: {
-        type: 'boolean',
-      },
-      aws: {
-        type: 'boolean',
-      },
-      azure: {
-        type: 'boolean',
-      },
-      period: {
-        type: 'number',
-        default: 5,
-      },
-      externalUrl: {
-        type: 'string',
-        isRequired: (f, input) => input[0] === 'daemon' && !f.testnet,
-      },
-      'env-file': {
-        type: 'string',
-      },
-      externalUrlMethod: {
-        type: 'string',
-        default: 'GET',
-      },
-      runOnce: {
-        type: 'boolean',
-        default: false,
-      }
+`
+
+const flagsConst = {
+  importMeta: import.meta,
+  flags: {
+    path: {
+      type: 'string',
+    },
+    chain: {
+      type: 'string',
+    },
+    apiKey: {
+      // @todo: mark as breaking change !!!
+      type: 'string',
+    },
+    testnet: {
+      type: 'boolean',
+      isRequired: true,
+    },
+    vgs: {
+      type: 'boolean',
+    },
+    aws: {
+      type: 'boolean',
+    },
+    azure: {
+      type: 'boolean',
+    },
+    period: {
+      type: 'number',
+      default: 5,
+    },
+    externalUrl: {
+      type: 'string',
+      isRequired: (f: any, input: readonly string[]) => input[0] === 'daemon' && !f.testnet,
+    },
+    envFile: {
+      // @todo: mark as breaking change !!!
+      type: 'string',
+    },
+    externalUrlMethod: {
+      type: 'string',
+      default: 'GET',
+    },
+    runOnce: {
+      type: 'boolean',
+      default: false,
     },
   },
-)
+}
 
-const getPasswordType = (): PasswordType => {
+const getPasswordType = (flags: Partial<{ aws: string; azure: string; vgs: string }>): PasswordType => {
   if (flags.aws) {
     return PasswordType.AWS
   }
@@ -134,6 +140,8 @@ const getPasswordType = (): PasswordType => {
 }
 
 const startup = async () => {
+  const { input: command, flags, help } = meow(optionsConst, flagsConst as any)
+
   const envFilePath = (flags.envFile as string) ?? homedir() + '/.tatumrc/.env'
   if (existsSync(envFilePath)) {
     dotenv.config({ path: envFilePath })
@@ -147,75 +155,75 @@ const startup = async () => {
   }
   switch (command[0]) {
     case 'daemon': {
-      const pwd = await getPassword(getPasswordType(), axiosInstance)
+      const pwd = await getPassword(getPasswordType(flags), axiosInstance)
       await processSignatures(
         pwd,
-        flags.testnet,
+        flags.testnet as boolean,
         axiosInstance,
-        flags.path,
-        flags.chain?.split(',') as Currency[],
-        flags.externalUrl,
+        flags.path as string,
+        (flags.chain as string)?.split(',') as Currency[],
+        flags.externalUrl as string,
         flags.externalUrlMethod as ExternalUrlMethod,
-        flags.period,
-        flags.runOnce,
+        flags.period as number,
+        flags.runOnce as boolean,
       )
       break
     }
     case 'generatewallet':
-      console.log(JSON.stringify(await generateWallet(command[1] as Currency, flags.testnet), null, 2))
+      console.log(JSON.stringify(await generateWallet(command[1] as Currency, flags.testnet as boolean), null, 2))
       break
     case 'export':
-      exportWallets(await getPassword(getPasswordType(), axiosInstance), flags.path)
+      exportWallets(await getPassword(getPasswordType(flags), axiosInstance), flags.path as string)
       break
     case 'generatemanagedwallet':
       await storeWallet(
         command[1] as Currency,
-        flags.testnet,
-        await getPassword(getPasswordType(), axiosInstance),
-        flags.path,
+        flags.testnet as boolean,
+        await getPassword(getPasswordType(flags), axiosInstance),
+        flags.path as string,
       )
       break
     case 'storemanagedwallet':
       await storeWallet(
         command[1] as Currency,
-        flags.testnet,
-        await getPassword(getPasswordType(), axiosInstance),
-        flags.path,
+        flags.testnet as boolean,
+        await getPassword(getPasswordType(flags), axiosInstance),
+        flags.path as string,
         getQuestion('Enter mnemonic to store:'),
       )
       break
     case 'storemanagedprivatekey':
       await storePrivateKey(
         command[1] as Currency,
-        flags.testnet,
+        flags.testnet as boolean,
         getQuestion('Enter private key to store:'),
-        await getPassword(getPasswordType(), axiosInstance),
-        flags.path,
+        await getPassword(getPasswordType(flags), axiosInstance),
+        flags.path as string,
       )
       break
     case 'generatemanagedprivatekeybatch':
       await generateManagedPrivateKeyBatch(
         command[1] as Currency,
         command[2],
-        flags.testnet,
-        await getPassword(getPasswordType(), axiosInstance),
-        flags.path,
+        flags.testnet as boolean,
+        await getPassword(getPasswordType(flags), axiosInstance),
+        flags.path as string,
       )
       break
     case 'getmanagedwallet':
-      await getWallet(command[1], await getPassword(getPasswordType(), axiosInstance), flags.path)
+      await getWallet(command[1], await getPassword(getPasswordType(flags), axiosInstance), flags.path as string)
       break
     case 'getprivatekey':
-      await getPrivateKey(command[1], command[2], flags.path)
+      await getPrivateKey(command[1], command[2], flags.path as string)
       break
     case 'getaddress':
-      await getAddress(command[1], command[2], flags.path)
+      await getAddress(command[1], command[2], flags.path as string)
       break
     case 'removewallet':
-      await removeWallet(command[1], await getPassword(getPasswordType(), axiosInstance), flags.path)
+      await removeWallet(command[1], await getPassword(getPasswordType(flags), axiosInstance), flags.path as string)
       break
     case 'checkconfig':
-      checkConfig(getPasswordType(), envFilePath, flags.path)
+      checkConfig(getPasswordType(flags), envFilePath, flags.path as string)
       break
     default:
       console.error('Unsupported command. Use tatum-kms --help for details.')
