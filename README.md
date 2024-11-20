@@ -164,7 +164,7 @@ TATUM_KMS_DEBUG_MODE=true/false/1/0
       tatum-kms --help
       ```
 
->**IMPORTANT!** NodeJS >=20.0 are required. KMS does **not** work on older versions.
+>**IMPORTANT!** NodeJS >=18.0 are required. KMS does **not** work on older versions.
 
 ### Install KMS via Docker
 1. Pull the `tatum-kms` image:
