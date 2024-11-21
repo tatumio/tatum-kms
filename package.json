@@ -55,7 +55,6 @@
     "dotenv": "^16.4.5",
     "lodash": "^4.17.21",
     "meow": "^13.2.0",
-    "minimatch": "^9.0.5",
     "readline-sync": "^1.4.10",
     "semver": "^7.6.3",
     "uuid": "^10.0.0"
