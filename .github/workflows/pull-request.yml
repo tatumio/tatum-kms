@@ -19,3 +19,16 @@ jobs:
       - run: yarn lint
 
       - run: yarn build
+
+  docker-build:
+        name: 🏗️ Build docker image
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v2
+       
+          - name: build image
+            run: docker build . --file Dockerfile -t ${{secrets.DOCKER_USER}}/tatum-kms:latest -t "${{secrets.DOCKER_USER}}/tatum-kms:$(cat ./package.json | jq -r ".version")"
+    
+          - name: smoke test image
+            run: docker run -it ${{secrets.DOCKER_USER}}/tatum-kms:latest --help
+    
