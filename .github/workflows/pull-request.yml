@@ -6,16 +6,29 @@ on:
 jobs:
   build:
     name: 🏗️ Install and build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v2
+      - uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '18.20.5'
 
       - run: yarn install
 
       - run: yarn lint
 
       - run: yarn build
+
+  docker-build:
+        name: 🏗️ Build docker image
+        runs-on: ubuntu-24.04
+        steps:
+          - uses: actions/checkout@v4
+       
+          - name: build image
+            run: docker build . --file Dockerfile -t ${{secrets.DOCKER_USER}}/tatum-kms:latest -t "${{secrets.DOCKER_USER}}/tatum-kms:$(cat ./package.json | jq -r ".version")"
+    
+          - name: smoke test image
+            run: docker run -i ${{secrets.DOCKER_USER}}/tatum-kms:latest --help
+    
