@@ -5,7 +5,8 @@ FROM node:18.20.5-alpine3.20 AS builder
 WORKDIR /usr/src/app
 
 RUN apk --virtual build-dependencies add \
-    git libtool curl jq py3-configobj py3-pip py3-setuptools python3 python3-dev g++ make libusb-dev eudev-dev linux-headers \
+    git libtool curl jq py3-configobj py3-pip py3-setuptools python3 python3-dev \
+    g++ make libusb-dev eudev-dev linux-headers \
 && ln -sf python3 /usr/bin/python \
 && ln -s /lib/arm-linux-gnueabihf/libusb-1.0.so.0 libusb-1.0.dll
 
