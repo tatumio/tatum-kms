@@ -39,6 +39,9 @@
     "url": "https://github.com/tatumio/tatum-kms/issues"
   },
   "homepage": "https://github.com/tatumio/tatum-kms#readme",
+  "resolutions": {
+    "minimatch@*": "^9.0.5"
+  },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.669.0",
     "@tatumio/cardano": "^2.2.86",
