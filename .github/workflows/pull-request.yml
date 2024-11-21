@@ -6,7 +6,7 @@ on:
 jobs:
   build:
     name: 🏗️ Install and build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
 
@@ -22,9 +22,9 @@ jobs:
 
   docker-build:
         name: 🏗️ Build docker image
-        runs-on: ubuntu-latest
+        runs-on: ubuntu-24.04
         steps:
-          - uses: actions/checkout@v2
+          - uses: actions/checkout@v4
        
           - name: build image
             run: docker build . --file Dockerfile -t ${{secrets.DOCKER_USER}}/tatum-kms:latest -t "${{secrets.DOCKER_USER}}/tatum-kms:$(cat ./package.json | jq -r ".version")"
