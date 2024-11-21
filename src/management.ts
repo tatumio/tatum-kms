@@ -306,6 +306,7 @@ export const getWallet = async (id: string, pwd: string, path?: string, print = 
     return data[id]
   } catch (e) {
     console.error(JSON.stringify({ error: `Wrong password.` }, null, 2))
+    console.debug(e)
     return
   }
 }
