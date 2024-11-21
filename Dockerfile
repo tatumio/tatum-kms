@@ -15,7 +15,7 @@ COPY yarn.lock ./
 
 # Installing dependencies
 RUN yarn cache clean \
-&& yarn install --frozen-lockfile --unsafe-perm \
+&& yarn install --frozen-lockfile --unsafe-perm --ignore-scripts \
 && yarn add usb
 # Copying files from current directory
 
