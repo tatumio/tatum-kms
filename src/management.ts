@@ -9,7 +9,6 @@ import { TatumXlmSDK } from '@tatumio/xlm'
 import { TatumXrpSDK } from '@tatumio/xrp'
 import { AxiosInstance } from 'axios'
 import CryptoJS from 'crypto-js'
-import AES from 'crypto-js/aes'
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'fs'
 import _ from 'lodash'
 import { homedir } from 'os'
@@ -18,6 +17,8 @@ import { question } from 'readline-sync'
 import { v4 as uuid } from 'uuid'
 import { Config, ConfigOption } from './config'
 import { PasswordType, Signature, StoreWalletValue, WalletsValidationOptions } from './interfaces'
+
+const { AES } = CryptoJS
 
 const ensurePathExists = (path: string) => {
   const dir = dirname(path)

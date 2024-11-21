@@ -77,56 +77,7 @@ const optionsConst = `
         --runOnce                         Run the daemon command one time. Check for a new transactions to sign once, and then exit the process. Daemon mode only.
 `
 
-const flagsConst = {
-  importMeta: import.meta,
-  flags: {
-    path: {
-      type: 'string',
-    },
-    chain: {
-      type: 'string',
-    },
-    apiKey: {
-      // @todo: mark as breaking change !!!
-      type: 'string',
-    },
-    testnet: {
-      type: 'boolean',
-      isRequired: true,
-    },
-    vgs: {
-      type: 'boolean',
-    },
-    aws: {
-      type: 'boolean',
-    },
-    azure: {
-      type: 'boolean',
-    },
-    period: {
-      type: 'number',
-      default: 5,
-    },
-    externalUrl: {
-      type: 'string',
-      isRequired: (f: any, input: readonly string[]) => input[0] === 'daemon' && !f.testnet,
-    },
-    envFile: {
-      // @todo: mark as breaking change !!!
-      type: 'string',
-    },
-    externalUrlMethod: {
-      type: 'string',
-      default: 'GET',
-    },
-    runOnce: {
-      type: 'boolean',
-      default: false,
-    },
-  },
-}
-
-const getPasswordType = (flags: Partial<{ aws: string; azure: string; vgs: string }>): PasswordType => {
+const getPasswordType = (flags: Partial<{ aws: boolean; azure: boolean; vgs: boolean }>): PasswordType => {
   if (flags.aws) {
     return PasswordType.AWS
   }
@@ -140,9 +91,58 @@ const getPasswordType = (flags: Partial<{ aws: string; azure: string; vgs: strin
 }
 
 const startup = async () => {
-  const { input: command, flags, help } = meow(optionsConst, flagsConst as any)
+  const { input: command, flags, help } = meow(optionsConst, {
+    importMeta: import.meta,
+    flags: {
+      path: {
+        type: 'string',
+      },
+      chain: {
+        type: 'string',
+      },
+      apiKey: {
+        // @todo: mark as breaking change !!!
+        type: 'string',
+      },
+      testnet: {
+        type: 'boolean',
+        isRequired: true,
+      },
+      vgs: {
+        type: 'boolean',
+      },
+      aws: {
+        type: 'boolean',
+      },
+      azure: {
+        type: 'boolean',
+      },
+      period: {
+        type: 'number',
+        default: 5,
+      },
+      externalUrl: {
+        type: 'string',
+        isRequired: (f: any, input: readonly string[]) => input[0] === 'daemon' && !f.testnet,
+      },
+      envFile: {
+        // @todo: mark as breaking change !!!
+        type: 'string',
+      },
+      externalUrlMethod: {
+        type: 'string',
+        default: 'GET',
+      },
+      runOnce: {
+        type: 'boolean',
+        default: false,
+      },
+    },
+  })
 
-  const envFilePath = (flags.envFile as string) ?? homedir() + '/.tatumrc/.env'
+
+
+  const envFilePath = (flags.envFile) ?? homedir() + '/.tatumrc/.env'
   if (existsSync(envFilePath)) {
     dotenv.config({ path: envFilePath })
   }

@@ -17,13 +17,7 @@
     "types": [
       "node",
       "jest"
-    ],
-    "esModuleInterop": true,
-    "inlineSourceMap": true,
-    "experimentalDecorators": true,
-    "resolveJsonModule": true,
-    "emitDecoratorMetadata": true,
-    "strictPropertyInitialization": false
+    ]
   },
   "exclude": [
     "node_modules",
