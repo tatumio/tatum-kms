@@ -374,7 +374,7 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
       }
     }   
     ```  
-* `checkconfig` shows environment variables for Tatum KMS (for debugging).
+* `checkconfig`(for debugging) shows environment variables for Tatum KMS.
 
     ```
     bash:$ tatum-kms checkconfig
@@ -385,6 +385,40 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
     Env file                         : .env
     TATUM_API_KEY                    : d2eb5c******************************
     ...
+    ```  
+* `report`(for debugging) shows report of system and requested wallets (+ warnings if they were found)
+
+    ```
+    bash:$ tatum-kms e3015fc0-2112-4c8a-b8bf-353b86f63ba5,11115fc0-2112-4c8a-b8bf-353b86f63111
+    {
+      "system": {
+        "kmsVersion": "7.0.6",
+        "nodeVersion": "v18.18.2",
+        "store": {
+          "type": "LOCAL",
+          "exists": true
+        }
+      },
+      "wallets": {
+        "e3015fc0-2112-4c8a-b8bf-353b86f63ba5": {
+          "type": "PRIVATE_KEY",
+          "chain": "BTC",
+          "testnet": true
+        },
+        "11115fc0-2112-4c8a-b8bf-353b86f63111": {
+          "type": "MNEMONIC",
+          "chain": "ETH",
+          "testnet": true,
+          "warnings": [
+            "No xpub found"
+          ]
+        }
+      },
+      "apiKey": "t-6111***************************************222222",
+      "warnings": [
+        "Wallets file was is not accessible"
+      ]
+    }
     ```    
 
 ## Common issues

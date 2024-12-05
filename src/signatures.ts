@@ -69,7 +69,12 @@ const getPrivateKeys = async (wallets: Wallet[]): Promise<string[]> => {
     )
   }
 
-  return [...new Set(keys)]
+  const result = [...new Set(keys)]
+  if (result.filter(key => !_.isString(key)).length > 0) {
+    console.error(`${new Date().toISOString()} - Some of private keys for transaction have incorrect format`)
+  }
+
+  return result
 }
 
 function validatePrivateKeyWasFound(wallet: any, blockchainSignature: TransactionKMS, privateKey: string | undefined) {
@@ -120,7 +125,10 @@ const processTransaction = async (
 
   const wallets = []
   for (const hash of blockchainSignature.hashes) {
-    wallets.push(await getWallet(hash, pwd, path, false))
+    const wallet = await getWallet(hash, pwd, path, false)
+    if (wallet) {
+      wallets.push(wallet)
+    }
   }
 
   const signatures = blockchainSignature.signatures ?? []
@@ -224,8 +232,8 @@ const processTransaction = async (
       if (blockchainSignature.withdrawalId) {
         txData = await signEthOffchainKMSTransaction(blockchainSignature, privateKey, testnet)
       } else {
-        const signKMSTransaction = await signEthKMSTransaction(blockchainSignature, privateKey);
-        const debugMode = Config.getValue(ConfigOption.TATUM_KMS_DEBUG_MODE) || 0;
+        const signKMSTransaction = await signEthKMSTransaction(blockchainSignature, privateKey)
+        const debugMode = Config.getValue(ConfigOption.TATUM_KMS_DEBUG_MODE) || 0
         if (debugMode === 'true' || debugMode === '1') {
           console.log('signEthKMSTransaction data', signKMSTransaction, blockchainSignature.id)
         }

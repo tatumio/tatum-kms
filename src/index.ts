@@ -14,6 +14,7 @@ import {
   getQuestion,
   getWallet,
   removeWallet,
+  report,
   setTatumKey,
   storePrivateKey,
   storeWallet,
@@ -23,6 +24,7 @@ import HttpAgent from 'agentkeepalive'
 import { existsSync } from 'fs'
 import * as process from 'process'
 import { homedir } from 'os'
+import { utils } from './utils'
 
 dotenv.config()
 
@@ -44,7 +46,7 @@ const axiosInstance = axios.create({
 const { input: command, flags, help } = meow(
   `
     Usage
-        $ tatum-kms command
+        $ tatum-kms <command>
 
     Commands
         daemon                            		Run as a daemon, which periodically checks for a new transactions to sign.
@@ -52,12 +54,16 @@ const { input: command, flags, help } = meow(
         generatemanagedwallet <chain>     		Generate wallet for a specific blockchain and add it to the managed wallets.
         storemanagedwallet <chain>        		Store mnemonic-based wallet for a specific blockchain and add it to the managed wallets.
         storemanagedprivatekey <chain>    		Store private key of a specific blockchain and add it to the managed wallets.
-        generatemanagedprivatekeybatch <chain> <cnt> 	generate and store "cnt" number of private keys for a specific blockchain. This operation is usefull, if you wanna pregenerate bigger amount of managed private keys for later use.
+        generatemanagedprivatekeybatch <chain> <cnt> 	Generate and store "cnt" number of private keys for a specific blockchain. This operation is usefull, if you wanna pregenerate bigger amount of managed private keys for later use.
         getprivatekey <signatureId> <i>   		Obtain managed wallet from wallet store and generate private key for given derivation index.
         getaddress <signatureId> <i>      		Obtain managed wallet from wallet store and generate address for given derivation index.
         getmanagedwallet <signatureId>    		Obtain managed wallet / private key from wallet store.
         removewallet <signatureId>        		Remove managed wallet from wallet store.
         export                          			Export all managed wallets.
+
+    Debugging
+        report                          	    Shows report of system and requested wallets (+ warnings if they were found)
+        checkconfig                           Shows environment variables for Tatum KMS.
 
     Options
         --api-key                         Tatum API Key to communicate with Tatum API. Daemon mode only.
@@ -66,8 +72,8 @@ const { input: command, flags, help } = meow(
         --period                          Period in seconds to check for new transactions to sign, defaults to 5 seconds. Daemon mode only.
         --chain                           Blockchains to check, separated by comma. Daemon mode only.
         --env-file                        Path to .env file to set vars.
-	      --aws                             Using AWS Secrets Manager (https://aws.amazon.com/secrets-manager/) as a secure storage of the password which unlocks the wallet file.
-	      --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
+        --aws                             Using AWS Secrets Manager (https://aws.amazon.com/secrets-manager/) as a secure storage of the password which unlocks the wallet file.
+        --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
         --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
         --externalUrl                     Pass in external url to check valid transaction. This parameter is mandatory for mainnet (if testnet is false).  Daemon mode only.
         --externalUrlMethod               Determine what http method to use when calling the url passed in the --externalUrl option. Accepts GET or POST. Defaults to GET method. Daemon mode only. 
@@ -115,7 +121,7 @@ const { input: command, flags, help } = meow(
       runOnce: {
         type: 'boolean',
         default: false,
-      }
+      },
     },
   },
 )
@@ -216,6 +222,14 @@ const startup = async () => {
       break
     case 'checkconfig':
       checkConfig(getPasswordType(), envFilePath, flags.path)
+      break
+    case 'report':
+      await report(
+        utils.csvToArray(command[1]),
+        getPasswordType(),
+        await getPassword(getPasswordType(), axiosInstance),
+        flags.path,
+      )
       break
     default:
       console.error('Unsupported command. Use tatum-kms --help for details.')
