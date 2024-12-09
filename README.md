@@ -389,7 +389,7 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
 * `report`(for debugging) shows report of system and requested wallets (+ warnings if they were found)
 
     ```
-    bash:$ tatum-kms e3015fc0-2112-4c8a-b8bf-353b86f63ba5,11115fc0-2112-4c8a-b8bf-353b86f63111
+    bash:$ tatum-kms report e3015fc0-2112-4c8a-b8bf-353b86f63ba5,11115fc0-2112-4c8a-b8bf-353b86f63111
     {
       "system": {
         "kmsVersion": "7.0.6",
