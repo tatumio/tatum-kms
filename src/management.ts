@@ -30,6 +30,8 @@ import {
 import { utils } from './utils'
 import semver from 'semver'
 
+import { version } from '../package.json'
+
 const ensurePathExists = (path: string) => {
   const dir = dirname(path)
   if (!existsSync(dir)) {
@@ -545,7 +547,7 @@ export const getQuestion = (q: string, e?: string) => {
 }
 
 const getKmsVersion = (): string => {
-  return process.env.npm_package_version ?? 'N/A'
+  return version || 'N/A'
 }
 
 const getPathToWallet = (path?: string) => {
