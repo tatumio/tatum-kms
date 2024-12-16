@@ -58,6 +58,7 @@ import { ExternalUrlMethod, Wallet } from './interfaces'
 import { getManagedWallets, getWallet, getWalletForSignature } from './management'
 import semver from 'semver'
 import { Config, ConfigOption } from './config'
+import { version } from '../package.json'
 
 const TATUM_URL: string = process.env.TATUM_API_URL || 'https://api.tatum.io'
 
@@ -516,7 +517,7 @@ const processVersionUpdateHeader = (versionUpdateHeader: string) => {
   versionUpdateState.level = parts[1]?.toUpperCase()?.trim()
   versionUpdateState.logFunction = versionUpdateState.level === 'ERROR' ? console.error : console.log
   versionUpdateState.message = parts[2]?.trim()
-  versionUpdateState.currentVersion = process.env.npm_package_version ?? ''
+  versionUpdateState.currentVersion = version ?? ''
 
   if (
     !versionUpdateState.running &&
@@ -562,7 +563,7 @@ const getPendingTransactions = async (
       {
         headers: {
           'x-api-key': Config.getValue(ConfigOption.TATUM_API_KEY),
-          'x-ttm-kms-client-version': process.env.npm_package_version ?? '',
+          'x-ttm-kms-client-version': version ?? '',
         },
       },
     )
