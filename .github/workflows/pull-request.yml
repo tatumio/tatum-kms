@@ -22,7 +22,7 @@ jobs:
 
       - run: yarn test
 
-      - run: npx github-actions-ctrf ctrf/ctrf-report.json
+      - run: npx github-actions-ctrf summary ctrf/ctrf-report.json  --pull-request
 
   docker-build:
         name: Build Docker Image
