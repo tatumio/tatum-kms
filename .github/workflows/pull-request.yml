@@ -22,9 +22,7 @@ jobs:
 
       - run: yarn test
 
-      - name: Generate Test Report
-        run: npx github-actions-ctrf ctrf/ctrf-report.yml
-        if: always()
+      - run: npx github-actions-ctrf ctrf/ctrf-report.yml
 
   docker-build:
         name: Build Docker Image
