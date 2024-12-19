@@ -16,7 +16,21 @@ import { dirname } from 'path'
 import { question } from 'readline-sync'
 import { v4 as uuid } from 'uuid'
 import { Config, ConfigOption } from './config'
-import { PasswordType, Signature, StoreWalletValue, WalletsValidationOptions } from './interfaces'
+import {
+  PasswordType,
+  Report,
+  ReportWallet,
+  Signature,
+  StoreWalletValue,
+  Wallet,
+  WalletStoreType,
+  WalletsValidationOptions,
+  WalletType,
+} from './interfaces'
+import { utils } from './utils'
+import semver from 'semver'
+
+import { version } from '../package.json'
 
 const { AES } = CryptoJS
 
@@ -398,57 +412,126 @@ export const removeWallet = async (id: string, pwd: string, path?: string) => {
   writeFileSync(pathToWallet, AES.encrypt(JSON.stringify(wallet), pwd).toString())
 }
 
-function parseWalletStoreName(pwdType: PasswordType): string {
+function parseWalletStoreName(pwdType: PasswordType): WalletStoreType {
   if (pwdType === PasswordType.CMD_LINE) {
-    return 'LOCAL'
+    return WalletStoreType.LOCAL
   } else if (pwdType === PasswordType.VGS) {
-    return 'VGS'
+    return WalletStoreType.VGS
   } else if (pwdType === PasswordType.AZURE) {
-    return 'AZURE'
+    return WalletStoreType.AZURE
   } else if (pwdType === PasswordType.AWS) {
-    return 'AWS'
+    return WalletStoreType.AWS
   }
-  return 'N/A'
-}
-
-function hidePassword(password: string | undefined, showSymbols = 6): string {
-  if (!password) {
-    return ''
-  }
-  if (password.length <= showSymbols) {
-    return '*'.repeat(password.length)
-  }
-  return password.slice(0, showSymbols) + '*'.repeat(password.length - showSymbols)
-}
-
-function secretValue(secretValue: string | undefined): string {
-  if (!secretValue) {
-    return 'N/A'
-  }
-  return hidePassword(secretValue)
+  return WalletStoreType.NA
 }
 
 export const checkConfig = (pwdType: PasswordType, envFile?: string, path?: string) => {
   const pathToWallet = path || homedir() + '/.tatumrc/wallet.dat'
-  console.log(`Version                          : ${process.env.npm_package_version ?? 'N/A'}`)
+  console.log(`Version                          : ${getKmsVersion()}`)
   console.log(`Wallet file path                 : ${pathToWallet}`)
   console.log(`Wallet exists                    : ${existsSync(pathToWallet)}`)
   console.log(`Wallet store type                : ${parseWalletStoreName(pwdType)}`)
   console.log(`Environment vars file            : ${envFile ?? 'N/A'}`)
-  console.log(`TATUM_API_KEY                    : ${secretValue(process.env.TATUM_API_KEY)}`)
-  console.log(`TATUM_KMS_PASSWORD               : ${secretValue(process.env.TATUM_KMS_PASSWORD)}`)
-  console.log(`TATUM_KMS_VGS_ALIAS              : ${secretValue(process.env.TATUM_KMS_VGS_ALIAS)}`)
-  console.log(`TATUM_KMS_VGS_USERNAME           : ${secretValue(process.env.TATUM_KMS_VGS_USERNAME)}`)
-  console.log(`TATUM_KMS_VGS_PASSWORD           : ${secretValue(process.env.TATUM_KMS_VGS_PASSWORD)}`)
-  console.log(`TATUM_KMS_AZURE_SECRETVERSION    : ${secretValue(process.env.TATUM_KMS_AZURE_SECRETVERSION)}`)
-  console.log(`TATUM_KMS_AZURE_SECRETNAME       : ${secretValue(process.env.TATUM_KMS_AZURE_SECRETNAME)}`)
-  console.log(`TATUM_KMS_AZURE_VAULTURL         : ${secretValue(process.env.TATUM_KMS_AZURE_VAULTURL)}`)
+  console.log(`TATUM_API_KEY                    : ${utils.hideApiKey(process.env.TATUM_API_KEY)}`)
+  console.log(`TATUM_KMS_PASSWORD               : ${utils.hidePassword(process.env.TATUM_KMS_PASSWORD)}`)
+  console.log(`TATUM_KMS_VGS_ALIAS              : ${utils.hidePassword(process.env.TATUM_KMS_VGS_ALIAS)}`)
+  console.log(`TATUM_KMS_VGS_USERNAME           : ${utils.hidePassword(process.env.TATUM_KMS_VGS_USERNAME)}`)
+  console.log(`TATUM_KMS_VGS_PASSWORD           : ${utils.hidePassword(process.env.TATUM_KMS_VGS_PASSWORD)}`)
+  console.log(`TATUM_KMS_AZURE_SECRETVERSION    : ${utils.hidePassword(process.env.TATUM_KMS_AZURE_SECRETVERSION)}`)
+  console.log(`TATUM_KMS_AZURE_SECRETNAME       : ${utils.hidePassword(process.env.TATUM_KMS_AZURE_SECRETNAME)}`)
+  console.log(`TATUM_KMS_AZURE_VAULTURL         : ${utils.hidePassword(process.env.TATUM_KMS_AZURE_VAULTURL)}`)
   console.log(`TATUM_KMS_AWS_REGION             : ${process.env.TATUM_KMS_AWS_REGION ?? 'N/A'}`)
-  console.log(`TATUM_KMS_AWS_ACCESS_KEY_ID      : ${secretValue(process.env.TATUM_KMS_AWS_ACCESS_KEY_ID)}`)
-  console.log(`TATUM_KMS_AWS_SECRET_ACCESS_KEY  : ${secretValue(process.env.TATUM_KMS_AWS_SECRET_ACCESS_KEY)}`)
-  console.log(`TATUM_KMS_AWS_SECRET_NAME        : ${secretValue(process.env.TATUM_KMS_AWS_SECRET_NAME)}`)
-  console.log(`TATUM_KMS_AWS_SECRET_KEY         : ${secretValue(process.env.TATUM_KMS_AWS_SECRET_KEY)}`)
+  console.log(`TATUM_KMS_AWS_ACCESS_KEY_ID      : ${utils.hidePassword(process.env.TATUM_KMS_AWS_ACCESS_KEY_ID)}`)
+  console.log(`TATUM_KMS_AWS_SECRET_ACCESS_KEY  : ${utils.hidePassword(process.env.TATUM_KMS_AWS_SECRET_ACCESS_KEY)}`)
+  console.log(`TATUM_KMS_AWS_SECRET_NAME        : ${utils.hidePassword(process.env.TATUM_KMS_AWS_SECRET_NAME)}`)
+  console.log(`TATUM_KMS_AWS_SECRET_KEY         : ${utils.hidePassword(process.env.TATUM_KMS_AWS_SECRET_KEY)}`)
   console.log(`TATUM_KMS_DEBUG_MODE             : ${process.env.TATUM_KMS_DEBUG_MODE ?? 'N/A'}`)
+}
+
+export const report = async (signatureIds: string[], passwordType: PasswordType, pwd: string, path?: string) => {
+  const systemWarnings: string[] = []
+  const walletReports: Record<string, ReportWallet> = {}
+  for (const signatureId of signatureIds) {
+    const wallet: Wallet = await getWallet(signatureId, pwd, path, false)
+    if (!wallet) {
+      systemWarnings.push(`No wallet found for signatureId: ${signatureId}`)
+      continue
+    }
+    if (!_.isObject(wallet)) {
+      systemWarnings.push(`Wallet for signatureId: ${signatureId} is not an object. Its type is: ${typeof wallet}`)
+      continue
+    }
+
+    const warnings: string[] = []
+    const type: WalletType = validateWallet(wallet, warnings)
+
+    walletReports[signatureId] = {
+      type: type,
+      chain: wallet.chain,
+      testnet: wallet.testnet,
+      warnings: warnings && warnings.length > 0 ? warnings : undefined,
+    }
+  }
+  const nodeVersion = validateNodeVersion(systemWarnings)
+
+  const report: Report = {
+    system: {
+      kmsVersion: getKmsVersion(),
+      nodeVersion: nodeVersion,
+      store: {
+        type: parseWalletStoreName(passwordType),
+        exists: existsSync(getPathToWallet(path)),
+      },
+    },
+    wallets: walletReports,
+    apiKey: utils.hideApiKey(process.env.TATUM_API_KEY),
+    warnings: systemWarnings && systemWarnings.length > 0 ? systemWarnings : undefined,
+  }
+
+  console.log(JSON.stringify(report, null, 2))
+}
+
+const validateWallet = (wallet: Wallet, warnings: string[]) => {
+  if (wallet.mnemonic) {
+    validateStringField(warnings, 'chain', wallet.chain)
+    validateStringField(warnings, 'mnemonic', wallet.mnemonic)
+    validateStringField(warnings, 'xpub', wallet.xpub)
+    validateBooleanField(warnings, 'testnet', wallet.testnet)
+    return WalletType.MNEMONIC
+  } else if (wallet.privateKey) {
+    validateStringField(warnings, 'chain', wallet.chain)
+    validateStringField(warnings, 'privateKey', wallet.privateKey)
+    validateBooleanField(warnings, 'testnet', wallet.testnet)
+    return WalletType.PRIVATE_KEY
+  } else if (wallet.secret) {
+    validateStringField(warnings, 'chain', wallet.chain)
+    validateStringField(warnings, 'secret', wallet.secret)
+    validateBooleanField(warnings, 'testnet', wallet.testnet)
+    return WalletType.SECRET
+  } else {
+    warnings.push('Wallet type is not recognized. Mnemonic, privateKey or secret are absent')
+    return WalletType.OTHER
+  }
+}
+
+const validateNodeVersion = (systemWarnings: string[]) => {
+  const nodeVersion = process.version
+  if (semver.lt(nodeVersion, '18.0.0')) {
+    systemWarnings.push(`Node version is lower than v18.x.x. Current version is: ${nodeVersion}`)
+  }
+  return nodeVersion
+}
+
+const validateStringField = (warnings: string[], fieldName: string, value: unknown) => {
+  if (!_.isString(value)) {
+    warnings.push(`Field '${fieldName}' is not string. Its type is: ${typeof value}`)
+  }
+}
+
+const validateBooleanField = (warnings: string[], fieldName: string, value: unknown) => {
+  if (!_.isBoolean(value)) {
+    warnings.push(`Field '${fieldName}' is not boolean. Its type is: ${typeof value}`)
+  }
 }
 
 export const setTatumKey = (apiKey: string) => {
@@ -464,4 +547,12 @@ export const getQuestion = (q: string, e?: string) => {
   return question(q, {
     hideEchoBack: true,
   })
+}
+
+const getKmsVersion = (): string => {
+  return version || 'N/A'
+}
+
+const getPathToWallet = (path?: string) => {
+  return path || homedir() + '/.tatumrc/wallet.dat'
 }

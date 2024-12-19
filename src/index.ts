@@ -14,6 +14,7 @@ import {
   getQuestion,
   getWallet,
   removeWallet,
+  report,
   setTatumKey,
   storePrivateKey,
   storeWallet,
@@ -23,6 +24,7 @@ import HttpAgent from 'agentkeepalive'
 import { existsSync } from 'fs'
 import * as process from 'process'
 import { homedir } from 'os'
+import { utils } from './utils'
 
 dotenv.config()
 
@@ -47,7 +49,7 @@ const axiosInstance = axios.create()
 
 const optionsConst = `
     Usage
-        $ tatum-kms command
+        $ tatum-kms <command>
 
     Commands
         daemon                            		Run as a daemon, which periodically checks for a new transactions to sign.
@@ -55,12 +57,16 @@ const optionsConst = `
         generatemanagedwallet <chain>     		Generate wallet for a specific blockchain and add it to the managed wallets.
         storemanagedwallet <chain>        		Store mnemonic-based wallet for a specific blockchain and add it to the managed wallets.
         storemanagedprivatekey <chain>    		Store private key of a specific blockchain and add it to the managed wallets.
-        generatemanagedprivatekeybatch <chain> <cnt> 	generate and store "cnt" number of private keys for a specific blockchain. This operation is usefull, if you wanna pregenerate bigger amount of managed private keys for later use.
+        generatemanagedprivatekeybatch <chain> <cnt> 	Generate and store "cnt" number of private keys for a specific blockchain. This operation is usefull, if you wanna pregenerate bigger amount of managed private keys for later use.
         getprivatekey <signatureId> <i>   		Obtain managed wallet from wallet store and generate private key for given derivation index.
         getaddress <signatureId> <i>      		Obtain managed wallet from wallet store and generate address for given derivation index.
         getmanagedwallet <signatureId>    		Obtain managed wallet / private key from wallet store.
         removewallet <signatureId>        		Remove managed wallet from wallet store.
         export                          			Export all managed wallets.
+
+    Debugging
+        report                          	    Shows report of system and requested wallets (+ warnings if they were found)
+        checkconfig                           Shows environment variables for Tatum KMS.
 
     Options
         --apiKey                          Tatum API Key to communicate with Tatum API. Daemon mode only.
@@ -224,6 +230,14 @@ const startup = async () => {
       break
     case 'checkconfig':
       checkConfig(getPasswordType(flags), envFilePath, flags.path as string)
+      break
+    case 'report':
+      await report(
+        utils.csvToArray(command[1]),
+        getPasswordType(),
+        await getPassword(getPasswordType(), axiosInstance),
+        flags.path,
+      )
       break
     default:
       console.error('Unsupported command. Use tatum-kms --help for details.')
