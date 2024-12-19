@@ -20,6 +20,8 @@ jobs:
 
       - run: yarn build
 
+      - run: yarn test
+
   docker-build:
         name: 🏗️ Build docker image
         runs-on: ubuntu-24.04

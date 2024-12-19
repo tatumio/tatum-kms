@@ -3,6 +3,7 @@
     "target": "es2021",
     "module": "esnext",
     "moduleResolution": "bundler",
+    "esModuleInterop": true,
     "outDir": "./dist",
     "strict": true,
     "skipLibCheck": true,
