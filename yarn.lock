@@ -9976,6 +9976,11 @@ jest-config@^29.7.0:
     slash "^3.0.0"
     strip-json-comments "^3.1.1"
 
+jest-ctrf-json-reporter@^0.0.9:
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/jest-ctrf-json-reporter/-/jest-ctrf-json-reporter-0.0.9.tgz#62081986f1c74caa22cca5c6df2384a1c1c51083"
+  integrity sha512-mxuUPZ/npUEoPyjE/vHQhdNVhuxV3NzdIPIWjoreW4rMisaDKlD7x4oERU4HEC9mlI7dQkwcOHo9BJzGIgieKw==
+
 jest-diff@^25.2.1:
   version "25.5.0"
   resolved "https://registry.yarnpkg.com/jest-diff/-/jest-diff-25.5.0.tgz#1dd26ed64f96667c068cef026b677dfa01afcfa9"

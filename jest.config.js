@@ -6,4 +6,8 @@ export default {
       '^.+\\.ts$': 'ts-jest',
     },
     testMatch: ['**/tests/**/*.test.ts'],
+    reporters: [
+        'default',
+        ['jest-ctrf-json-reporter', {}],
+      ],
   };

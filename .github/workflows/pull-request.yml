@@ -5,7 +5,7 @@ on:
       - master
 jobs:
   build:
-    name: 🏗️ Install and build
+    name: Build and Test
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
@@ -22,8 +22,12 @@ jobs:
 
       - run: yarn test
 
+      - name: Generate Test Report
+        run: npx github-actions-ctrf ctrf/ctrf-report.yml
+        if: always()
+
   docker-build:
-        name: 🏗️ Build docker image
+        name: Build Docker Image
         runs-on: ubuntu-24.04
         steps:
           - uses: actions/checkout@v4
