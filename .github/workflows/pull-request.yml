@@ -23,6 +23,8 @@ jobs:
       - run: yarn test
 
       - run: npx github-actions-ctrf summary ctrf/ctrf-report.json  --pull-request
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
 
   docker-build:
         name: Build Docker Image
