@@ -1,8 +1,5 @@
 FROM node:18.20.5-alpine3.20 AS builder
 
-# Create a non-root user and group
-RUN groupadd -r appgroup && useradd -r -g appgroup appuser
-
 # Create app directory
 WORKDIR /usr/src/app
 
@@ -11,6 +8,9 @@ RUN apk --virtual build-dependencies add \
     g++ make libusb-dev eudev-dev linux-headers \
 && ln -sf python3 /usr/bin/python \
 && ln -s /lib/arm-linux-gnueabihf/libusb-1.0.so.0 libusb-1.0.dll
+
+# Create a non-root user and group
+RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 COPY package*.json ./
 COPY yarn.lock ./
