@@ -1,7 +1,9 @@
 FROM node:18.20.5-alpine3.20 AS builder
 
-# Create app directory
+# Create a non-root user and group
+RUN groupadd -r appgroup && useradd -r -g appgroup appuser
 
+# Create app directory
 WORKDIR /usr/src/app
 
 RUN apk --virtual build-dependencies add \
@@ -24,6 +26,12 @@ COPY . .
 # Create build and link
 
 RUN yarn build
+
+# Change ownership of the application files to the non-root user
+RUN chown -R appuser:appgroup /usr/src/app
+
+# Switch to the non-root user
+USER appuser
 
 ENTRYPOINT ["node", "/usr/src/app/dist/index.js"]
 
