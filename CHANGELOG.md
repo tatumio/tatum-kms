@@ -1,4 +1,4 @@
-## [8.0.0] - January 2024
+## [8.0.0] - January 2025
 
 ### Updated
 

@@ -1,16 +1,13 @@
 FROM node:18.20.5-alpine3.20 AS builder
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /opt/app
 
 RUN apk --virtual build-dependencies add \
     git libtool curl jq py3-configobj py3-pip py3-setuptools python3 python3-dev \
     g++ make libusb-dev eudev-dev linux-headers \
 && ln -sf python3 /usr/bin/python \
 && ln -s /lib/arm-linux-gnueabihf/libusb-1.0.so.0 libusb-1.0.dll
-
-# Create a non-root user and group
-RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
 COPY package*.json ./
 COPY yarn.lock ./
@@ -24,15 +21,11 @@ RUN yarn cache clean \
 COPY . .
 
 # Create build and link
-
 RUN yarn build
 
-# Change ownership of the application files to the non-root user
-RUN chown -R appuser:appgroup /usr/src/app
-
 # Switch to the non-root user
-USER appuser
+USER node
 
-ENTRYPOINT ["node", "/usr/src/app/dist/index.js"]
+ENTRYPOINT ["node", "/opt/app/dist/index.js"]
 
 CMD ["daemon"]
