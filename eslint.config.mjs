@@ -8,7 +8,7 @@ export default tseslint.config(
   tseslint.configs.recommended,
   {
     rules: {
-      '@typescript-eslint/no-explicit-any': 'off' // TODO: replace any with types and remove this
+      '@typescript-eslint/no-explicit-any': 'off'
     }
   }
 );

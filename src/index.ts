@@ -107,7 +107,6 @@ const startup = async () => {
         type: 'string',
       },
       apiKey: {
-        // @todo: mark as breaking change !!!
         type: 'string',
       },
       testnet: {
@@ -132,7 +131,6 @@ const startup = async () => {
         isRequired: (f: any, input: readonly string[]) => input[0] === 'daemon' && !f.testnet,
       },
       envFile: {
-        // @todo: mark as breaking change !!!
         type: 'string',
       },
       externalUrlMethod: {
