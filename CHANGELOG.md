@@ -8,6 +8,7 @@
 
 - parameter `env-file` renamed to `envFile`
 - parameter `api-key` renamed to `apiKey`
+- Docker image now uses `node` user instead of `root`
 
 ### Added
 
