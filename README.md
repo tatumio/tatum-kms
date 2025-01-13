@@ -175,7 +175,7 @@ TATUM_KMS_DEBUG_MODE=true/false/1/0
     ```
     cd $HOME
     ```
-1. Use pre-created ```.env``` file to configure Tatum KMS via ```--envFile .env```:
+1. Use pre-created ```.env``` file to configure Tatum KMS via ```--env-file .env```:
 1. Map the Docker volume to the local storage (your home folder).
   
     For more details, refer to the [Docker user documentation](https://docs.docker.com/storage/volumes/).
@@ -184,9 +184,9 @@ TATUM_KMS_DEBUG_MODE=true/false/1/0
 
 To interactively communicate with KMS and run various [KMS commands](#kms-commands), use the `docker run` command:
 ```
-docker run -it --envFile .env -v $HOME:/root/.tatumrc tatumio/tatum-kms --help
-docker run -it --envFile .env -v $HOME:/root/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
-docker run -it --envFile .env -v $HOME:/root/.tatumrc tatumio/tatum-kms storemanagedprivatekey BTC
+docker run -it --env-file .env -v $HOME/.tatumrc:/home/node/.tatumrc tatumio/tatum-kms --help
+docker run -it --env-file .env -v $HOME/.tatumrc:/home/node/.tatumrc tatumio/tatum-kms generatemanagedwallet BTC
+docker run -it --env-file .env -v $HOME/.tatumrc:/home/node/.tatumrc tatumio/tatum-kms storemanagedprivatekey BTC
 ```
 
 >**NOTE:** You can shorten the command syntax and use it as follows:
@@ -223,7 +223,7 @@ tatum-kms daemon
 ```
 or
 ```
-docker run -d --envFile .env -v $HOME:/root/.tatumrc tatumio/tatum-kms daemon
+docker run -d --env-file .env -v $HOME:/root/.tatumrc tatumio/tatum-kms daemon
 ```
 When KMS runs as a daemon, it periodically checks for any new pending transactions to sign.
 
