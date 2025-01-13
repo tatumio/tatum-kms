@@ -1,17 +1,29 @@
 {
   "name": "@tatumio/tatum-kms",
-  "version": "7.0.8",
+  "version": "8.0.0",
   "description": "Tatum KMS - Key Management System for Tatum-powered apps.",
   "main": "dist/index.js",
   "types": "./dist/index.d.ts",
+  "type": "module",
   "engines": {
     "node": ">=18.x"
   },
+  "tsup": {
+    "entry": [
+      "src/index.ts"
+    ],
+    "sourcemap": false,
+    "clean": true,
+    "format": [
+      "esm"
+    ]
+  },
   "scripts": {
-    "build": "tsc",
-    "lint": "eslint . --ext .ts",
-    "run-daemon-testnet": "node dist/index.js daemon --testnet --api-key=YOUR_API_KEY --chain=ADA",
-    "start": "yarn build && node dist/index.js"
+    "build": "tsup",
+    "lint": "eslint .",
+    "test": "jest",
+    "run-daemon-testnet": "yarn start daemon --testnet --apiKey=YOUR_API_KEY --chain=ADA",
+    "start": "node --experimental-modules dist/index.js"
   },
   "files": [
     "dist/"
@@ -38,33 +50,42 @@
     "url": "https://github.com/tatumio/tatum-kms/issues"
   },
   "homepage": "https://github.com/tatumio/tatum-kms#readme",
+  "resolutions": {
+    "minimatch@*": "^9.0.5"
+  },
   "dependencies": {
-    "@aws-sdk/client-secrets-manager": "^3.445.0",
-    "@tatumio/cardano": "^2.2.72",
-    "@tatumio/celo": "^2.2.72",
-    "@tatumio/solana": "^2.2.72",
+    "@aws-sdk/client-secrets-manager": "^3.669.0",
+    "@tatumio/cardano": "^2.2.86",
+    "@tatumio/celo": "^2.2.86",
+    "@tatumio/solana": "^2.2.86",
     "@tatumio/tatum": "^1.37.50",
     "@tatumio/tatum-kcs": "^2.0.0-alpha.113",
-    "@tatumio/tron": "^2.2.72",
-    "@tatumio/xlm": "^2.2.72",
-    "@tatumio/xrp": "^2.2.72",
+    "@tatumio/tron": "^2.2.86",
+    "@tatumio/xlm": "^2.2.86",
+    "@tatumio/xrp": "^2.2.86",
     "agentkeepalive": "^4.5.0",
+    "axios": "^1.7.9",
     "crypto-js": "^4.2.0",
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.7",
     "lodash": "^4.17.21",
-    "meow": "^7.0.1",
+    "meow": "^13.2.0",
     "readline-sync": "^1.4.10",
-    "reflect-metadata": "^0.1.13",
-    "semver": "^7.5.4",
-    "uuid": "^9.0.1"
+    "semver": "^7.6.3",
+    "uuid": "^11.0.4"
   },
   "devDependencies": {
+    "@types/jest": "^29.5.14",
+    "@types/node": "^22.7.5",
     "@types/readline-sync": "^1.4.7",
-    "@types/semver": "^7.5.5",
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
-    "eslint": "^8.53.0",
-    "rimraf": "^5.0.5",
-    "typescript": "^5.2.2"
+    "@types/semver": "^7.5.8",
+    "@typescript-eslint/eslint-plugin": "8.19.0",
+    "@typescript-eslint/parser": "8.19.0",
+    "eslint": "^9.12.0",
+    "jest": "^29.7.0",
+    "jest-ctrf-json-reporter": "^0.0.9",
+    "ts-jest": "^29.2.5",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "typescript-eslint": "^8.15.0"
   }
 }
