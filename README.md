@@ -422,14 +422,25 @@ When KMS runs in [daemon mode](#run-kms-in-daemon-mode), use the following comma
     ```    
 
 ## Common issues
-**Error message:**
+### Mnemonic-related error
  ```
  error:: TypeError: Cannot read property 'mnemonic' of undefined
  ```
 
-**Possible reasons:**
+***Possible reasons:***
 
 * You used a mnemonic-based signature ID but the operation requires a signature ID based on the private key.
 * You correctly used the mnemonic-based signature ID but you did not specify the index of the private key.
 
     KMS generates the private key from the mnemonic that the signature ID holds. To generate the correct private key from the mnemonic, KMS needs to know the [index of the private key](#signature-ids-vs-private-keys-and-mnemonics) to generate (0-2^31-1).
+
+### KMS_FAILED_TX for confirmed transaction
+
+Successful transaction in block returned failed notification in KMS. 
+
+***Possible reason:***
+
+KMS waits for the transaction to be processed on-chain, but a timeout is set on the core API side (usually 10 seconds, though this can vary by chain). If the transaction isn’t confirmed within that window—perhaps due to a high network load—a notification about a failed transaction is issued. 
+
+However, the transaction may still be confirmed later and developers can implement additional logic to detect such delayed confirmations.
+
