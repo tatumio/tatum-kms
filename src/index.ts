@@ -170,6 +170,8 @@ const startup = async () => {
         flags.externalUrlMethod as ExternalUrlMethod,
         flags.period as number,
         flags.runOnce as boolean,
+        flags.wallet as string,
+        (flags.transactionIds as string)?.split(',') as string[],
       )
       break
     }
