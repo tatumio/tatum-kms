@@ -658,8 +658,8 @@ async function processPendingTransactions(
   const data = []
   for (const transaction of transactions) {
     try {
-      if (transactionIds && !transactionIds.includes(transaction.id)) {
-        console.log(`${new Date().toISOString()} - Tx was not processed: ${transaction.id} , expected one of : ${transactionIds.join(' , ')}`);
+      if (isTransactionIdExcluded(transaction)) {
+        console.log(`${new Date().toISOString()} - Tx was not processed: ${transaction.id} , expected one of : ${transactionIds?.join(' , ')}`);
         continue;
       }
       await processTransaction(transaction, testnet, pwd, axios, path, externalUrl, externalUrlMethod)
@@ -680,6 +680,10 @@ async function processPendingTransactions(
         `${new Date().toISOString()} - Error received from API /v3/tatum/kms/batch - ${(<any>e).config.data}`,
       )
     }
+  }
+
+  function isTransactionIdExcluded(transaction: TransactionKMS) {
+    return transactionIds && !transactionIds.includes(transaction.id)
   }
 }
 
