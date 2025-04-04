@@ -589,6 +589,8 @@ export const processSignatures = async (
   externalUrlMethod?: ExternalUrlMethod,
   period = 5,
   runOnce?: boolean,
+  wallet?: string,
+  transactionIds?: string[],
 ) => {
   let running = false
   const supportedChains = chains || [
@@ -617,7 +619,7 @@ export const processSignatures = async (
   ]
 
   if (runOnce) {
-    await processPendingTransactions(supportedChains, pwd, testnet, path, axios, externalUrl, externalUrlMethod)
+    await processPendingTransactions(supportedChains, pwd, testnet, path, axios, externalUrl, externalUrlMethod, wallet, transactionIds)
     return
   }
 
@@ -641,11 +643,13 @@ async function processPendingTransactions(
   axios: AxiosInstance,
   externalUrl: string | undefined,
   externalUrlMethod: ExternalUrlMethod | undefined,
+  wallet?: string,
+  transactionIds?: string[],
 ) {
   const transactions = []
   try {
     for (const supportedChain of supportedChains) {
-      const wallets = getManagedWallets(pwd, supportedChain, testnet, path)
+      const wallets = wallet ? [wallet] :getManagedWallets(pwd, supportedChain, testnet, path)
       transactions.push(...(await getPendingTransactions(axios, supportedChain, wallets)))
     }
   } catch (e) {
@@ -654,6 +658,10 @@ async function processPendingTransactions(
   const data = []
   for (const transaction of transactions) {
     try {
+      if (isTransactionIdExcluded(transaction, transactionIds)) {
+        console.log(`${new Date().toISOString()} - Tx was not processed: ${transaction.id} , expected one of : ${transactionIds?.join(' , ')}`);
+        continue;
+      }
       await processTransaction(transaction, testnet, pwd, axios, path, externalUrl, externalUrlMethod)
       console.log(`${new Date().toISOString()} - Tx was processed: ${transaction.id}`)
     } catch (e) {
@@ -673,6 +681,10 @@ async function processPendingTransactions(
       )
     }
   }
+}
+
+function isTransactionIdExcluded(transaction: TransactionKMS, transactionIds?: string[]) {
+  return transactionIds && !transactionIds.includes(transaction.id)
 }
 
 function isValidNumber(value: number | undefined): boolean {
