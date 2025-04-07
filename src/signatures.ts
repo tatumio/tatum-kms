@@ -649,7 +649,7 @@ async function processPendingTransactions(
   const transactions = []
   try {
     for (const supportedChain of supportedChains) {
-      const wallets = wallet ? [wallet] :getManagedWallets(pwd, supportedChain, testnet, path)
+      const wallets = wallet ? [wallet] : getManagedWallets(pwd, supportedChain, testnet, path)
       transactions.push(...(await getPendingTransactions(axios, supportedChain, wallets)))
     }
   } catch (e) {
@@ -659,7 +659,7 @@ async function processPendingTransactions(
   for (const transaction of transactions) {
     try {
       if (isTransactionIdExcluded(transaction, transactionIds)) {
-        console.log(`${new Date().toISOString()} - Tx was not processed: ${transaction.id} , expected one of : ${transactionIds?.join(' , ')}`);
+        console.log(`${new Date().toISOString()} - Tx processing skipped: ${transaction.id}. Expected one of: ${transactionIds?.join(', ')}`);
         continue;
       }
       await processTransaction(transaction, testnet, pwd, axios, path, externalUrl, externalUrlMethod)
