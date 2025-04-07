@@ -22,7 +22,7 @@ jobs:
 
       - run: yarn test
 
-      - run: npx github-actions-ctrf summary ctrf/ctrf-report.json  --pull-request
+      - run: npx github-actions-ctrf@0.0.54 summary ctrf/ctrf-report.json  --pull-request
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}      
 
@@ -37,4 +37,3 @@ jobs:
     
           - name: smoke test image
             run: docker run -i ${{secrets.DOCKER_USER}}/tatum-kms:latest --help
-    

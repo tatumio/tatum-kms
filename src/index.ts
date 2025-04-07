@@ -81,6 +81,8 @@ const optionsConst = `
         --externalUrl                     Pass in external url to check valid transaction. This parameter is mandatory for mainnet (if testnet is false).  Daemon mode only.
         --externalUrlMethod               Determine what http method to use when calling the url passed in the --externalUrl option. Accepts GET or POST. Defaults to GET method. Daemon mode only. 
         --runOnce                         Run the daemon command one time. Check for a new transactions to sign once, and then exit the process. Daemon mode only.
+        --wallets                         If runOnce enabled, fetch and sign only for these wallet ids.
+        --transactionIds                  If runOnce enabled, sign only transactions from defined comma-separated list.
 `
 
 const getPasswordType = (flags: Partial<{ aws: boolean; azure: boolean; vgs: boolean }>): PasswordType => {
@@ -141,10 +143,14 @@ const startup = async () => {
         type: 'boolean',
         default: false,
       },
+      wallets: {
+        type: 'string'
+      },
+      transactionIds: {
+        type: 'string',
+      },
     },
   })
-
-
 
   const envFilePath = (flags.envFile) ?? homedir() + '/.tatumrc/.env'
   if (existsSync(envFilePath)) {
@@ -170,6 +176,8 @@ const startup = async () => {
         flags.externalUrlMethod as ExternalUrlMethod,
         flags.period as number,
         flags.runOnce as boolean,
+        (flags.wallets as string)?.split(','),
+        (flags.transactionIds as string)?.split(','),
       )
       break
     }
@@ -232,8 +240,8 @@ const startup = async () => {
     case 'report':
       await report(
         utils.csvToArray(command[1]),
-        getPasswordType(),
-        await getPassword(getPasswordType(), axiosInstance),
+        getPasswordType(flags),
+        await getPassword(getPasswordType(flags), axiosInstance),
         flags.path,
       )
       break

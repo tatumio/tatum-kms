@@ -1,3 +1,9 @@
+## [8.0.1] - April 2025
+
+### Added
+
+- Filtering for "run once" mode, configuration of wallets and transaction ids to fetch and sign
+
 ## [8.0.0] - January 2025
 
 ### Updated
