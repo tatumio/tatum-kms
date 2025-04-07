@@ -2,7 +2,7 @@
 
 ### Added
 
-- Filtering for "run once" mode, configuration of wallet and transaction ids to fetch and sign
+- Filtering for "run once" mode, configuration of wallets and transaction ids to fetch and sign
 
 ## [8.0.0] - January 2025
 

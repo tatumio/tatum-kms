@@ -589,7 +589,7 @@ export const processSignatures = async (
   externalUrlMethod?: ExternalUrlMethod,
   period = 5,
   runOnce?: boolean,
-  wallet?: string,
+  wallets?: string[],
   transactionIds?: string[],
 ) => {
   let running = false
@@ -619,7 +619,7 @@ export const processSignatures = async (
   ]
 
   if (runOnce) {
-    await processPendingTransactions(supportedChains, pwd, testnet, path, axios, externalUrl, externalUrlMethod, wallet, transactionIds)
+    await processPendingTransactions(supportedChains, pwd, testnet, path, axios, externalUrl, externalUrlMethod, wallets, transactionIds)
     return
   }
 
@@ -643,14 +643,14 @@ async function processPendingTransactions(
   axios: AxiosInstance,
   externalUrl: string | undefined,
   externalUrlMethod: ExternalUrlMethod | undefined,
-  wallet?: string,
+  wallets?: string[],
   transactionIds?: string[],
 ) {
   const transactions = []
   try {
     for (const supportedChain of supportedChains) {
-      const wallets = wallet ? [wallet] : getManagedWallets(pwd, supportedChain, testnet, path)
-      transactions.push(...(await getPendingTransactions(axios, supportedChain, wallets)))
+      const walletsToProcess = wallets || getManagedWallets(pwd, supportedChain, testnet, path)
+      transactions.push(...(await getPendingTransactions(axios, supportedChain, walletsToProcess)))
     }
   } catch (e) {
     console.error(e)
