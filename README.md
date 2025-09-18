@@ -20,7 +20,6 @@ KMS supports the following blockchains:
 * Dogecoin (DOGE)
 * Elrond (EGLD)
 * Ethereum (ETH) including ERC-20 tokens
-* Flow (FLOW)
 * Harmony (ONE)
 * Klaytn (KLAY)
 * KuCoin Community Chain (KCS)

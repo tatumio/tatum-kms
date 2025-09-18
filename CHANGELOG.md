@@ -1,3 +1,9 @@
+## [8.0.2] - September 2025
+
+### Removed
+
+- Removed FLOW support
+
 ## [8.0.1] - April 2025
 
 ### Added

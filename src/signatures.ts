@@ -12,8 +12,6 @@ import {
   dogeBroadcast,
   egldBroadcast,
   ethBroadcast,
-  flowBroadcastTx,
-  flowSignKMSTransaction,
   generatePrivateKeyFromMnemonic,
   klaytnBroadcast,
   ltcBroadcast,
@@ -242,28 +240,6 @@ const processTransaction = async (
         return
       }
       break
-    }
-    case Currency.FLOW: {
-      const wallet = wallets[0]
-      const secret =
-        wallet.mnemonic && !_.isNil(blockchainSignature.index)
-          ? await generatePrivateKeyFromMnemonic(
-              Currency.FLOW,
-              wallet.testnet,
-              wallet.mnemonic,
-              blockchainSignature.index,
-            )
-          : wallet.privateKey
-      validatePrivateKeyWasFound(wallet, blockchainSignature, secret)
-      const u = blockchainSignature.serializedTransaction
-      const r = JSON.parse(u)
-      r.body.privateKey = secret
-      blockchainSignature.serializedTransaction = JSON.stringify(r)
-      await flowBroadcastTx(
-        (await flowSignKMSTransaction(blockchainSignature, [secret], testnet))?.txId,
-        blockchainSignature.id,
-      )
-      return
     }
     case Currency.ONE: {
       const wallet = wallets[0]
@@ -609,7 +585,6 @@ export const processSignatures = async (
     Currency.SOL,
     Currency.TRON,
     Currency.BNB,
-    Currency.FLOW,
     Currency.XDC,
     Currency.EGLD,
     Currency.ONE,
