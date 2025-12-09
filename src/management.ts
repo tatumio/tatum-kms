@@ -1,4 +1,5 @@
 import { GetSecretValueCommand, SecretsManagerClient } from '@aws-sdk/client-secrets-manager'
+import { SecretManagerServiceClient } from '@google-cloud/secret-manager';
 import { TatumCardanoSDK } from '@tatumio/cardano'
 import { TatumCeloSDK } from '@tatumio/celo'
 import { TatumSolanaSDK } from '@tatumio/solana'
@@ -94,6 +95,20 @@ export const getPassword = async (pwdType: PasswordType, axiosInstance: AxiosIns
     ).data?.data[0]?.value
     if (!pwd) {
       console.error('VGS Vault alias does not exists.')
+      process.exit(-1)
+      return
+    }
+    return pwd
+  } else if (pwdType === PasswordType.GCP) {
+    const client = new SecretManagerServiceClient();
+    const projectId = Config.getValue(ConfigOption.GCP_PROJECT_ID)
+    const secretName = Config.getValue(ConfigOption.GCP_SECRET_NAME)
+    const secretVersion = Config.getValue(ConfigOption.GCP_SECRET_VERSION)
+    const fullSecretName = `projects/${projectId}/secrets/${secretName}/versions/${secretVersion}`;
+    const [result] = await client.accessSecretVersion({ name: fullSecretName });
+    const pwd = result?.payload?.data?.toString('utf8') ?? '';
+    if (!pwd) {
+      console.error('GCP secret does not exists.')
       process.exit(-1)
       return
     }
@@ -445,6 +460,9 @@ export const checkConfig = (pwdType: PasswordType, envFile?: string, path?: stri
   console.log(`TATUM_KMS_AWS_SECRET_ACCESS_KEY  : ${utils.hidePassword(process.env.TATUM_KMS_AWS_SECRET_ACCESS_KEY)}`)
   console.log(`TATUM_KMS_AWS_SECRET_NAME        : ${utils.hidePassword(process.env.TATUM_KMS_AWS_SECRET_NAME)}`)
   console.log(`TATUM_KMS_AWS_SECRET_KEY         : ${utils.hidePassword(process.env.TATUM_KMS_AWS_SECRET_KEY)}`)
+  console.log(`TATUM_KMS_GCP_PROJECT_ID         : ${utils.hidePassword(process.env.TATUM_KMS_GCP_PROJECT_ID)}`)
+  console.log(`TATUM_KMS_GCP_SECRET_NAME        : ${utils.hidePassword(process.env.TATUM_KMS_GCP_SECRET_NAME)}`)
+  console.log(`TATUM_KMS_GCP_SECRET_VERSION     : ${utils.hidePassword(process.env.TATUM_KMS_GCP_SECRET_VERSION)}`)
   console.log(`TATUM_KMS_DEBUG_MODE             : ${process.env.TATUM_KMS_DEBUG_MODE ?? 'N/A'}`)
 }
 

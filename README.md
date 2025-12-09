@@ -41,7 +41,7 @@ The password that is used to encrypt the wallet storage file is the most sensiti
 
 You can enter the password into KMS using either of the following methods:
 * Enter the password manually at KMS start. The password is stored in the memory only during the daemon runtime.
-* Store the password in [VGS Vault](https://www.verygoodsecurity.com/), [Microsoft Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/), or [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/). The password is obtained during KMS start and is stored in the memory only during the daemon runtime.
+* Store the password in [VGS Vault](https://www.verygoodsecurity.com/), [Microsoft Azure Key Vault](https://azure.microsoft.com/en-us/services/key-vault/), [AWS Secrets Manager](https://aws.amazon.com/secrets-manager/), or [GCP Secret Manager](https://cloud.google.com/security/products/secret-manager/). The password is obtained during KMS start and is stored in the memory only during the daemon runtime.
 
 In this setup, the private keys and mnemonics never leave your perimeter. If someone gains unauthorized access to the file system, they cannot get the private keys and mnemonics because they are encrypted.
 
@@ -118,7 +118,7 @@ Create file `.env` file with the  following parameters and replace the placehold
 ```
 # required
 TATUM_API_KEY=XXXXX-YOUR-API-KEY
-# one of the following setups is required: password, VGS, Azure, or AWS
+# one of the following setups is required: password, VGS, Azure, AWS, or GCP
 # password setup
 TATUM_KMS_PASSWORD=XXXXPASSWORD
 # VGS setup
@@ -135,6 +135,11 @@ TATUM_KMS_AWS_SECRET_NAME=YOUR_KMS_SECRET_NAME
 TATUM_KMS_AWS_ACCESS_KEY_ID=AKIAYWGKDBVRGMCASWIE
 TATUM_KMS_AWS_SECRET_ACCESS_KEY=ZxDq62BZGyGe2CzwnVjL/IH8NnJG5Fu0isN7wev9
 TATUM_KMS_AWS_SECRET_KEY=pwd
+# GCP setup
+TATUM_KMS_GCP_PROJECT_ID=XXXXPROJECT_ID
+TATUM_KMS_GCP_SECRET_NAME=YOUR_KMS_SECRET_NAME
+TATUM_KMS_GCP_SECRET_VERSION=latest
+
 # Debug mode. if true/1, it will expose data from signEthKMSTransaction() method to the console
 TATUM_KMS_DEBUG_MODE=true/false/1/0
 ```

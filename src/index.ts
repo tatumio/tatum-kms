@@ -78,6 +78,7 @@ const optionsConst = `
         --aws                             Using AWS Secrets Manager (https://aws.amazon.com/secrets-manager/) as a secure storage of the password which unlocks the wallet file.
         --vgs                             Using VGS (https://verygoodsecurity.com) as a secure storage of the password which unlocks the wallet file.
         --azure                           Using Azure Vault (https://azure.microsoft.com/en-us/services/key-vault/) as a secure storage of the password which unlocks the wallet file.
+        --gcp                             Using GCP Secret Manager (https://cloud.google.com/security/products/secret-manager) as a secure storage of the password which unlocks the wallet file.
         --externalUrl                     Pass in external url to check valid transaction. This parameter is mandatory for mainnet (if testnet is false).  Daemon mode only.
         --externalUrlMethod               Determine what http method to use when calling the url passed in the --externalUrl option. Accepts GET or POST. Defaults to GET method. Daemon mode only. 
         --runOnce                         Run the daemon command one time. Check for a new transactions to sign once, and then exit the process. Daemon mode only.
@@ -85,7 +86,7 @@ const optionsConst = `
         --transactionIds                  If runOnce enabled, sign only transactions from defined comma-separated list.
 `
 
-const getPasswordType = (flags: Partial<{ aws: boolean; azure: boolean; vgs: boolean }>): PasswordType => {
+const getPasswordType = (flags: Partial<{ aws: boolean; azure: boolean; vgs: boolean; gcp: boolean }>): PasswordType => {
   if (flags.aws) {
     return PasswordType.AWS
   }
@@ -94,6 +95,9 @@ const getPasswordType = (flags: Partial<{ aws: boolean; azure: boolean; vgs: boo
   }
   if (flags.vgs) {
     return PasswordType.VGS
+  }
+  if (flags.gcp) {
+    return PasswordType.GCP
   }
   return PasswordType.CMD_LINE
 }
@@ -122,6 +126,9 @@ const startup = async () => {
         type: 'boolean',
       },
       azure: {
+        type: 'boolean',
+      },
+      gcp: {
         type: 'boolean',
       },
       period: {

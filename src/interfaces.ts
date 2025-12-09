@@ -5,6 +5,7 @@ export enum PasswordType {
   AWS,
   AZURE,
   VGS,
+  GCP,
 }
 
 export interface Signature {

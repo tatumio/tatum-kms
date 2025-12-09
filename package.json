@@ -55,6 +55,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-secrets-manager": "^3.669.0",
+    "@google-cloud/secret-manager": "^6.1.1",
     "@tatumio/cardano": "^2.2.86",
     "@tatumio/celo": "^2.2.86",
     "@tatumio/solana": "^2.2.86",

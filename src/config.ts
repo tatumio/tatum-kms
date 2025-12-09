@@ -14,6 +14,9 @@ export enum ConfigOption {
   AWS_SECRET_KEY,
   AWS_ACCESS_KEY_ID,
   AWS_SECRET_ACCESS_KEY,
+  GCP_PROJECT_ID,
+  GCP_SECRET_NAME,
+  GCP_SECRET_VERSION,
   TATUM_KMS_DEBUG_MODE,
 }
 
@@ -75,6 +78,19 @@ export class Config {
       environmentKey: 'TATUM_KMS_AWS_SECRET_KEY',
       question:
         'Enter AWS Secret key from you stored secret to obtain password from AWS Secrets Manager (or set env var TATUM_KMS_AWS_SECRET_KEYa):',
+    },
+    [ConfigOption.GCP_PROJECT_ID]: {
+      environmentKey: 'TATUM_KMS_GCP_PROJECT_ID',
+      question: 'Enter GCP Project ID to obtain secret from GCP Secret Manager (or set env var TATUM_KMS_GCP_PROJECT_ID):',
+    },
+    [ConfigOption.GCP_SECRET_NAME]: {
+      environmentKey: 'TATUM_KMS_GCP_SECRET_NAME',
+      question: 'Enter Secret name to obtain from GCP Secret Manager (or set env var TATUM_KMS_GCP_SECRET_NAME):',
+    },
+    [ConfigOption.GCP_SECRET_VERSION]: {
+      environmentKey: 'TATUM_KMS_GCP_SECRET_VERSION',
+      question:
+        'Enter Secret version to obtain secret from GCP Secret Manager (or set env var TATUM_KMS_GCP_SECRET_VERSION):',
     },
     [ConfigOption.TATUM_KMS_DEBUG_MODE]: {
       environmentKey: 'TATUM_KMS_DEBUG_MODE',
